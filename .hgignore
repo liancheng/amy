@@ -1,3 +1,5 @@
 syntax: glob
 
 *.dblite
+build
+doc/html
