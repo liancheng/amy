@@ -1,7 +1,17 @@
-env = Environment(CFLAGS='-ggdb')
+import subprocess
 
-env.Program(target='test',
-            source=Glob('*.cpp'),
-            LIBS=['gtest', 'gflags', 'glog', 'boost_filesystem', 'boost_system'])
+Import('env')
+
+program = env.Program(target='test',
+                      source=Glob('*.cpp'),
+                      LIBS=['gtest',
+                            'gflags',
+                            'glog',
+                            'boost_filesystem',
+                            'boost_system'])
+
+env.Command(target='dummy',
+            source=program,
+            action=program[0].abspath)
 
 # vim:ft=python ts=4 sw=4 et
