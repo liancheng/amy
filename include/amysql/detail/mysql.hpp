@@ -3,11 +3,11 @@
 
 #ifdef WIN32
 #   include <winsock2.h>
-#   include <mysql.h>
-#   include <errmsg.h>
+#   include <mysql/mysql.h>
+#   include <mysql/errmsg.h>
 #else
-#   include <mysql.h>
-#   include <errmsg.h>
+#   include <mysql/mysql.h>
+#   include <mysql/errmsg.h>
 #endif  //  #ifdef WIN32
 
 #endif  //  __AMYSQL_DETAIL_MYSQL_HPP__
