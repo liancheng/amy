@@ -8,7 +8,8 @@ program = env.Program(target='test',
                             'gflags',
                             'glog',
                             'boost_filesystem',
-                            'boost_system'])
+                            'boost_system',
+                            'mysqlclient_r'])
 
 env.Command(target='dummy',
             source=program,
