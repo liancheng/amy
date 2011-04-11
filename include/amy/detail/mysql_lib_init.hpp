@@ -1,14 +1,14 @@
-#ifndef __AMYSQL_DETAIL_MYSQL_LIB_INIT_HPP__
-#define __AMYSQL_DETAIL_MYSQL_LIB_INIT_HPP__
+#ifndef __AMY_DETAIL_MYSQL_LIB_INIT_HPP__
+#define __AMY_DETAIL_MYSQL_LIB_INIT_HPP__
 
-#include <amysql/detail/mysql.hpp>
-#include <amysql/error.hpp>
+#include <amy/detail/mysql.hpp>
+#include <amy/error.hpp>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/system/system_error.hpp>
 #include <boost/throw_exception.hpp>
 
-namespace amysql {
+namespace amy {
 namespace detail {
 
 class mysql_lib_init {
@@ -58,8 +58,8 @@ private:
 };  //  class mysql_lib_init
 
 }   //  namespace detail
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_DETAIL_MYSQL_LIB_INIT_HPP__
+#endif  //  __AMY_DETAIL_MYSQL_LIB_INIT_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

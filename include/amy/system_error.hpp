@@ -1,9 +1,9 @@
-#ifndef __AMYSQL_SYSTEM_ERROR_HPP__
-#define __AMYSQL_SYSTEM_ERROR_HPP__
+#ifndef __AMY_SYSTEM_ERROR_HPP__
+#define __AMY_SYSTEM_ERROR_HPP__
 
 #include <boost/system/system_error.hpp>
 
-namespace amysql {
+namespace amy {
 
 class system_error : public boost::system::system_error {
 public:
@@ -29,8 +29,8 @@ private:
 
 };  //  class system_error
 
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_SYSTEM_ERROR_HPP__
+#endif  //  __AMY_SYSTEM_ERROR_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

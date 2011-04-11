@@ -1,15 +1,15 @@
-#ifndef __AMYSQL_BASIC_CONNECTOR_HPP__
-#define __AMYSQL_BASIC_CONNECTOR_HPP__
+#ifndef __AMY_BASIC_CONNECTOR_HPP__
+#define __AMY_BASIC_CONNECTOR_HPP__
 
-#include <amysql/auth_info.hpp>
-#include <amysql/detail/throw_error.hpp>
+#include <amy/auth_info.hpp>
+#include <amy/detail/throw_error.hpp>
 
 #include <boost/config.hpp>
 #include <boost/asio/basic_io_object.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/system/system_error.hpp>
 
-namespace amysql {
+namespace amy {
 
 template<typename MySQLService>
 class basic_connector : public boost::asio::basic_io_object<MySQLService> {
@@ -30,8 +30,8 @@ private:
 
 };  //  class basic_connector
 
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_BASIC_CONNECTOR_HPP__
+#endif  //  __AMY_BASIC_CONNECTOR_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

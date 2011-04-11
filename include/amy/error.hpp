@@ -1,12 +1,12 @@
-#ifndef __AMYSQL_ERROR_HPP__
-#define __AMYSQL_ERROR_HPP__
+#ifndef __AMY_ERROR_HPP__
+#define __AMY_ERROR_HPP__
 
-#include <amysql/detail/mysql.hpp>
-#include <amysql/detail/mysql_types.hpp>
+#include <amy/detail/mysql.hpp>
+#include <amy/detail/mysql_types.hpp>
 
 #include <boost/system/error_code.hpp>
 
-namespace amysql {
+namespace amy {
 namespace error {
 
 enum client_errors {
@@ -229,7 +229,7 @@ public:
     }
 
     std::string message(int) const {
-        return "** use amysql::basic_connector<T>::message() instead **";
+        return "** use amy::basic_connector<t>::message() instead **";
     }
 
 };  //  class client_category
@@ -279,19 +279,19 @@ inline boost::system::error_category const& get_misc_category() {
 }
 
 }   //  namespace error
-}   //  namespace amysql
+}   //  namespace amy
 
 namespace boost {
 namespace system {
 
 template<>
-struct is_error_code_enum<amysql::error::client_errors> {
+struct is_error_code_enum<amy::error::client_errors> {
     static const bool value = true;
 
 };  //  struct is_error_code_enum
 
 template<>
-struct is_error_code_enum<amysql::error::misc_errors> {
+struct is_error_code_enum<amy::error::misc_errors> {
     static const bool value = true;
 
 };  //  struct is_error_code_enum
@@ -299,7 +299,7 @@ struct is_error_code_enum<amysql::error::misc_errors> {
 }   //  namespace system
 }   //  namespace boost
 
-namespace amysql {
+namespace amy {
 namespace error {
 
 inline boost::system::error_code make_error_code(client_errors e) {
@@ -313,8 +313,8 @@ inline boost::system::error_code make_error_code(misc_errors e) {
 }
 
 }   //  namespace error
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_ERROR_HPP__
+#endif  //  __AMY_ERROR_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

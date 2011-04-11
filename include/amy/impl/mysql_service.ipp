@@ -1,7 +1,7 @@
-#ifndef __AMYSQL_IMPL_MYSQL_SERVICE_IPP__
-#define __AMYSQL_IMPL_MYSQL_SERVICE_IPP__
+#ifndef __AMY_IMPL_MYSQL_SERVICE_IPP__
+#define __AMY_IMPL_MYSQL_SERVICE_IPP__
 
-namespace amysql {
+namespace amy {
 
 inline mysql_service::implementation::implementation() :
     flags(0),
@@ -44,8 +44,8 @@ inline mysql_service::native_type
     return &impl.mysql;
 }
 
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_IMPL_MYSQL_SERVICE_IPP__
+#endif  //  __AMY_IMPL_MYSQL_SERVICE_IPP__
 
 // vim:ft=cpp ts=4 sw=4 et
