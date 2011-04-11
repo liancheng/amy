@@ -1,9 +1,9 @@
-#ifndef __AMYSQL_DETAIL_MYSQL_OPTION_HPP__
-#define __AMYSQL_DETAIL_MYSQL_OPTION_HPP__
+#ifndef __AMY_DETAIL_MYSQL_OPTION_HPP__
+#define __AMY_DETAIL_MYSQL_OPTION_HPP__
 
-#include <amysql/detail/mysql_types.hpp>
+#include <amy/detail/mysql_types.hpp>
 
-namespace amysql {
+namespace amy {
 namespace detail {
 namespace mysql_option {
 
@@ -97,6 +97,6 @@ public:
 
 }   //  namespace mysql_option
 }   //  namespace detail
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_DETAIL_MYSQL_OPTION_HPP__
+#endif  //  __AMY_DETAIL_MYSQL_OPTION_HPP__

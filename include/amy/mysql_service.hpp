@@ -1,12 +1,12 @@
-#ifndef __AMYSQL_MYSQL_SERVICE_HPP__
-#define __AMYSQL_MYSQL_SERVICE_HPP__
+#ifndef __AMY_MYSQL_SERVICE_HPP__
+#define __AMY_MYSQL_SERVICE_HPP__
 
-#include <amysql/detail/mysql_lib_init.hpp>
-#include <amysql/detail/mysql_types.hpp>
-#include <amysql/detail/service_base.hpp>
-#include <amysql/endpoint_traits.hpp>
+#include <amy/detail/mysql_lib_init.hpp>
+#include <amy/detail/mysql_types.hpp>
+#include <amy/detail/service_base.hpp>
+#include <amy/endpoint_traits.hpp>
 
-namespace amysql {
+namespace amy {
 
 class mysql_service : public detail::service_base<mysql_service> {
 public:
@@ -61,10 +61,10 @@ struct mysql_service::implementation {
 
 };  //  struct mysql_service::implementation
 
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_MYSQL_SERVICE_HPP__
+#endif  //  __AMY_MYSQL_SERVICE_HPP__
 
-#include <amysql/impl/mysql_service.ipp>
+#include <amy/impl/mysql_service.ipp>
 
 // vim:ft=cpp ts=4 sw=4 et

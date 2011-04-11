@@ -1,10 +1,10 @@
-#ifndef __AMYSQL_DETAIL_ENDPOINT_TRAITS_HPP__
-#define __AMYSQL_DETAIL_ENDPOINT_TRAITS_HPP__
+#ifndef __AMY_DETAIL_ENDPOINT_TRAITS_HPP__
+#define __AMY_DETAIL_ENDPOINT_TRAITS_HPP__
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/local/stream_protocol.hpp>
 
-namespace amysql {
+namespace amy {
 
 using namespace boost::asio;
 
@@ -87,8 +87,8 @@ private:
 
 #endif  //  if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
 
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_DETAIL_ENDPOINT_TRAITS_HPP__
+#endif  //  __AMY_DETAIL_ENDPOINT_TRAITS_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

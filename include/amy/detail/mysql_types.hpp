@@ -1,11 +1,11 @@
-#ifndef __AMYSQL_DETAIL_MYSQL_TYPES_HPP__
-#define __AMYSQL_DETAIL_MYSQL_TYPES_HPP__
+#ifndef __AMY_DETAIL_MYSQL_TYPES_HPP__
+#define __AMY_DETAIL_MYSQL_TYPES_HPP__
 
-#include <amysql/detail/mysql.hpp>
+#include <amy/detail/mysql.hpp>
 
 #include <boost/cstdint.hpp>
 
-namespace amysql {
+namespace amy {
 namespace detail {
 
 typedef MYSQL  mysql_type;
@@ -67,7 +67,7 @@ const int set_charset_name        = MYSQL_SET_CHARSET_NAME;
 const int shared_memory_base_name = MYSQL_SHARED_MEMORY_BASE_NAME;
 
 }   //  namespace detail
-}   //  namespace amysql
+}   //  namespace amy
 
 #ifdef WIN32
 
@@ -104,4 +104,4 @@ using boost::uintmax_t;
 
 #endif  //  ifdef WIN32
 
-#endif  //  __AMYSQL_DETAIL_MYSQL_TYPES_HPP__
+#endif  //  __AMY_DETAIL_MYSQL_TYPES_HPP__

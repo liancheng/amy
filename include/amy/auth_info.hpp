@@ -1,11 +1,11 @@
-#ifndef __AMYSQL_AUTH_INFO_HPP__
-#define __AMYSQL_AUTH_INFO_HPP__
+#ifndef __AMY_AUTH_INFO_HPP__
+#define __AMY_AUTH_INFO_HPP__
 
 #include <boost/optional.hpp>
 
 #include <string>
 
-namespace amysql {
+namespace amy {
 
 /// The \c auth_info class wraps MySQL authentication information.
 /**
@@ -85,8 +85,8 @@ private:
 
 };  //  class auth_info
 
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_AUTH_INFO_HPP__
+#endif  //  __AMY_AUTH_INFO_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et
