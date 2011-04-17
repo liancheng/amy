@@ -2,6 +2,7 @@
 #define __AMY_BASIC_CONNECTOR_HPP__
 
 #include <amy/auth_info.hpp>
+#include <amy/client_flags.hpp>
 #include <amy/detail/throw_error.hpp>
 
 #include <boost/config.hpp>
@@ -26,7 +27,55 @@ public:
         return this->service.native(this->implementation);
     }
 
-private:
+    void open() {
+        boost::system::error_code ec;
+        detail::throw_error(open(ec), &(this->implementation.mysql));
+    }
+
+    boost::system::error_code open(boost::system::error_code& ec) {
+        return this->service.open(this->implementation, ec);
+    }
+
+    bool is_open() const {
+        return this->service.is_open(this->implementation);
+    }
+
+    void close() {
+        return this->service.close(this->implementation);
+    }
+
+    template<typename Endpoint>
+    void connect(Endpoint const& endpoint,
+                 auth_info const& auth,
+                 std::string const& database,
+                 client_flags flags)
+    {
+        boost::system::error_code ec;
+        detail::throw_error(connect(endpoint, auth, database, flags, ec),
+                            &(this->implementation.mysql));
+    }
+
+    template<typename Endpoint>
+    boost::system::error_code connect(Endpoint const& endpoint,
+                                      auth_info const& auth,
+                                      std::string const& database,
+                                      client_flags flags,
+                                      boost::system::error_code& ec)
+    {
+        return this->service.connect(this->implementation,
+                                     endpoint, auth, database, flags, ec);
+    }
+
+    void query(std::string const& stmt) {
+        boost::system::error_code ec;
+        detail::throw_error(query(stmt, ec), &(this->implementation.mysql));
+    }
+
+    boost::system::error_code query(std::string const& stmt,
+                                    boost::system::error_code& ec)
+    {
+        return this->service.query(this->implementation, stmt, ec);
+    }
 
 };  //  class basic_connector
 

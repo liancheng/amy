@@ -1,0 +1,20 @@
+Import('env')
+
+libs = ['gflags',
+        'glog',
+        'boost_filesystem',
+        'boost_program_options',
+        'boost_system',
+        'mysqlclient_r']
+
+utils = env.Object(source='utils.cpp')
+
+[env.Program(target=example,
+             source=['%s.cpp' % (example),
+                     utils],
+             LIBS=libs)
+
+ for example in ['blocking_connect',
+                 'blocking_single_query']]
+
+# vim:ft=python ts=4 sw=4 et
