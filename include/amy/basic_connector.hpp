@@ -4,6 +4,7 @@
 #include <amy/auth_info.hpp>
 #include <amy/client_flags.hpp>
 #include <amy/detail/throw_error.hpp>
+#include <amy/result_set.hpp>
 
 #include <boost/config.hpp>
 #include <boost/asio/basic_io_object.hpp>
@@ -75,6 +76,21 @@ public:
                                     boost::system::error_code& ec)
     {
         return this->service.query(this->implementation, stmt, ec);
+    }
+
+    bool has_more_results() const {
+        return this->service.has_more_results(this->implementation);
+    }
+
+    result_set store_result() {
+        boost::system::error_code ec;
+        result_set rs = store_result(ec);
+        detail::throw_error(ec, &(this->implementation.mysql));
+        return rs;
+    }
+
+    result_set store_result(boost::system::error_code& ec) {
+        return this->service.store_result(this->implementation, ec);
     }
 
 };  //  class basic_connector

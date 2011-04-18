@@ -34,6 +34,16 @@ int main(int argc, char* argv[]) try {
     connector.query(statement);
     std::cout << "Query ok." << std::endl;
 
+    amy::result_set result_set = connector.store_result();
+    std::cout
+        << boost::format("Field count: %1%, "
+                         "result set size: %2%, "
+                         "affected rows: %3%")
+           % result_set.field_count()
+           % result_set.size()
+           % result_set.affected_rows()
+        << std::endl;
+
     return 0;
 }
 catch(boost::system::system_error const& e) {
