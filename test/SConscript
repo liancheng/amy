@@ -7,6 +7,7 @@ program = env.Program(target='test',
                             'glog',
                             'boost_filesystem',
                             'boost_system',
+                            'boost_thread',
                             'mysqlclient_r'])
 
 [env.Command(target='run-test',
