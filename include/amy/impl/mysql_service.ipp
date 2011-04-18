@@ -19,12 +19,25 @@ inline mysql_service::~mysql_service() {
 }
 
 inline void mysql_service::shutdown_service() {
+    work_.reset();
+
+    if (!!work_io_service_) {
+        work_io_service_->stop();
+
+        if (!!work_thread_) {
+            work_thread_->join();
+            work_thread_.reset();
+        }
+
+        work_io_service_.reset();
+    }
 }
 
 inline void mysql_service::construct(implementation_type& impl) {
 }
 
 inline void mysql_service::destroy(implementation_type& impl) {
+    close(impl);
 }
 
 inline mysql_service::native_type
@@ -115,6 +128,56 @@ mysql_service::query(implementation_type& impl,
     return ec;
 }
 
+inline bool
+mysql_service::has_more_results(implementation_type const& impl) const {
+    namespace ops = amy::detail::mysql_ops;
+
+    if (!is_open(impl)) {
+        return false;
+    }
+
+    detail::mysql_handle m = const_cast<detail::mysql_handle>(&impl.mysql);
+
+    bool multi_results = impl.flags & (amy::client_multi_results |
+                                       amy::client_multi_statements);
+
+    return multi_results ?
+        !impl.first_result_stored || ops::mysql_more_results(m) :
+        !impl.first_result_stored && ops::mysql_field_count(m);
+}
+
+inline result_set mysql_service::store_result(implementation_type& impl,
+                                              boost::system::error_code& ec)
+{
+    namespace ops = amy::detail::mysql_ops;
+
+    if (impl.first_result_stored) {
+        impl.free_result();
+
+        if (!has_more_results(impl)) {
+            ec = amy::error::no_more_results;
+        }
+        else {
+            ops::mysql_next_result(&impl.mysql, ec);
+        }
+    }
+    else {
+        impl.first_result_stored = true;
+    }
+
+    if (ec) {
+        return result_set::empty_set(&impl.mysql);
+    }
+
+    impl.last_result.reset(ops::mysql_store_result(&impl.mysql, ec),
+                           result_set_deleter());
+
+    result_set rs;
+    rs.assign(&impl.mysql, impl.last_result, ec);
+
+    return rs;
+}
+
 struct noop_deleter {
     void operator()(void*) {
         // no-op
@@ -122,7 +185,7 @@ struct noop_deleter {
 
 };  //  struct noop_deleter
 
-void mysql_service::result_set_deleter::operator()(void* p) {
+inline void mysql_service::result_set_deleter::operator()(void* p) {
     namespace ops = detail::mysql_ops;
 
     if (!!p) {
@@ -134,6 +197,8 @@ inline mysql_service::implementation::implementation() :
     flags(0),
     initialized(false),
     first_result_stored(false),
+    last_result(static_cast<detail::result_set_handle>(0),
+                result_set_deleter()),
     cancelation_token(static_cast<void*>(0), noop_deleter())
 {}
 
@@ -147,13 +212,13 @@ inline void mysql_service::implementation::close() {
         this->initialized = false;
     }
 
-    // TODO release the result set
-
+    this->first_result_stored = false;
+    free_result();
     cancel();
 }
 
 inline void mysql_service::implementation::free_result() {
-    // TODO
+    this->last_result.reset();
 }
 
 inline void mysql_service::implementation::cancel() {

@@ -5,6 +5,7 @@
 #include <amy/detail/mysql_types.hpp>
 #include <amy/detail/service_base.hpp>
 #include <amy/endpoint_traits.hpp>
+#include <amy/result_set.hpp>
 
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -49,6 +50,11 @@ public:
     boost::system::error_code query(implementation_type& impl,
                                     std::string const& stmt,
                                     boost::system::error_code& ec);
+
+    bool has_more_results(implementation_type const& impl) const;
+
+    result_set store_result(implementation_type& impl,
+                            boost::system::error_code& ec);
 
 private:
     struct result_set_deleter;

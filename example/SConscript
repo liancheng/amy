@@ -5,6 +5,7 @@ libs = ['gflags',
         'boost_filesystem',
         'boost_program_options',
         'boost_system',
+        'boost_thread',
         'mysqlclient_r']
 
 utils = env.Object(source='utils.cpp')

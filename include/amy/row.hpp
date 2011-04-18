@@ -1,13 +1,13 @@
-#ifndef __AMYSQL_ROW_HPP__
-#define __AMYSQL_ROW_HPP__
+#ifndef __AMY_ROW_HPP__
+#define __AMY_ROW_HPP__
 
-#include <amysql/detail/mysql_ops.hpp>
-#include <amysql/field.hpp>
-#include <amysql/field_info.hpp>
+#include <amy/detail/mysql_ops.hpp>
+#include <amy/field.hpp>
+#include <amy/field_info.hpp>
 
 #include <ostream>
 
-namespace amysql {
+namespace amy {
 
 class row {
 private:
@@ -96,8 +96,8 @@ inline std::ostream& operator<<(std::ostream& out, row const& row) {
     return out;
 }
 
-}   //  namespace amysql
+}   //  namespace amy
 
-#endif  //  __AMYSQL_ROW_HPP__
+#endif  //  __AMY_ROW_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

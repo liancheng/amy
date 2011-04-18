@@ -100,21 +100,21 @@ public:
         }
 
         // Fetch fields information.
-        uint32_t field_count = mysql_ops::mysql_num_fields(rs.get());
+        uint32_t field_count = ops::mysql_num_fields(rs.get());
         fields_info_.reset(new fields_info_type);
         fields_info_->reserve(field_count);
-        field_handle f = 0;
+        detail::field_handle f = 0;
 
-        while ((f = mysql_ops::mysql_fetch_field(rs.get()))) {
+        while ((f = ops::mysql_fetch_field(rs.get()))) {
             fields_info_->push_back(field_info(f));
         }
 
         // Fetch rows.
         values_->reserve(static_cast<size_t>(row_count));
-        row_type r;
+        detail::row_type r;
 
-        while ((r = mysql_ops::mysql_fetch_row(mysql_, rs.get(), ec))) {
-            unsigned long* lengths = mysql_ops::mysql_fetch_lengths(rs.get());
+        while ((r = ops::mysql_fetch_row(mysql_, rs.get(), ec))) {
+            unsigned long* lengths = ops::mysql_fetch_lengths(rs.get());
             values_->push_back(row(rs.get(), r, lengths, fields_info_));
         }
 
