@@ -76,9 +76,9 @@ inline mysql_handle mysql_real_connect(mysql_handle m,
                                        boost::system::error_code& ec)
 {
     clear_error(ec);
-    return error_wrapper(
-            ::mysql_real_connect(m, host, user, password, database, port,
-                unix_socket, client_flag), m, ec);
+    mysql_handle h = ::mysql_real_connect(m, host, user, password, database,
+                                          port, unix_socket, client_flag);
+    return error_wrapper(h, m, ec);
 }
 
 inline int32_t mysql_real_query(mysql_handle m,

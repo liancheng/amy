@@ -39,6 +39,9 @@ public:
 
     void close(implementation_type& impl);
 
+    std::string error_message(implementation_type& impl,
+                              boost::system::error_code& ec);
+
     template<typename Endpoint>
     boost::system::error_code connect(implementation_type& impl,
                                       Endpoint const& endpoint,

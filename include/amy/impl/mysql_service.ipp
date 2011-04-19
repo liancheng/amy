@@ -46,9 +46,7 @@ mysql_service::native(implementation_type& impl) {
 }
 
 inline boost::system::error_code
-mysql_service::open(implementation_type& impl,
-                    boost::system::error_code& ec)
-{
+mysql_service::open(implementation_type& impl, boost::system::error_code& ec) {
     namespace ops = amy::detail::mysql_ops;
 
     ops::clear_error(ec);
@@ -107,6 +105,19 @@ mysql_service::connect(implementation_type& impl,
     impl.flags = client_flag;
 
     return ec;
+}
+
+inline std::string mysql_service::error_message(implementation_type& impl,
+                                                boost::system::error_code& ec)
+{
+    uint32_t ev = static_cast<uint32_t>(ec.value());
+
+    if (::mysql_errno(native(impl)) == ev) {
+        return ::mysql_error(native(impl));
+    }
+    else {
+        return ec.message();
+    }
 }
 
 inline boost::system::error_code
