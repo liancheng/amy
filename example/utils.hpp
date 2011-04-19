@@ -33,4 +33,6 @@ extern global_options opts;
 
 void parse_command_line_options(int argc, char* argv[]);
 
+std::string read_from_stdin();
+
 #endif  //  __AMY_EXAMPLE_UTILS_HPP__

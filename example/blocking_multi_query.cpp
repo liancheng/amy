@@ -13,6 +13,21 @@
 
 global_options opts;
 
+void print_result_set(amy::result_set& rs) {
+    if (rs.empty()) {
+        std::cout << "\nAffected rows: " << rs.affected_rows() << std::endl;
+    }
+    else {
+        std::cout
+            << boost::format("Field count: %1%, result set size: %2%, rows: \n")
+               % rs.field_count() % rs.size()
+            << std::endl;
+
+        std::copy(rs.begin(), rs.end(),
+                  std::ostream_iterator<amy::row>(std::cout, "\n"));
+    }
+}
+
 int main(int argc, char* argv[]) try {
     parse_command_line_options(argc, argv);
 
@@ -24,27 +39,13 @@ int main(int argc, char* argv[]) try {
                  opts.auth_info(),
                  opts.schema);
 
-    std::string statement =
-        "SELECT * FROM "
-        "information_schema.character_sets "
-        "WHERE "
-        "CHARACTER_SET_NAME LIKE 'latin%'";
+    std::string statements = read_from_stdin();
 
-    connector.query(statement);
+    connector.query(statements);
 
-    amy::result_set result_set = connector.store_result();
-    std::cout
-        << boost::format("Field count: %1%, "
-                         "result set size: %2%, "
-                         "affected rows: %3%, contents:\n")
-           % result_set.field_count()
-           % result_set.size()
-           % result_set.affected_rows()
-        << std::endl;
-
-    std::copy(result_set.begin(),
-              result_set.end(),
-              std::ostream_iterator<amy::row>(std::cout, "\n"));
+    amy::results_iterator begin(connector);
+    amy::results_iterator end;
+    std::for_each(begin, end, &print_result_set);
 
     return 0;
 }
