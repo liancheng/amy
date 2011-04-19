@@ -73,10 +73,9 @@ public:
     }
 
     bool has_default_value() const {
-        return
-            is_nullable() ||
-            is_auto_increment() ||
-            !(field_->flags & NO_DEFAULT_VALUE_FLAG);
+        return is_nullable() ||
+               is_auto_increment() ||
+               !(field_->flags & NO_DEFAULT_VALUE_FLAG);
     }
 
 private:
