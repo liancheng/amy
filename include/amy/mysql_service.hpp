@@ -16,6 +16,18 @@ class mysql_service : public detail::service_base<mysql_service> {
 public:
     struct implementation;
 
+    template<typename Handler>
+    class handler_base;
+
+    template<typename Endpoint, typename ConnectHandler>
+    class connect_handler;
+
+    template<typename QueryHandler>
+    class query_handler;
+
+    template<typename StoreResultHandler>
+    class store_result_handler;
+
     typedef implementation implementation_type;
 
     typedef detail::mysql_handle native_type;
@@ -116,6 +128,43 @@ struct mysql_service::implementation {
     void cancel();
 
 };  //  struct mysql_service::implementation
+
+template<typename Handler>
+class mysql_service::handler_base {
+public:
+    explicit handler_base(implementation_type& impl,
+                          boost::asio::io_service& io_service,
+                          Handler handler);
+
+protected:
+    implementation_type& impl_;
+    boost::weak_ptr<void> cancelation_token_;
+    boost::asio::io_service& io_service_;
+    boost::asio::io_service::work work_;
+    Handler handler_;
+
+};  //  class mysql_service::handler_base
+
+template<typename Endpoint, typename ConnectHandler>
+class mysql_service::connect_handler : public handler_base<ConnectHandler> {
+public:
+    explicit connect_handler(implementation_type& impl,
+                             Endpoint const& endpoint,
+                             amy::auth_info const& auth,
+                             std::string const& database,
+                             client_flags flags,
+                             boost::asio::io_service& io_service,
+                             ConnectHandler handler);
+
+    void operator()();
+
+private:
+    Endpoint endpoint_;
+    amy::auth_info auth_;
+    std::string database_;
+    client_flags flags_;
+
+};  //  class mysql_service::connect_handler
 
 struct mysql_service::result_set_deleter {
     void operator()(void* p);

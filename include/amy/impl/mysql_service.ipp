@@ -4,6 +4,8 @@
 #include <amy/detail/mysql_ops.hpp>
 #include <amy/endpoint_traits.hpp>
 
+#include <boost/bind.hpp>
+
 namespace amy {
 
 inline mysql_service::mysql_service(boost::asio::io_service& io_service) :
@@ -196,14 +198,6 @@ struct noop_deleter {
 
 };  //  struct noop_deleter
 
-inline void mysql_service::result_set_deleter::operator()(void* p) {
-    namespace ops = detail::mysql_ops;
-
-    if (!!p) {
-        ops::mysql_free_result(static_cast<detail::result_set_handle>(p));
-    }
-}
-
 inline mysql_service::implementation::implementation() :
     flags(0),
     initialized(false),
@@ -234,6 +228,72 @@ inline void mysql_service::implementation::free_result() {
 
 inline void mysql_service::implementation::cancel() {
     this->cancelation_token.reset(static_cast<void*>(0), noop_deleter());
+}
+
+template<typename Handler>
+mysql_service::handler_base<Handler>::handler_base(
+        implementation_type& impl,
+        boost::asio::io_service& io_service,
+        Handler handler)
+  : impl_(impl),
+    cancelation_token_(impl.cancelation_token),
+    io_service_(io_service),
+    work_(io_service),
+    handler_(handler)
+{}
+
+template<typename Endpoint, typename ConnectHandler>
+mysql_service::connect_handler<Endpoint, ConnectHandler>::connect_handler(
+        implementation_type& impl,
+        Endpoint const& endpoint,
+        amy::auth_info const& auth,
+        std::string const& database,
+        client_flags flags,
+        boost::asio::io_service& io_service,
+        ConnectHandler handler)
+  : handler_base<ConnectHandler>(impl, io_service, handler),
+    endpoint_(endpoint),
+    auth_(auth),
+    database_(database),
+    flags_(flags)
+{}
+
+template<typename Endpoint, typename ConnectHandler>
+void mysql_service::connect_handler<Endpoint, ConnectHandler>::operator()() {
+    using namespace amy::error;
+    namespace ops = amy::detail::mysql_ops;
+
+    if (this->cancelation_token_.expired()) {
+        this->io_service_.post(boost::bind(boost::type<void>(),
+                               this->handler(),
+                               boost::asio::error::operation_aborted));
+        return;
+    }
+
+    amy::endpoint_traits<Endpoint> traits(this->endpoint_);
+
+    boost::system::error_code ec;
+    ops::mysql_real_connect(&this->impl_.mysql,
+                            traits.host(),
+                            auth_.user(),
+                            auth_.password(),
+                            database_.c_str(),
+                            traits.port(),
+                            traits.unix_socket(),
+                            flags_,
+                            ec);
+
+    this->impl.flags = flags_;
+    this->io_service_.post(
+            boost::bind(boost::type<void>(), this->handler_, ec));
+}
+
+inline void mysql_service::result_set_deleter::operator()(void* p) {
+    namespace ops = detail::mysql_ops;
+
+    if (!!p) {
+        ops::mysql_free_result(static_cast<detail::result_set_handle>(p));
+    }
 }
 
 }   //  namespace amy
