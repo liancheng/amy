@@ -2,6 +2,7 @@
 #define __AMY_CONNECTOR_HPP__
 
 #include <amy/basic_connector.hpp>
+#include <amy/basic_results_iterator.hpp>
 #include <amy/mysql_service.hpp>
 
 namespace amy {
@@ -9,6 +10,10 @@ namespace amy {
 typedef
     basic_connector<mysql_service>
     connector;
+
+typedef
+    basic_results_iterator<mysql_service>
+    results_iterator;
 
 }   //  namespace amy
 

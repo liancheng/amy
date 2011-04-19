@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <iterator>
 
 boost::asio::ip::tcp::endpoint global_options::tcp_endpoint() const {
     using namespace boost::asio::ip;
@@ -54,4 +55,15 @@ void parse_command_line_options(int argc, char* argv[]) {
         std::cout << opts_desc << std::endl;
         exit(EXIT_SUCCESS);
     }
+}
+
+std::string read_from_stdin() {
+    std::istream_iterator<char> begin(std::cin);
+    std::istream_iterator<char> end;
+
+    std::cin.unsetf(std::ios::skipws);
+    std::string str(begin, end);
+    std::cin.setf(std::ios::skipws);
+
+    return str;
 }
