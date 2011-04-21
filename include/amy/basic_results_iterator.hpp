@@ -48,6 +48,9 @@ public:
     {
         if (connector_->is_open() && connector_->has_more_results()) {
             store_result();
+            if (connector_->has_more_results()) {
+                end_ = true;
+            }
         }
         else {
             end_ = true;
@@ -60,9 +63,11 @@ private:
     bool end_;
 
     void increment() {
-        store_result();
         if (!connector_->has_more_results()) {
             end_ = true;
+        }
+        else {
+            store_result();
         }
     }
 

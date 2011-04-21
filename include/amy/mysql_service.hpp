@@ -52,7 +52,7 @@ public:
     void close(implementation_type& impl);
 
     std::string error_message(implementation_type& impl,
-                              boost::system::error_code& ec);
+                              boost::system::error_code const& ec);
 
     template<typename Endpoint>
     boost::system::error_code connect(implementation_type& impl,
@@ -62,14 +62,31 @@ public:
                                       client_flags client_flag,
                                       boost::system::error_code& ec);
 
+    template<typename Endpoint, typename ConnectHandler>
+    void async_connect(implementation_type& impl,
+                       Endpoint const& endpoint,
+                       auth_info const& auth,
+                       std::string const& database,
+                       client_flags flags,
+                       ConnectHandler handler);
+
     boost::system::error_code query(implementation_type& impl,
                                     std::string const& stmt,
                                     boost::system::error_code& ec);
+
+    template<typename QueryHandler>
+    void async_query(implementation_type& impl,
+                     std::string const& stmt,
+                     QueryHandler handler);
 
     bool has_more_results(implementation_type const& impl) const;
 
     result_set store_result(implementation_type& impl,
                             boost::system::error_code& ec);
+
+    template<typename StoreResultHandler>
+    void async_store_result(implementation_type& impl,
+                            StoreResultHandler handler);
 
 private:
     struct result_set_deleter;
@@ -78,7 +95,7 @@ private:
     boost::mutex work_mutex_;
     boost::scoped_ptr<boost::asio::io_service> work_io_service_;
     boost::scoped_ptr<boost::asio::io_service::work> work_;
-    boost::shared_ptr<boost::thread> work_thread_;
+    boost::scoped_ptr<boost::thread> work_thread_;
 
     void start_work_thread();
 
@@ -165,6 +182,34 @@ private:
     client_flags flags_;
 
 };  //  class mysql_service::connect_handler
+
+template<typename QueryHandler>
+class mysql_service::query_handler : public handler_base<QueryHandler> {
+public:
+    explicit query_handler(implementation_type& impl,
+                           std::string const& stmt,
+                           boost::asio::io_service& io_service,
+                           QueryHandler handler);
+
+    void operator()();
+
+private:
+    std::string stmt_;
+
+};  //  class mysql_service::query_handler
+
+template<typename StoreResultHandler>
+class mysql_service::store_result_handler :
+    public handler_base<StoreResultHandler>
+{
+public:
+    explicit store_result_handler(implementation_type& impl,
+                                  boost::asio::io_service& io_service,
+                                  StoreResultHandler handler);
+
+    void operator()();
+
+};  //  class mysql_service::store_result_handler
 
 struct mysql_service::result_set_deleter {
     void operator()(void* p);

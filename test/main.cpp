@@ -11,10 +11,7 @@ int main(int argc, char* argv[]) try {
     using namespace boost::filesystem;
 
     testing::InitGoogleTest(&argc, argv);
-
     google::ParseCommandLineFlags(&argc, &argv, true);
-    google::InitGoogleLogging(argv[0]);
-    google::InstallFailureSignalHandler();
 
     if (FLAGS_workdir.length()) {
         current_path(path(FLAGS_workdir));
