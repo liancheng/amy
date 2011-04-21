@@ -12,6 +12,7 @@
 #include <amy/field.hpp>
 #include <amy/field_info.hpp>
 #include <amy/mysql_service.hpp>
+#include <amy/param_connect.hpp>
 #include <amy/placeholders.hpp>
 #include <amy/result_set.hpp>
 #include <amy/row.hpp>
