@@ -1,12 +1,7 @@
 Import('env')
+Import('libs')
 
-libs = ['gflags',
-        'glog',
-        'boost_filesystem',
-        'boost_program_options',
-        'boost_system',
-        'boost_thread',
-        'mysqlclient_r']
+libs.extend(['boost_program_options'])
 
 utils = env.Object(source='utils.cpp')
 
@@ -14,8 +9,10 @@ utils = env.Object(source='utils.cpp')
              source=['%s.cpp' % (example),
                      utils],
              LIBS=libs)
-
- for example in ['blocking_connect',
+ for example in ['async_connect',
+                 'async_multi_query',
+                 'async_single_query',
+                 'blocking_connect',
                  'blocking_multi_query',
                  'blocking_single_query']]
 

@@ -116,6 +116,69 @@ boost::system::error_code connect(MySQLConnector& connector,
     return connector.connect(endpoint, auth, database, flags, ec);
 }
 
+template<
+    typename MySQLConnector,
+    typename ConnectHandler
+>
+void async_connect(MySQLConnector& connector, ConnectHandler handler) {
+    async_connect(connector, null_endpoint(),
+                  auth_info(), "", default_flags, handler);
+}
+
+template<
+    typename MySQLConnector,
+    typename Endpoint,
+    typename ConnectHandler
+>
+void async_connect(MySQLConnector& connector,
+                   Endpoint const& endpoint,
+                   ConnectHandler handler)
+{
+    async_connect(connector, endpoint, auth_info(), "", default_flags, handler);
+}
+
+template<
+    typename MySQLConnector,
+    typename Endpoint,
+    typename ConnectHandler
+>
+void async_connect(MySQLConnector& connector,
+                   Endpoint const& endpoint,
+                   auth_info const& auth,
+                   ConnectHandler handler)
+{
+    async_connect(connector, endpoint, auth, "", default_flags, handler);
+}
+
+template<
+    typename MySQLConnector,
+    typename Endpoint,
+    typename ConnectHandler
+>
+void async_connect(MySQLConnector& connector,
+                   Endpoint const& endpoint,
+                   auth_info const& auth,
+                   std::string const& database,
+                   ConnectHandler handler)
+{
+    async_connect(connector, endpoint, auth, database, default_flags, handler);
+}
+
+template<
+    typename MySQLConnector,
+    typename Endpoint,
+    typename ConnectHandler
+>
+void async_connect(MySQLConnector& connector,
+                   Endpoint const& endpoint,
+                   auth_info const& auth,
+                   std::string const& database,
+                   client_flags flags,
+                   ConnectHandler handler)
+{
+    connector.async_connect(endpoint, auth, database, flags, handler);
+}
+
 }   //  namespace amy
 
 #endif  //  __AMY_CONNECT_HPP__

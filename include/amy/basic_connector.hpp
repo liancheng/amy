@@ -45,7 +45,7 @@ public:
         return this->service.close(this->implementation);
     }
 
-    std::string error_message(boost::system::error_code& ec) {
+    std::string error_message(boost::system::error_code const& ec) {
         return this->service.error_message(this->implementation, ec);
     }
 
@@ -71,6 +71,17 @@ public:
                                      endpoint, auth, database, flags, ec);
     }
 
+    template<typename Endpoint, typename ConnectHandler>
+    void async_connect(Endpoint const& endpoint,
+                       auth_info const& auth,
+                       std::string const& database,
+                       client_flags flags,
+                       ConnectHandler handler)
+    {
+        return this->service.async_connect(
+                this->implementation, endpoint, auth, database, flags, handler);
+    }
+
     void query(std::string const& stmt) {
         boost::system::error_code ec;
         detail::throw_error(query(stmt, ec), &(this->implementation.mysql));
@@ -80,6 +91,11 @@ public:
                                     boost::system::error_code& ec)
     {
         return this->service.query(this->implementation, stmt, ec);
+    }
+
+    template<typename QueryHandler>
+    void async_query(std::string const& stmt, QueryHandler handler) {
+        this->service.async_query(this->implementation, stmt, handler);
     }
 
     bool has_more_results() const {
@@ -95,6 +111,11 @@ public:
 
     result_set store_result(boost::system::error_code& ec) {
         return this->service.store_result(this->implementation, ec);
+    }
+
+    template<typename StoreResultHandler>
+    void async_store_result(StoreResultHandler handler) {
+        this->service.async_store_result(this->implementation, handler);
     }
 
 };  //  class basic_connector

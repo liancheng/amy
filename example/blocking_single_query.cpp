@@ -2,10 +2,10 @@
 
 #include <amy/connect.hpp>
 #include <amy/connector.hpp>
+#include <amy/param_connect.hpp>
 
 #include <boost/asio/io_service.hpp>
 #include <boost/format.hpp>
-#include <boost/system/system_error.hpp>
 
 #include <algorithm>
 #include <iostream>
@@ -19,10 +19,12 @@ int main(int argc, char* argv[]) try {
     boost::asio::io_service io_service;
     amy::connector connector(io_service);
 
-    amy::connect(connector,
-                 opts.tcp_endpoint(),
-                 opts.auth_info(),
-                 opts.schema);
+    using namespace amy::keyword;
+
+    amy::pconnect(connector,
+                  _endpoint  = opts.tcp_endpoint(),
+                  _auth_info = opts.auth_info(),
+                  _database  = opts.schema);
 
     std::string statement =
         "SELECT * FROM "

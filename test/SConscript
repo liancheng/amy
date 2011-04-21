@@ -1,14 +1,11 @@
 Import('env')
+Import('libs')
+
+libs.extend(['gflags', 'gtest'])
 
 program = env.Program(target='test',
                       source=Glob('*.cpp'),
-                      LIBS=['gtest',
-                            'gflags',
-                            'glog',
-                            'boost_filesystem',
-                            'boost_system',
-                            'boost_thread',
-                            'mysqlclient_r'])
+                      LIBS=libs)
 
 [env.Command(target='run-test',
              source=p,

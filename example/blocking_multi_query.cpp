@@ -2,6 +2,7 @@
 
 #include <amy/connect.hpp>
 #include <amy/connector.hpp>
+#include <amy/client_flags.hpp>
 
 #include <boost/asio/io_service.hpp>
 #include <boost/format.hpp>
@@ -37,15 +38,19 @@ int main(int argc, char* argv[]) try {
     amy::connect(connector,
                  opts.tcp_endpoint(),
                  opts.auth_info(),
-                 opts.schema);
+                 opts.schema,
+                 amy::client_multi_statements);
 
-    std::string statements = read_from_stdin();
-
-    connector.query(statements);
+    connector.query(read_from_stdin());
 
     amy::results_iterator begin(connector);
     amy::results_iterator end;
-    std::for_each(begin, end, &print_result_set);
+
+    // std::for_each(begin, end, &print_result_set);
+
+    for (; begin != end; ++begin) {
+        print_result_set(*begin);
+    }
 
     return 0;
 }
