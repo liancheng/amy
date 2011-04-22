@@ -51,6 +51,13 @@ public:
 
     void close(implementation_type& impl);
 
+    template<typename Option>
+    boost::system::error_code set_option(implementation_type& impl,
+                                         Option const& option,
+                                         boost::system::error_code& ec);
+
+    void cancel(implementation_type& impl);
+
     std::string error_message(implementation_type& impl,
                               boost::system::error_code const& ec);
 
@@ -87,6 +94,18 @@ public:
     template<typename StoreResultHandler>
     void async_store_result(implementation_type& impl,
                             StoreResultHandler handler);
+
+    boost::system::error_code autocommit(implementation_type& impl,
+                                         bool mode,
+                                         boost::system::error_code& ec);
+
+    boost::system::error_code commit(implementation_type& impl,
+                                     boost::system::error_code& ec);
+
+    boost::system::error_code rollback(implementation_type& impl,
+                                       boost::system::error_code& ec);
+
+    uint64_t affected_rows(implementation_type& impl);
 
 private:
     struct result_set_deleter;
