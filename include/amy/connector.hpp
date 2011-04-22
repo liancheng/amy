@@ -3,6 +3,7 @@
 
 #include <amy/basic_connector.hpp>
 #include <amy/basic_results_iterator.hpp>
+#include <amy/basic_scoped_transaction.hpp>
 #include <amy/mysql_service.hpp>
 
 namespace amy {
@@ -14,6 +15,10 @@ typedef
 typedef
     basic_results_iterator<mysql_service>
     results_iterator;
+
+typedef
+    basic_scoped_transaction<mysql_service>
+    scoped_transaction;
 
 }   //  namespace amy
 
