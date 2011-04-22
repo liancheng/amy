@@ -79,14 +79,15 @@ int main(int argc, char* argv[]) try {
     boost::asio::io_service io_service;
     amy::connector connector(io_service);
 
-    amy::async_connect(connector,
-                       opts.tcp_endpoint(),
-                       opts.auth_info(),
-                       "",
-                       amy::client_multi_statements,
-                       boost::bind(handle_connect,
-                                   amy::placeholders::error,
-                                   boost::ref(connector)));
+    using namespace amy::keyword;
+
+    amy::async_connect(_connector = connector,
+                       _endpoint  = opts.tcp_endpoint(),
+                       _auth      = opts.auth_info(),
+                       _flags     = amy::client_multi_statements,
+                       _handler   = boost::bind(handle_connect,
+                                                amy::placeholders::error,
+                                                boost::ref(connector)));
 
     io_service.run();
 

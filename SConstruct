@@ -2,7 +2,8 @@ import os
 
 env = Environment(ENV=os.environ,
                   CCFLAGS='-ggdb',
-                  CPPPATH=Dir('include'))
+                  CPPPATH=Dir('include'),
+                  CPPDEFINES=[('BOOST_PARAMETER_MAX_ARITY', 6)])
 
 libs = ['boost_filesystem',
         'boost_system',
