@@ -258,6 +258,50 @@ void mysql_service::async_store_result(implementation_type& impl,
     }
 }
 
+inline boost::system::error_code
+mysql_service::autocommit(implementation_type& impl,
+                          bool mode,
+                          boost::system::error_code& ec)
+{
+    namespace ops = amy::detail::mysql_ops;
+    ops::mysql_autocommit(&impl.mysql, mode, ec);
+    return ec;
+}
+
+inline boost::system::error_code
+mysql_service::commit(implementation_type& impl,
+                      boost::system::error_code& ec)
+{
+    namespace ops = amy::detail::mysql_ops;
+
+    if (!is_open(impl)) {
+        ec = amy::error::not_initialized;
+        return ec;
+    }
+
+    ops::mysql_commit(&impl.mysql, ec);
+    return ec;
+}
+
+inline boost::system::error_code
+mysql_service::rollback(implementation_type& impl,
+                        boost::system::error_code& ec)
+{
+    namespace ops = amy::detail::mysql_ops;
+
+    if (!is_open(impl)) {
+        ec = amy::error::not_initialized;
+        return ec;
+    }
+
+    ops::mysql_rollback(&impl.mysql, ec);
+    return ec;
+}
+
+inline uint64_t mysql_service::affected_rows(implementation_type& impl) {
+    return amy::detail::mysql_ops::mysql_affected_rows(&impl.mysql);
+}
+
 struct noop_deleter {
     void operator()(void*) {
         // no-op
@@ -287,6 +331,26 @@ inline void mysql_service::implementation::close() {
     this->first_result_stored = false;
     free_result();
     cancel();
+}
+
+template<typename Option>
+boost::system::error_code
+mysql_service::set_option(implementation_type& impl,
+                          Option const& option,
+                          boost::system::error_code& ec)
+{
+    namespace ops = detail::mysql_ops;
+
+    if (!is_open(impl)) {
+        ec = amy::error::not_initialized;
+    }
+
+    ops::mysql_options(native(impl), option.option(), option.data(), ec);
+    return ec;
+}
+
+inline void mysql_service::cancel(implementation_type& impl) {
+    impl.cancel();
 }
 
 inline void mysql_service::implementation::free_result() {

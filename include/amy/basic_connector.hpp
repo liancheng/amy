@@ -45,6 +45,25 @@ public:
         return this->service.close(this->implementation);
     }
 
+    template<typename Option>
+    void set_option(Option const& option) {
+        boost::system::error_code ec;
+        detail::throw_error(set_option(this->implementation, option, ec),
+                            &(this->implementation.mysql));
+    }
+
+    template<typename Option>
+    boost::system::error_code set_option(Option const& option,
+                                         boost::system::error_code& ec)
+    {
+        this->service.set_option(this->implementation, option, ec);
+        detail::throw_error(ec, &(this->implementation.mysql));
+    }
+
+    void cancel() {
+        this->service.cancel(this->implementation);
+    }
+
     std::string error_message(boost::system::error_code const& ec) {
         return this->service.error_message(this->implementation, ec);
     }
@@ -116,6 +135,43 @@ public:
     template<typename StoreResultHandler>
     void async_store_result(StoreResultHandler handler) {
         this->service.async_store_result(this->implementation, handler);
+    }
+
+    void autocommit(bool mode) {
+        boost::system::error_code ec;
+        detail::throw_error(autocommit(mode, ec),
+                            &(this->implementation.mysql));
+    }
+
+    boost::system::error_code autocommit(bool mode,
+                                         boost::system::error_code& ec)
+    {
+        this->service.autocommit(this->implementation, mode, ec);
+        return ec;
+    }
+
+    void commit() {
+        boost::system::error_code ec;
+        detail::throw_error(commit(ec), &(this->implementation.mysql));
+    }
+
+    boost::system::error_code commit(boost::system::error_code& ec) {
+        this->service.commit(this->implementation, ec);
+        return ec;
+    }
+
+    void rollback() {
+        boost::system::error_code ec;
+        detail::throw_error(rollback(ec), &(this->implementation.mysql));
+    }
+
+    boost::system::error_code rollback(boost::system::error_code& ec) {
+        this->service.rollback(this->implementation, ec);
+        return ec;
+    }
+
+    uint64_t affected_rows() {
+        return this->service.affected_rows(this->implementation);
     }
 
 };  //  class basic_connector
