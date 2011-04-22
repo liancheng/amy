@@ -2,7 +2,6 @@
 
 #include <amy/connect.hpp>
 #include <amy/connector.hpp>
-#include <amy/param_connect.hpp>
 
 #include <boost/asio/io_service.hpp>
 #include <boost/format.hpp>
@@ -20,10 +19,10 @@ int main(int argc, char* argv[]) try {
 
     using namespace amy::keyword;
 
-    amy::pconnect(connector,
-                  _endpoint  = opts.tcp_endpoint(),
-                  _auth_info = opts.auth_info(),
-                  _database  = opts.schema);
+    amy::connect(_connector = connector,
+                 _endpoint  = opts.tcp_endpoint(),
+                 _auth      = opts.auth_info(),
+                 _database  = opts.schema);
 
     std::cout << "Connected." << std::endl;
 
