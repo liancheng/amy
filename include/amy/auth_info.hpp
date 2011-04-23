@@ -7,7 +7,8 @@
 
 namespace amy {
 
-/// The \c auth_info class wraps MySQL authentication information.
+/// The \c auth_info class wraps MySQL authentication information (user name
+/// and password).
 /**
  * The authentication information includes a username and an optional password.
  * Please notice the difference between a user without password and a user with
@@ -18,7 +19,8 @@ public:
     /// Default constructor.  Creates an \c auth_info instance with anonymous
     /// user and no password.
     auth_info() :
-        user_(), password_()
+        user_(),
+        password_()
     {}
 
     /// Creates an \c auth_info instance with a user and no password.

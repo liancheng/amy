@@ -9,6 +9,7 @@
 #include <amy/connector.hpp>
 #include <amy/endpoint_traits.hpp>
 #include <amy/error.hpp>
+#include <amy/execute.hpp>
 #include <amy/field.hpp>
 #include <amy/field_info.hpp>
 #include <amy/mysql_service.hpp>

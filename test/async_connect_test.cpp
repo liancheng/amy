@@ -22,7 +22,7 @@ public:
 };  //  class async_connect_test
 
 TEST_F(async_connect_test,
-       should_connect_to_localhost_with_given_user)
+       should_connect_to_localhost_with_given_auth_info)
 {
     boost::asio::io_service io_service;
     amy::connector c(io_service);
