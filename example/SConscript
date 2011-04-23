@@ -13,6 +13,7 @@ utils = env.Object(source='utils.cpp')
                  'async_multi_query',
                  'async_single_query',
                  'blocking_connect',
+                 'blocking_execute',
                  'blocking_multi_query',
                  'blocking_single_query']]
 

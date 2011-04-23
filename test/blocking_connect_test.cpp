@@ -4,7 +4,7 @@
 #include <amy/connector.hpp>
 
 TEST(blocking_connect_test,
-     should_connect_to_localhost_with_given_user)
+     should_connect_to_localhost_with_given_auth_info)
 {
     using namespace amy::keyword;
 

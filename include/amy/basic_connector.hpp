@@ -13,13 +13,18 @@
 
 namespace amy {
 
+/// Provides MySQL client functionalities.
 template<typename MySQLService>
 class basic_connector : public boost::asio::basic_io_object<MySQLService> {
 public:
+    /// The type of the service that provides actual MySQL client
+    /// functionalities.
     typedef MySQLService service_type;
 
+    /// The native MySQL connection handle type.
     typedef typename service_type::native_type native_type;
 
+    /// Constructs a \c basic_connector without opening it.
     explicit basic_connector(boost::asio::io_service& io_service) :
         boost::asio::basic_io_object<MySQLService>(io_service)
     {}
