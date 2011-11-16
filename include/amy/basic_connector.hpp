@@ -69,10 +69,6 @@ public:
         this->service.cancel(this->implementation);
     }
 
-    std::string error_message(boost::system::error_code const& ec) {
-        return this->service.error_message(this->implementation, ec);
-    }
-
     template<typename Endpoint>
     void connect(Endpoint const& endpoint,
                  auth_info const& auth,

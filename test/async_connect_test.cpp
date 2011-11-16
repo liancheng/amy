@@ -29,12 +29,12 @@ TEST_F(async_connect_test,
 
     using namespace amy::keyword;
 
-    amy::async_connect(
-            _connector = c,
-            _auth      = amy::auth_info("amy", "amy"),
-            _handler   = boost::bind(&async_connect_test::handle_connect,
-                                     this,
-                                     amy::placeholders::error));
+    amy::async_connect(_connector = c,
+                       _auth      = amy::auth_info("amy", "amy"),
+                       _handler   = boost::bind(
+                                        &async_connect_test::handle_connect,
+                                        this,
+                                        amy::placeholders::error));
 
     io_service.run();
 

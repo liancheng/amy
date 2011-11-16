@@ -20,7 +20,7 @@ void handle_store_result(boost::system::error_code const& ec,
     if (!!ec) {
         std::cerr
             << boost::format("Failed to store result: %1% - %2%")
-               % ec.value() % connector.error_message(ec)
+               % ec.value() % ec.message()
             << std::endl;
     }
 
@@ -35,7 +35,7 @@ void handle_query(boost::system::error_code const& ec,
     if (!!ec) {
         std::cerr
             << boost::format("Query error: %1% - %2%")
-               % ec.value() % connector.error_message(ec)
+               % ec.value() % ec.message()
             << std::endl;
     }
 
@@ -52,7 +52,7 @@ void handle_connect(boost::system::error_code const& ec,
     if (!!ec) {
         std::cerr
             << boost::format("Connection error: %1% - %2%")
-               % ec.value() % connector.error_message(ec)
+               % ec.value() % ec.message()
             << std::endl;
         return;
     }
