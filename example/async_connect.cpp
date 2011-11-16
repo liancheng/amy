@@ -19,7 +19,7 @@ void handle_connect(boost::system::error_code const& ec,
     if (!!ec) {
         std::cerr
             << boost::format("Connection error: %1% - %2%")
-               % ec.value() % connector.error_message(ec)
+               % ec.value() % ec.message()
             << std::endl;
         return;
     }

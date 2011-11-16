@@ -228,8 +228,186 @@ public:
         return "mysql";
     }
 
-    std::string message(int) const {
-        return "** use amy::basic_connector<t>::message() instead **";
+    std::string message(int value) const {
+        switch (value) {
+            case unknown_error:
+                return "Unknown MySQL error";
+
+            case socket_create_error:
+                return "Can't create UNIX socket";
+
+            case connection_error:
+                return "Can't connect to local MySQL server through socket";
+
+            case conn_host_error:
+                return "Can't connect to MySQL server";
+
+            case ipsock_error:
+                return "Can't create TCP/IP socket";
+
+            case unknown_host:
+                return "Unknown MySQL server host";
+
+            case server_gone_error:
+                return "MySQL server has gone away";
+
+            case version_error:
+                return "Protocol mismatch";
+
+            case out_of_memory:
+                return "MySQL client ran out of memory";
+
+            case wrong_host_info:
+                return "Wrong host info";
+
+            case localhost_connection:
+                return "Localhost via UNIX socket";
+
+            case tcp_connection:
+                return "TCP/IP connection failed";
+
+            case server_handshake_err:
+                return "Error in server handshake";
+
+            case server_lost:
+                return "Lost connection to MySQL server during query";
+
+            case commands_out_of_sync:
+                return "Commands out of sync; you can't run this command now";
+
+            case named_pipe_connection:
+                return "Named pipe connection failed";
+
+            case named_pipe_wait_error:
+                return "Can't wait for named pipe to host";
+
+            case named_pipe_open_error:
+                return "Can't open named pipe to host";
+
+            case named_pipe_setstate_error:
+                return "Can't set state of named pipe to host";
+
+            case cant_read_charset:
+                return "Can't initialize character set";
+
+            case net_packet_too_large:
+                return "Got packet bigger than 'max_allowed_packet' bytes";
+
+            case embedded_connection:
+                return "Embedded server";
+
+            case probe_slave_status:
+                return "Error on SHOW SLAVE STATUS";
+
+            case probe_slave_hosts:
+                return "Error on SHOW SLAVE HOSTS";
+
+            case probe_slave_connect:
+                 return "Error connecting to slave";
+
+            case probe_master_connect:
+                return "Error connecting to master";
+
+            case ssl_connection_error:
+                return "SSL connection error";
+
+            case malformed_packet:
+                return "Malformed packet";
+
+            case wrong_license:
+                return "This client library has wrong license";
+
+            case null_pointer:
+                return "Invalid use of null pointer";
+
+            case no_prepare_stmt:
+                return "Statement not prepared";
+
+            case params_not_bound:
+                return "No data supplied for parameters in prepared statement";
+
+            case data_truncated:
+                return "Data truncated";
+
+            case no_parameters_exists:
+                return "No parameters exist in the statement";
+
+            case invalid_parameter_no:
+                return "Invalid parameter number";
+
+            case invalid_buffer_use:
+                return "Can't send long data for non-string/non-binary data types";
+
+            case unsupported_param_type:
+                return "Using unsupported buffer type";
+
+            case shared_memory_connection:
+                return "Shared memory connection failed";
+
+            case shared_memory_connect_request_error:
+                return "Can't open shared memory; client could not create "
+                       "request event";
+
+            case shared_memory_connect_answer_error:
+                return "Can't open shared memory; no answer event received "
+                       "from server";
+
+            case shared_memory_connect_file_map_error:
+                return "Can't open shared memory; server could not allocate "
+                       "file mapping";
+
+            case shared_memory_connect_map_error:
+                return "Can't open shared memory; server could not get pointer "
+                       "to file mapping";
+
+            case shared_memory_file_map_error:
+                return "Can't open shared memory; client could not allocate "
+                       "file mapping";
+
+            case shared_memory_map_error:
+                return "Can't open shared memory; client could not get pointer "
+                       "to file mapping";
+
+            case shared_memory_event_error:
+                return "Can't open shared memory; client could not create "
+                       "event";
+
+            case shared_memory_connect_abandoned_error:
+                return "Can't open shared memory; no answer from server";
+
+            case shared_memory_connect_set_error:
+                return "Can't open shared memory; cannot send request event to "
+                       "server";
+
+            case conn_unknow_protocol:
+                return "Wrong or unknown protocol";
+
+            case invalid_conn_handle:
+                return "Invalid connection handle";
+
+            case secure_auth:
+                return "Connection using old (pre-4.1.1) authentication "
+                       "protocol refused (client option 'secure_auth' enabled)";
+
+            case fetch_canceled:
+                return "Row retrieval was canceled by mysql_stmt_close() call";
+
+            case no_data:
+                return "Attempt to read column without prior row fetch";
+
+            case no_stmt_metadata:
+                return "Prepared statement contains no metadata";
+
+            case no_result_set:
+                return "Attempt to read a row while there is no result set "
+                       "associated with the statement";
+
+            case not_implemented:
+                return "This feature is not implemented yet";
+
+            default:
+                break;
+        }
     }
 
 };  //  class client_category

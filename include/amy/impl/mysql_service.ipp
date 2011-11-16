@@ -135,20 +135,6 @@ void mysql_service::async_connect(implementation_type& impl,
     }
 }
 
-inline std::string
-mysql_service::error_message(implementation_type& impl,
-                             boost::system::error_code const& ec)
-{
-    uint32_t ev = static_cast<uint32_t>(ec.value());
-
-    if (::mysql_errno(native(impl)) == ev) {
-        return ::mysql_error(native(impl));
-    }
-    else {
-        return ec.message();
-    }
-}
-
 inline boost::system::error_code
 mysql_service::query(implementation_type& impl,
                      std::string const& stmt,
