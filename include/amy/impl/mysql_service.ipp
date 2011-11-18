@@ -47,6 +47,20 @@ mysql_service::native(implementation_type& impl) {
     return &impl.mysql;
 }
 
+inline std::string
+mysql_service::error_message(implementation_type& impl,
+                             boost::system::error_code const& ec)
+{
+    uint32_t ev = static_cast<uint32_t>(ec.value());
+
+    if (::mysql_errno(native(impl)) == ev) {
+        return ::mysql_error(native(impl));
+    }
+    else {
+        return ec.message();
+    }
+}
+
 inline boost::system::error_code
 mysql_service::open(implementation_type& impl, boost::system::error_code& ec) {
     namespace ops = amy::detail::mysql_ops;

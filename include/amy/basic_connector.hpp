@@ -33,6 +33,10 @@ public:
         return this->service.native(this->implementation);
     }
 
+    std::string error_message(boost::system::error_code const& ec) {
+        return this->service.error_message(this->implementation, ec);
+    }
+
     void open() {
         boost::system::error_code ec;
         detail::throw_error(open(ec), &(this->implementation.mysql));

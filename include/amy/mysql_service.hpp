@@ -44,6 +44,9 @@ public:
 
     native_type native(implementation_type& impl);
 
+    std::string error_message(implementation_type& impl,
+                              boost::system::error_code const& ec);
+
     boost::system::error_code open(implementation_type& impl,
                                    boost::system::error_code& ec);
 
