@@ -2,8 +2,12 @@ import os
 
 env = Environment(ENV=os.environ,
                   CCFLAGS='-ggdb',
-                  CPPPATH=Dir('include'),
-                  CPPDEFINES=[('BOOST_PARAMETER_MAX_ARITY', 6)])
+                  CPPPATH=[Dir('include'),
+                           Dir('/usr/local/include')],
+                  CPPDEFINES=[('BOOST_PARAMETER_MAX_ARITY', 6)],
+                  LIBPATH=[Dir('/usr/lib'),
+                           Dir('/usr/local/lib'),
+                           Dir('/usr/local/lib/mysql')])
 
 libs = ['boost_filesystem',
         'boost_system',

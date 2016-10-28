@@ -7,6 +7,7 @@
 #include <amy/endpoint_traits.hpp>
 #include <amy/result_set.hpp>
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
