@@ -166,7 +166,7 @@ enum client_errors {
 
     /// Connection using old (pre-4.1.1) authentication protocol refused
     /// (client option 'secure_auth' enabled)
-    secure_auth = CR_SECURE_AUTH,
+    secure_auth = MYSQL_SECURE_AUTH,
 
     /// Row retrieval was canceled by mysql_stmt_close() call
     fetch_canceled = CR_FETCH_CANCELED,
@@ -406,7 +406,7 @@ public:
                 return "This feature is not implemented yet";
 
             default:
-                break;
+                return "Unknown error";
         }
     }
 
