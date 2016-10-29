@@ -15,12 +15,14 @@ if system == 'FreeBSD':
     # Default path where `pkg` puts `mysql-connector-c'
     extra_libpaths = [Dir('/usr/local/lib/mysql')]
 
+libpath = [Dir('/usr/lib'), Dir('/usr/local/lib')] + extra_libpaths
+
 env = Environment(ENV=os.environ,
                   CCFLAGS='-ggdb',
                   CPPPATH=[Dir('include'),
                            Dir('/usr/local/include')],
                   CPPDEFINES=[('BOOST_PARAMETER_MAX_ARITY', 6)],
-                  LIBPATH=[Dir('/usr/lib')] + extra_libpaths)
+                  LIBPATH=libpath)
 
 libs = ['boost_filesystem',
         'boost_system',
