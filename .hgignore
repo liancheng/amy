@@ -1,6 +1,0 @@
-syntax: glob
-
-build
-*.dblite
-doc/html
-tags
