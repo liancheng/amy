@@ -1,0 +1,4 @@
+*.dblite
+build
+doc/html
+tags
