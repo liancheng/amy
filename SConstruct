@@ -18,7 +18,7 @@ if system == 'FreeBSD':
 libpath = [Dir('/usr/lib'), Dir('/usr/local/lib')] + extra_libpaths
 
 env = Environment(ENV=os.environ,
-                  CCFLAGS='-ggdb',
+                  CCFLAGS='-ggdb -std=c++11',
                   CPPPATH=[Dir('include'),
                            Dir('/usr/local/include')],
                   CPPDEFINES=[('BOOST_PARAMETER_MAX_ARITY', 6)],
