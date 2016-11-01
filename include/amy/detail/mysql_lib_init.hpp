@@ -42,7 +42,7 @@ private:
     private:
         int result_;
 
-    };  //  struct do_init
+    }; // struct do_init
 
 public:
     explicit mysql_lib_init() :
@@ -55,10 +55,10 @@ public:
 private:
     boost::shared_ptr<do_init> ref_;
 
-};  //  class mysql_lib_init
+}; // class mysql_lib_init
 
-}   //  namespace detail
-}   //  namespace amy
+} // namespace detail
+} // namespace amy
 
 #endif  //  __AMY_DETAIL_MYSQL_LIB_INIT_HPP__
 

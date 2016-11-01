@@ -39,7 +39,7 @@ private:
     char const* value_str_;
     unsigned long length_;
 
-};  //  class field
+}; // class field
 
 inline std::ostream& operator<<(std::ostream& out, field const& f) {
     if(f.is_null()) {
@@ -50,8 +50,8 @@ inline std::ostream& operator<<(std::ostream& out, field const& f) {
     }
 }
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_FIELD_HPP__
+#endif // __AMY_FIELD_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

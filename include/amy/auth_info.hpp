@@ -85,10 +85,10 @@ private:
     std::string user_;
     boost::optional<std::string> password_;
 
-};  //  class auth_info
+}; // class auth_info
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_AUTH_INFO_HPP__
+#endif // __AMY_AUTH_INFO_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

@@ -26,9 +26,9 @@ inline void throw_error(boost::system::error_code const& ec,
     }
 }
 
-}   //  namespace detail
-}   //  namespace amy
+} // namespace detail
+} // namespace amy
 
-#endif  //  __AMY_DETAIL_THROW_ERROR_HPP__
+#endif // __AMY_DETAIL_THROW_ERROR_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

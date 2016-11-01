@@ -50,8 +50,8 @@ private:
     connector_type& connector_;
     bool committed_;
 
-};  //  class basic_scoped_transaction
+}; // class basic_scoped_transaction
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_TRANSACTION_HPP__
+#endif // __AMY_TRANSACTION_HPP__

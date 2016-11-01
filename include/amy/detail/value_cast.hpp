@@ -104,11 +104,11 @@ inline sql_bigint_unsigned value_cast(std::string const& str) {
     return v;
 }
 
-#endif  //  ifdef WIN32
+#endif // ifdef WIN32
 
-}   //  namespace detail
-}   //  namespace amy
+} // namespace detail
+} // namespace amy
 
-#endif  // __AMY_DETAIL_VALUE_CAST_HPP__
+#endif // __AMY_DETAIL_VALUE_CAST_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

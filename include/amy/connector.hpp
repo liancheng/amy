@@ -20,8 +20,8 @@ typedef
     basic_scoped_transaction<mysql_service>
     scoped_transaction;
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_CONNECTOR_HPP__
+#endif // __AMY_CONNECTOR_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

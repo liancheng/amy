@@ -119,7 +119,7 @@ private:
 
     void start_work_thread();
 
-};  //  class mysql_service
+}; // class mysql_service
 
 /// The underlying MySQL client connector implementation.
 struct mysql_service::implementation {
@@ -164,7 +164,7 @@ struct mysql_service::implementation {
     /// Cancels unfinished asynchronous operations.
     void cancel();
 
-};  //  struct mysql_service::implementation
+}; // struct mysql_service::implementation
 
 template<typename Handler>
 class mysql_service::handler_base {
@@ -180,7 +180,7 @@ protected:
     boost::asio::io_service::work work_;
     Handler handler_;
 
-};  //  class mysql_service::handler_base
+}; // class mysql_service::handler_base
 
 template<typename Endpoint, typename ConnectHandler>
 class mysql_service::connect_handler : public handler_base<ConnectHandler> {
@@ -201,7 +201,7 @@ private:
     std::string database_;
     client_flags flags_;
 
-};  //  class mysql_service::connect_handler
+}; // class mysql_service::connect_handler
 
 template<typename QueryHandler>
 class mysql_service::query_handler : public handler_base<QueryHandler> {
@@ -216,7 +216,7 @@ public:
 private:
     std::string stmt_;
 
-};  //  class mysql_service::query_handler
+}; // class mysql_service::query_handler
 
 template<typename StoreResultHandler>
 class mysql_service::store_result_handler :
@@ -229,16 +229,16 @@ public:
 
     void operator()();
 
-};  //  class mysql_service::store_result_handler
+}; // class mysql_service::store_result_handler
 
 struct mysql_service::result_set_deleter {
     void operator()(void* p);
 
-};  //  struct mysql_service::result_set_deleter
+}; // struct mysql_service::result_set_deleter
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_MYSQL_SERVICE_HPP__
+#endif // __AMY_MYSQL_SERVICE_HPP__
 
 #include <amy/impl/mysql_service.ipp>
 

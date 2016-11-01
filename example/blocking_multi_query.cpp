@@ -17,8 +17,7 @@ global_options opts;
 void print_result_set(amy::result_set& rs) {
     if (rs.empty()) {
         std::cout << "\nAffected rows: " << rs.affected_rows() << std::endl;
-    }
-    else {
+    } else {
         std::cout
             << boost::format("Field count: %1%, result set size: %2%, rows: \n")
                % rs.field_count() % rs.size()
@@ -53,13 +52,11 @@ int main(int argc, char* argv[]) try {
     }
 
     return 0;
-}
-catch(boost::system::system_error const& e) {
+} catch (boost::system::system_error const& e) {
     std::cerr
         << boost::format("System error: %1%: %2%")
            % e.code().value() % e.what()
         << std::endl;
-}
-catch(std::exception const& e) {
+} catch (std::exception const& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
 }

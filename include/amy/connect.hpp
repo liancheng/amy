@@ -54,7 +54,7 @@ void async_connect(MySQLConnector& connector,
     connector.async_connect(endpoint, auth, database, flags, handler);
 }
 
-}   //  namespace detail
+} // namespace detail
 
 namespace keyword {
 
@@ -65,7 +65,7 @@ BOOST_PARAMETER_NAME(database)
 BOOST_PARAMETER_NAME(flags)
 BOOST_PARAMETER_NAME(handler)
 
-}   //  namespace keyword
+} // namespace keyword
 
 BOOST_PARAMETER_FUNCTION(
         (void),
@@ -106,8 +106,8 @@ BOOST_PARAMETER_FUNCTION(
             connector, endpoint, auth, database, flags, handler);
 }
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_CONNECT_HPP__
+#endif // __AMY_CONNECT_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

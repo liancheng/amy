@@ -27,7 +27,7 @@ struct global_options {
 
     amy::auth_info auth_info() const;
 
-};  //  struct global_options
+}; // struct global_options
 
 extern global_options opts;
 
@@ -35,4 +35,4 @@ void parse_command_line_options(int argc, char* argv[]);
 
 std::string read_from_stdin();
 
-#endif  //  __AMY_EXAMPLE_UTILS_HPP__
+#endif // __AMY_EXAMPLE_UTILS_HPP__

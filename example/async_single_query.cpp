@@ -84,13 +84,11 @@ int main(int argc, char* argv[]) try {
     io_service.run();
 
     return 0;
-}
-catch(boost::system::system_error const& e) {
+} catch (boost::system::system_error const& e) {
     std::cerr
         << boost::format("System error: %1%: %2%")
            % e.code().value() % e.what()
         << std::endl;
-}
-catch(std::exception const& e) {
+} catch (std::exception const& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
 }

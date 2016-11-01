@@ -18,12 +18,10 @@ int main(int argc, char* argv[]) try {
     }
 
     return RUN_ALL_TESTS();
-}
-catch (boost::exception& e) {
+} catch (boost::exception& e) {
     std::cout << "EXCEPTION: " << diagnostic_information(e) << std::endl;
     throw;
-}
-catch (std::exception& e) {
+} catch (std::exception& e) {
     std::cout << "EXCEPTION: " << e.what() << std::endl;
     throw;
 }

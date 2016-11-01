@@ -51,8 +51,7 @@ public:
             if (connector_->has_more_results()) {
                 end_ = true;
             }
-        }
-        else {
+        } else {
             end_ = true;
         }
     }
@@ -65,8 +64,7 @@ private:
     void increment() {
         if (!connector_->has_more_results()) {
             end_ = true;
-        }
-        else {
+        } else {
             store_result();
         }
     }
@@ -85,10 +83,10 @@ private:
         result_set_ = connector_->store_result();
     }
 
-};  //  class basic_results_iterator
+}; // class basic_results_iterator
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_BASIC_RESULTS_ITERATOR_HPP__
+#endif // __AMY_BASIC_RESULTS_ITERATOR_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

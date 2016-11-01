@@ -147,10 +147,10 @@ inline void mysql_options(detail::mysql_handle m,
     error_wrapper(::mysql_options(m, (enum mysql_option)option, arg), m, ec);
 }
 
-}   //  namespace mysql_ops
-}   //  namespace detail
-}   //  namespace amy
+} // namespace mysql_ops
+} // namespace detail
+} // namespace amy
 
-#endif  //  __AMY_MYSQL_OPS_HPP__
+#endif // __AMY_MYSQL_OPS_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

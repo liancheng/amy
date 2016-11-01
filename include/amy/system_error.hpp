@@ -27,10 +27,10 @@ public:
 private:
     std::string message_;
 
-};  //  class system_error
+}; // class system_error
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_SYSTEM_ERROR_HPP__
+#endif // __AMY_SYSTEM_ERROR_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

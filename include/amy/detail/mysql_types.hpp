@@ -66,8 +66,8 @@ const int set_charset_dir         = MYSQL_SET_CHARSET_DIR;
 const int set_charset_name        = MYSQL_SET_CHARSET_NAME;
 const int shared_memory_base_name = MYSQL_SHARED_MEMORY_BASE_NAME;
 
-}   //  namespace detail
-}   //  namespace amy
+} // namespace detail
+} // namespace amy
 
 #ifdef WIN32
 
@@ -102,6 +102,6 @@ using boost::uint_fast64_t;
 using boost::intmax_t;
 using boost::uintmax_t;
 
-#endif  //  ifdef WIN32
+#endif // ifdef WIN32
 
-#endif  //  __AMY_DETAIL_MYSQL_TYPES_HPP__
+#endif // __AMY_DETAIL_MYSQL_TYPES_HPP__

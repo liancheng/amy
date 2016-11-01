@@ -30,9 +30,9 @@ private:
     basic_connector<MySQLService>& connector;
     ExecuteHandler handler;
 
-};  //  class execute_handler
+}; // class execute_handler
 
-}   //  namespace detail
-}   //  namespace amy
+} // namespace detail
+} // namespace amy
 
 #endif  //  __AMY_DETAIL_EXECUTE_HANDLER_HPP__

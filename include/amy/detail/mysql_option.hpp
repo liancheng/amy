@@ -29,7 +29,7 @@ public:
 private:
     unsigned int value_;
 
-};  //  class unsigned_integer
+}; // class unsigned_integer
 
 template<int Option>
 class char_sequence {
@@ -53,7 +53,7 @@ public:
 private:
     std::string value_;
 
-};  //  class char_sequence
+}; // class char_sequence
 
 template<int Option>
 class boolean {
@@ -77,7 +77,7 @@ public:
 private:
     detail::my_bool value_;
 
-};  //  class boolean
+}; // class boolean
 
 template<int Option>
 class switcher {
@@ -93,10 +93,10 @@ public:
         return 0;
     }
 
-};  //  class switcher
+}; // class switcher
 
-}   //  namespace mysql_option
-}   //  namespace detail
-}   //  namespace amy
+} // namespace mysql_option
+} // namespace detail
+} // namespace amy
 
-#endif  //  __AMY_DETAIL_MYSQL_OPTION_HPP__
+#endif // __AMY_DETAIL_MYSQL_OPTION_HPP__

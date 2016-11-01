@@ -187,7 +187,7 @@ enum client_errors {
     /// Lost connection to MySQL server at '%s' system error: %d
     // server_lost_extended = CR_SERVER_LOST_EXTENDED,
 
-};  //  enum client_errors
+}; // enum client_errors
 
 enum misc_errors {
     // Failed to initialize MySQL handle
@@ -214,7 +214,7 @@ enum misc_errors {
     // Unknown error
     unknown,
 
-};  //  enum misc_errors
+}; // enum misc_errors
 
 namespace detail {
 
@@ -410,9 +410,9 @@ public:
         }
     }
 
-};  //  class client_category
+}; // class client_category
 
-}   //  namespace detail
+} // namespace detail
 
 inline boost::system::error_category& get_client_category() {
     static detail::client_category instance;
@@ -447,17 +447,17 @@ public:
         return std::string(messages[value]);
     }
 
-};  //  class misc_category
+}; // class misc_category
 
-}   //  namespace detail
+} // namespace detail
 
 inline boost::system::error_category const& get_misc_category() {
     static detail::misc_category instance;
     return instance;
 }
 
-}   //  namespace error
-}   //  namespace amy
+} // namespace error
+} // namespace amy
 
 namespace boost {
 namespace system {
@@ -466,16 +466,16 @@ template<>
 struct is_error_code_enum<amy::error::client_errors> {
     static const bool value = true;
 
-};  //  struct is_error_code_enum
+}; // struct is_error_code_enum
 
 template<>
 struct is_error_code_enum<amy::error::misc_errors> {
     static const bool value = true;
 
-};  //  struct is_error_code_enum
+}; // struct is_error_code_enum
 
-}   //  namespace system
-}   //  namespace boost
+} // namespace system
+} // namespace boost
 
 namespace amy {
 namespace error {
@@ -490,9 +490,9 @@ inline boost::system::error_code make_error_code(misc_errors e) {
                                      get_misc_category());
 }
 
-}   //  namespace error
-}   //  namespace amy
+} // namespace error
+} // namespace amy
 
-#endif  //  __AMY_ERROR_HPP__
+#endif // __AMY_ERROR_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

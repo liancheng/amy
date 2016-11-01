@@ -81,10 +81,10 @@ public:
 private:
     detail::field_handle field_;
 
-};  //  class field_info
+}; // class field_info
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_FIELD_INFO_HPP__
+#endif // __AMY_FIELD_INFO_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

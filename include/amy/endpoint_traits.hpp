@@ -31,7 +31,7 @@ public:
         return 0;
     }
 
-};  //  class endpoint_traits<null_endpoint>
+}; // class endpoint_traits<null_endpoint>
 
 template<>
 class endpoint_traits<ip::tcp::endpoint> {
@@ -57,7 +57,7 @@ private:
     std::string host_;
     unsigned int port_;
 
-};  //  struct endpoint_traits<ip::tcp::endpoint>
+}; // struct endpoint_traits<ip::tcp::endpoint>
 
 #if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
 
@@ -83,12 +83,12 @@ public:
 private:
     std::string unix_socket_;
 
-};  //  endpoint_traits<local::stream_protocol::endpoint>
+}; // endpoint_traits<local::stream_protocol::endpoint>
 
-#endif  //  if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
+#endif // if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_DETAIL_ENDPOINT_TRAITS_HPP__
+#endif // __AMY_DETAIL_ENDPOINT_TRAITS_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

@@ -86,7 +86,7 @@ private:
         }
     }
 
-};  //  class row
+}; // class row
 
 inline std::ostream& operator<<(std::ostream& out, row const& row) {
     for (uint32_t i = 0u; i < row.size(); ++i) {
@@ -96,8 +96,8 @@ inline std::ostream& operator<<(std::ostream& out, row const& row) {
     return out;
 }
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_ROW_HPP__
+#endif // __AMY_ROW_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

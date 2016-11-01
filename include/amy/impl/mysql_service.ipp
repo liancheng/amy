@@ -55,8 +55,7 @@ mysql_service::error_message(implementation_type& impl,
 
     if (::mysql_errno(native(impl)) == ev) {
         return ::mysql_error(native(impl));
-    }
-    else {
+    } else {
         return ec.message();
     }
 }
@@ -177,8 +176,7 @@ void mysql_service::async_query(implementation_type& impl,
         this->get_io_service().post(boost::bind(boost::type<void>(),
                                                 handler,
                                                 amy::error::not_initialized));
-    }
-    else {
+    } else {
         if (!!work_io_service_) {
             start_work_thread();
             work_io_service_->post(query_handler<QueryHandler>(
@@ -215,12 +213,10 @@ inline result_set mysql_service::store_result(implementation_type& impl,
 
         if (!has_more_results(impl)) {
             ec = amy::error::no_more_results;
-        }
-        else {
+        } else {
             ops::mysql_next_result(&impl.mysql, ec);
         }
-    }
-    else {
+    } else {
         impl.first_result_stored = true;
     }
 
@@ -247,8 +243,7 @@ void mysql_service::async_store_result(implementation_type& impl,
                             handler,
                             amy::error::not_initialized,
                             result_set::empty_set(&impl.mysql)));
-    }
-    else {
+    } else {
         if (!!work_io_service_) {
             start_work_thread();
             work_io_service_->post(
@@ -307,7 +302,7 @@ struct noop_deleter {
         // no-op
     }
 
-};  //  struct noop_deleter
+}; // struct noop_deleter
 
 inline mysql_service::implementation::implementation() :
     flags(0),
@@ -488,12 +483,10 @@ void mysql_service::store_result_handler<StoreResultHandler>::operator()() {
 
         if (!service.has_more_results(this->impl_)) {
             ec = amy::error::no_more_results;
-        }
-        else {
+        } else {
             ops::mysql_store_result(&this->impl_.mysql, ec);
         }
-    }
-    else {
+    } else {
         this->impl_.first_result_stored = true;
     }
 
@@ -525,8 +518,8 @@ inline void mysql_service::result_set_deleter::operator()(void* p) {
     }
 }
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_IMPL_MYSQL_SERVICE_IPP__
+#endif // __AMY_IMPL_MYSQL_SERVICE_IPP__
 
 // vim:ft=cpp ts=4 sw=4 et

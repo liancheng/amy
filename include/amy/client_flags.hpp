@@ -60,8 +60,8 @@ const client_flags client_ssl = detail::client_ssl;
 /// Default client flags.
 const client_flags default_flags = 0;
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_CLIENT_FLAGS_HPP__
+#endif // __AMY_CLIENT_FLAGS_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

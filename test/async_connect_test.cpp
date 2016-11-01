@@ -19,7 +19,7 @@ public:
         handler_invoked = true;
     }
 
-};  //  class async_connect_test
+}; // class async_connect_test
 
 TEST_F(async_connect_test,
        should_connect_to_localhost_with_given_auth_info)

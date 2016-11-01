@@ -37,8 +37,8 @@ typedef bool sql_boolean;
 typedef boost::posix_time::ptime         sql_datetime;
 typedef boost::posix_time::time_duration sql_time;
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_SQL_TYPES_HPP__
+#endif // __AMY_SQL_TYPES_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

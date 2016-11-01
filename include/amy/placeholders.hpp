@@ -18,9 +18,9 @@ inline boost::arg<2> affected_rows() {
     return boost::arg<2>();
 }
 
-}   //  namespace placeholders
-}   //  namespace amy
+} // namespace placeholders
+} // namespace amy
 
-#endif  //  __AMY_PLACEHOLDERS_HPP__
+#endif // __AMY_PLACEHOLDERS_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

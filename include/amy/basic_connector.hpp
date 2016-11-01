@@ -179,10 +179,10 @@ public:
         return this->service.affected_rows(this->implementation);
     }
 
-};  //  class basic_connector
+}; // class basic_connector
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_BASIC_CONNECTOR_HPP__
+#endif // __AMY_BASIC_CONNECTOR_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

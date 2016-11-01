@@ -28,8 +28,7 @@ uint64_t execute(basic_connector<MySQLService>& connector,
     connector.query(stmt, ec);
     if (ec) {
         return 0u;
-    }
-    else {
+    } else {
         return connector.affected_rows();
     }
 }
@@ -49,8 +48,8 @@ void async_execute(basic_connector<MySQLService>& connector,
     connector.async_query(stmt, execute_handler_type(connector, handler));
 }
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_EXECUTE_HPP__
+#endif // __AMY_EXECUTE_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et

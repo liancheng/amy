@@ -19,4 +19,4 @@
 #include <amy/sql_types.hpp>
 #include <amy/system_error.hpp>
 
-#endif  //  __AMY_AMY_HPP__
+#endif // __AMY_AMY_HPP__

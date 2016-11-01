@@ -195,10 +195,10 @@ private:
     boost::shared_ptr<values_type> values_;
     boost::shared_ptr<fields_info_type> fields_info_;
 
-};  //  class result_set
+}; // class result_set
 
-}   //  namespace amy
+} // namespace amy
 
-#endif  //  __AMY_RESULT_SET_HPP__
+#endif // __AMY_RESULT_SET_HPP__
 
 // vim:ft=cpp ts=4 sw=4 et
