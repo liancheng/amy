@@ -6,9 +6,11 @@ mysqlclient_lib = 'mysqlclient_r'
 boost_thread_lib = 'boost_thread'
 extra_libpaths = []
 
-if system == 'Darwin':
+if system in ['Darwin', 'Linux']:
     # `mysqlclient_r' is not available under Mac OS X
     mysqlclient_lib = 'mysqlclient'
+
+if system == 'Darwin':
     boost_thread_lib = 'boost_thread-mt'
 
 if system == 'FreeBSD':
@@ -18,6 +20,7 @@ if system == 'FreeBSD':
 libpath = [Dir('/usr/lib'), Dir('/usr/local/lib')] + extra_libpaths
 
 env = Environment(ENV=os.environ,
+                  CXX=os.environ.get('CXX', 'clang++'),
                   CCFLAGS='-ggdb -std=c++11',
                   CPPPATH=[Dir('include'),
                            Dir('/usr/local/include')],
