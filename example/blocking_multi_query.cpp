@@ -42,14 +42,9 @@ int main(int argc, char* argv[]) try {
 
     connector.query(read_from_stdin());
 
-    amy::results_iterator begin(connector);
-    amy::results_iterator end;
-
-    // std::for_each(begin, end, &print_result_set);
-
-    for (; begin != end; ++begin) {
-        print_result_set(*begin);
-    }
+    std::for_each(amy::results_iterator(connector),
+                  amy::results_iterator(),
+                  &print_result_set);
 
     return 0;
 } catch (boost::system::system_error const& e) {
