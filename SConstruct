@@ -2,22 +2,8 @@ import os
 import platform
 
 system = platform.system()
-mysqlclient_lib = 'mysqlclient_r'
-boost_thread_lib = 'boost_thread'
-extra_libpaths = []
-
-if system in ['Darwin', 'Linux']:
-    # `mysqlclient_r' is not available under Mac OS X
-    mysqlclient_lib = 'mysqlclient'
-
-if system == 'Darwin':
-    boost_thread_lib = 'boost_thread-mt'
-
-if system == 'FreeBSD':
-    # Default path where `pkg` puts `mysql-connector-c'
-    extra_libpaths = [Dir('/usr/local/lib/mysql')]
-
-libpath = [Dir('/usr/lib'), Dir('/usr/local/lib')] + extra_libpaths
+libpath = [Dir('/usr/lib'), Dir('/usr/local/lib')] +\
+          [Dir('/usr/local/lib/mysql')] if system == 'FreeBSD' else []
 
 env = Environment(ENV=os.environ,
                   CXX=os.environ.get('CXX', 'clang++'),
@@ -28,8 +14,8 @@ env = Environment(ENV=os.environ,
                   LIBPATH=libpath)
 
 libs = ['boost_system',
-        boost_thread_lib,
-        mysqlclient_lib,
+        'boost_thread-mt' if system == 'Darwin' else 'boost_thread',
+        'mysqlclient',
         'pthread',
         'z']
 
