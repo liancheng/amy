@@ -1,6 +1,6 @@
 # Overview
 
-Amy is a C++11 compliant header-only **A**synchronous **My**SQL client library based on Boost.Asio. It provides a set of convenient API to work with MySQL in both asynchronous and blocking ways.
+Amy is a C++11 compliant header-only **A**synchronous **My**SQL client library based on Boost.Asio. It enables you to work with MySQL in both asynchronous and blocking ways.
 
 # Getting Started
 
@@ -89,20 +89,20 @@ You may need an extra library path under FreeBSD since that's where the `pkg` pa
 
 Please check the following examples for a taste of Amy:
 
-- How to establish a MySQL connection asynchronously?
+- How to establish a MySQL connection?
 
-  - [examples/async_connect.cpp](examples/async_connect.cpp)
-  - [examples/blocking_connect.cpp](examples/blocking_connect.cpp)
+  - [example/async_connect.cpp](example/async_connect.cpp)
+  - [example/blocking_connect.cpp](example/blocking_connect.cpp)
 
 - How to perform a single SQL query and retrieve its result set?
 
-  - [examples/async_single_query.cpp](examples/async_single_query.cpp)
-  - [examples/blocking_single_query.cpp](examples/blocking_single_query.cpp)
+  - [example/async_single_query.cpp](example/async_single_query.cpp)
+  - [example/blocking_single_query.cpp](example/blocking_single_query.cpp)
 
 - How to perform multiple SQL queries at once and retrieve their result sets?
 
-  - [examples/async_multi_query.cpp](examples/async_multi_query.cpp)
-  - [examples/blocking_multi_query.cpp](examples/blocking_multi_query.cpp)
+  - [example/async_multi_query.cpp](example/async_multi_query.cpp)
+  - [example/blocking_multi_query.cpp](example/blocking_multi_query.cpp)
 
 To build the examples, simply run `scons` under the root directory of the source tree of Amy.
 
@@ -121,4 +121,4 @@ GRANT ALL PRIVILEGES ON test_amy.* TO 'amy'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-To run the tests, simply type `scons under the root directory of Amy's source tree.
+To run the tests, simply type `scons` under the root directory of Amy's source tree.
