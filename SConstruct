@@ -16,8 +16,7 @@ env = Environment(ENV=os.environ,
 libs = ['boost_system',
         'boost_thread-mt' if system == 'Darwin' else 'boost_thread',
         'mysqlclient',
-        'pthread',
-        'z']
+        'pthread']
 
 env.Execute('@doxygen Doxyfile')
 
