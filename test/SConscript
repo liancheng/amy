@@ -6,8 +6,6 @@ GTEST_ROOT = '#3rdparty/googletest/googletest'
 env.Prepend(CPPPATH=[Dir(GTEST_ROOT + '/include'),
                      Dir(GTEST_ROOT)])
 
-libs.extend(['gflags'])
-
 program = env.Program(target='test',
                       source=[env.Glob('*.cpp'),
                               env.File(GTEST_ROOT + '/src/gtest-all.cc')],

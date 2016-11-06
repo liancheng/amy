@@ -27,8 +27,7 @@ env = Environment(ENV=os.environ,
                   CPPDEFINES=[('BOOST_PARAMETER_MAX_ARITY', 6)],
                   LIBPATH=libpath)
 
-libs = ['boost_filesystem',
-        'boost_system',
+libs = ['boost_system',
         boost_thread_lib,
         mysqlclient_lib,
         'pthread',
