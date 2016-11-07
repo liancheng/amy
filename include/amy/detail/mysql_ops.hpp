@@ -20,7 +20,6 @@ using ::mysql_fetch_field;
 using ::mysql_fetch_lengths;
 using ::mysql_free_result;
 using ::mysql_hex_string;
-using ::mysql_hex_string;
 using ::mysql_num_fields;
 using ::mysql_num_rows;
 using ::mysql_real_escape_string;
