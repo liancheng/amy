@@ -17,14 +17,7 @@ void handle_execute(boost::system::error_code const& ec,
                     uint64_t affected_rows,
                     amy::connector& connector)
 {
-    if (!!ec) {
-        std::cerr
-            << boost::format("Statement execution failed: %1% - %2%")
-               % ec.value() % ec.message()
-            << std::endl;
-        return;
-    }
-
+    check_error(ec);
     std::cout
         << boost::format("Affected rows: %1%") % affected_rows
         << std::endl;
@@ -35,14 +28,7 @@ void handle_execute(boost::system::error_code const& ec,
 void handle_connect(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
-    if (!!ec) {
-        std::cerr
-            << boost::format("Connection error: %1% - %2%")
-               % ec.value() % ec.message()
-            << std::endl;
-        return;
-    }
-
+    check_error(ec);
     std::cout << "Connected" << std::endl;
 
     amy::async_execute(connector,

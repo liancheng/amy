@@ -16,13 +16,7 @@ void handle_store_result(boost::system::error_code const& ec,
                          amy::result_set result_set,
                          amy::connector& connector)
 {
-    if (!!ec) {
-        std::cerr
-            << boost::format("Failed to store result: %1% - %2%")
-               % ec.value() % ec.message()
-            << std::endl;
-    }
-
+    check_error(ec);
     std::copy(result_set.begin(),
               result_set.end(),
               std::ostream_iterator<amy::row>(std::cout, "\n"));
@@ -39,13 +33,7 @@ void handle_store_result(boost::system::error_code const& ec,
 void handle_query(boost::system::error_code const& ec,
                   amy::connector& connector)
 {
-    if (!!ec) {
-        std::cerr
-            << boost::format("Query error: %1% - %2%")
-               % ec.value() % ec.message()
-            << std::endl;
-    }
-
+    check_error(ec);
     connector.async_store_result(
             boost::bind(handle_store_result,
                         amy::placeholders::error,
@@ -56,16 +44,10 @@ void handle_query(boost::system::error_code const& ec,
 void handle_connect(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
-    if (!!ec) {
-        std::cerr
-            << boost::format("Connection error: %1% - %2%")
-               % ec.value() % ec.message()
-            << std::endl;
-        return;
-    }
-
+    check_error(ec);
     std::cout << "Connected." << std::endl;
 
+    // Executes multiple ';'-separated SQL queries read from stdin
     connector.async_query(read_from_stdin(),
                           boost::bind(handle_query,
                                       amy::placeholders::error,

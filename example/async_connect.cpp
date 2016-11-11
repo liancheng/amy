@@ -15,14 +15,7 @@ global_options opts;
 void handle_connect(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
-    if (!!ec) {
-        std::cerr
-            << boost::format("Connection error: %1% - %2%")
-               % ec.value() % ec.message()
-            << std::endl;
-        return;
-    }
-
+    check_error(ec);
     std::cout << "Connected." << std::endl;
 }
 
