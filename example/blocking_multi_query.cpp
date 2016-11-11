@@ -37,11 +37,13 @@ int main(int argc, char* argv[]) try {
                       opts.schema,
                       amy::client_multi_statements);
 
+    // Executes multiple ';'-separated SQL queries read from stdin
     connector.query(read_from_stdin());
 
-    std::for_each(amy::results_iterator(connector),
-                  amy::results_iterator(),
-                  &print_result_set);
+    // Prints all result sets using amy::results_iterator
+    auto first = amy::results_iterator(connector);
+    auto last = amy::results_iterator();
+    std::for_each(first, last, &print_result_set);
 
     return 0;
 } catch (boost::system::system_error const& e) {

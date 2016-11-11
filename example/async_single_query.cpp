@@ -13,7 +13,7 @@
 global_options opts;
 
 void handle_store_result(boost::system::error_code const& ec,
-                         amy::result_set result_set,
+                         amy::result_set rs,
                          amy::connector& connector)
 {
     if (!!ec) {
@@ -23,8 +23,7 @@ void handle_store_result(boost::system::error_code const& ec,
             << std::endl;
     }
 
-    std::copy(result_set.begin(),
-              result_set.end(),
+    std::copy(rs.begin(), rs.end(),
               std::ostream_iterator<amy::row>(std::cout, "\n"));
 }
 
@@ -58,7 +57,12 @@ void handle_connect(boost::system::error_code const& ec,
 
     std::cout << "Connected." << std::endl;
 
-    std::string statement = "SHOW DATABASES;";
+    std::string statement =
+        "SELECT * FROM\n"
+        "information_schema.character_sets\n"
+        "WHERE\n"
+        "CHARACTER_SET_NAME LIKE 'latin%'";
+
     connector.async_query(statement,
                           boost::bind(handle_query,
                                       amy::placeholders::error,
