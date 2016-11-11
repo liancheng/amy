@@ -18,8 +18,7 @@ inline void throw_error(boost::system::error_code const& ec,
         if (ec.category() == amy::error::get_client_category()) {
             amy::system_error e(ec, ::mysql_error(m));
             boost::throw_exception(e);
-        }
-        else {
+        } else {
             amy::system_error e(ec);
             boost::throw_exception(e);
         }
