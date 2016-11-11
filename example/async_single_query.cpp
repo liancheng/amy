@@ -39,10 +39,9 @@ void handle_connect(boost::system::error_code const& ec,
     std::cout << "Connected." << std::endl;
 
     std::string statement =
-        "SELECT * FROM\n"
-        "information_schema.character_sets\n"
-        "WHERE\n"
-        "CHARACTER_SET_NAME LIKE 'latin%'";
+        "SELECT *\n"
+        "FROM information_schema.character_sets\n"
+        "WHERE CHARACTER_SET_NAME LIKE 'latin%'";
 
     connector.async_query(statement,
                           boost::bind(handle_query,

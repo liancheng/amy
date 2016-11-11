@@ -23,10 +23,9 @@ int main(int argc, char* argv[]) try {
                       amy::default_flags);
 
     std::string statement =
-        "SELECT * FROM\n"
-        "information_schema.character_sets\n"
-        "WHERE\n"
-        "CHARACTER_SET_NAME LIKE 'latin%'";
+        "SELECT *\n"
+        "FROM information_schema.character_sets\n"
+        "WHERE CHARACTER_SET_NAME LIKE 'latin%'";
 
     connector.query(statement);
 
