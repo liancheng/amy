@@ -1,6 +1,5 @@
 #include "utils.hpp"
 
-#include <amy/connect.hpp>
 #include <amy/connector.hpp>
 #include <amy/placeholders.hpp>
 
@@ -79,15 +78,13 @@ int main(int argc, char* argv[]) try {
     boost::asio::io_service io_service;
     amy::connector connector(io_service);
 
-    using namespace amy::keyword;
-
-    amy::async_connect(_connector = connector,
-                       _endpoint  = opts.tcp_endpoint(),
-                       _auth      = opts.auth_info(),
-                       _flags     = amy::client_multi_statements,
-                       _handler   = boost::bind(handle_connect,
-                                                amy::placeholders::error,
-                                                boost::ref(connector)));
+    connector.async_connect(opts.tcp_endpoint(),
+                            opts.auth_info(),
+                            opts.schema,
+                            amy::default_flags,
+                            boost::bind(handle_connect,
+                                        amy::placeholders::error,
+                                        boost::ref(connector)));
 
     io_service.run();
 

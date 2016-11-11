@@ -1,8 +1,6 @@
 #include "utils.hpp"
 
-#include <amy/connect.hpp>
 #include <amy/connector.hpp>
-#include <amy/client_flags.hpp>
 
 #include <boost/asio/io_service.hpp>
 #include <boost/format.hpp>
@@ -34,11 +32,10 @@ int main(int argc, char* argv[]) try {
     boost::asio::io_service io_service;
     amy::connector connector(io_service);
 
-    amy::connect(connector,
-                 opts.tcp_endpoint(),
-                 opts.auth_info(),
-                 opts.schema,
-                 amy::client_multi_statements);
+    connector.connect(opts.tcp_endpoint(),
+                      opts.auth_info(),
+                      opts.schema,
+                      amy::client_multi_statements);
 
     connector.query(read_from_stdin());
 

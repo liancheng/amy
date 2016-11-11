@@ -1,6 +1,5 @@
 #include "utils.hpp"
 
-#include <amy/connect.hpp>
 #include <amy/connector.hpp>
 #include <amy/execute.hpp>
 
@@ -19,12 +18,10 @@ int main(int argc, char* argv[]) try {
     boost::asio::io_service io_service;
     amy::connector connector(io_service);
 
-    using namespace amy::keyword;
-
-    amy::connect(_connector = connector,
-                 _endpoint  = opts.tcp_endpoint(),
-                 _auth      = opts.auth_info(),
-                 _database  = opts.schema);
+    connector.connect(opts.tcp_endpoint(),
+                      opts.auth_info(),
+                      opts.schema,
+                      amy::default_flags);
 
     std::cout
         << boost::format("Affected rows: %3%, contents:\n")
