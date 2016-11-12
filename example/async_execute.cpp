@@ -18,10 +18,7 @@ void handle_execute(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
     check_error(ec);
-    std::cout
-        << boost::format("Affected rows: %1%") % affected_rows
-        << std::endl;
-
+    std::cout << "Affected rows: " << affected_rows << std::endl;
     return;
 }
 
@@ -29,8 +26,6 @@ void handle_connect(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
     check_error(ec);
-    std::cout << "Connected" << std::endl;
-
     amy::async_execute(connector,
                        read_from_stdin(),
                        boost::bind(handle_execute,

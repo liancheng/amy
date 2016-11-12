@@ -23,10 +23,8 @@ int main(int argc, char* argv[]) try {
                       opts.schema,
                       amy::default_flags);
 
-    std::cout
-        << boost::format("Affected rows: %3%, contents:\n")
-           % amy::execute(connector, read_from_stdin())
-        << std::endl;
+    auto affected_rows = amy::execute(connector, read_from_stdin());
+    std::cout << "Affected rows: " << affected_rows << std::endl;
 
     return 0;
 } catch (boost::system::system_error const& e) {

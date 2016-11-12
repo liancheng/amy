@@ -17,8 +17,23 @@ void handle_store_result(boost::system::error_code const& ec,
                          amy::connector& connector)
 {
     check_error(ec);
-    std::copy(rs.begin(), rs.end(),
-              std::ostream_iterator<amy::row>(std::cout, "\n"));
+
+    std::cout
+        << boost::format("Field count: %1%, "
+                         "result set size: %2%, "
+                         "affected rows: %3%, contents:")
+           % rs.field_count() % rs.size() % rs.affected_rows()
+        << std::endl;
+
+    const auto& fields_info = rs.fields_info();
+
+    for (const auto& row : rs) {
+        std::cout
+            << boost::format("%1%: %2%, %3%: %4%")
+               % fields_info[0].name() % row[0].as<std::string>()
+               % fields_info[1].name() % row[1].as<amy::sql_bigint>()
+            << std::endl;
+    }
 }
 
 void handle_query(boost::system::error_code const& ec,
@@ -36,12 +51,11 @@ void handle_connect(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
     check_error(ec);
-    std::cout << "Connected." << std::endl;
 
-    std::string statement =
-        "SELECT *\n"
+    auto statement =
+        "SELECT character_set_name, maxlen\n"
         "FROM information_schema.character_sets\n"
-        "WHERE CHARACTER_SET_NAME LIKE 'latin%'";
+        "WHERE character_set_name LIKE 'latin%'";
 
     connector.async_query(statement,
                           boost::bind(handle_query,

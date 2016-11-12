@@ -17,9 +17,9 @@ void handle_store_result(boost::system::error_code const& ec,
                          amy::connector& connector)
 {
     check_error(ec);
-    std::copy(result_set.begin(),
-              result_set.end(),
-              std::ostream_iterator<amy::row>(std::cout, "\n"));
+
+    auto out = std::ostream_iterator<amy::row>(std::cout, "\n");
+    std::copy(result_set.begin(), result_set.end(), out);
 
     if (connector.has_more_results()) {
         connector.async_store_result(
@@ -45,9 +45,6 @@ void handle_connect(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
     check_error(ec);
-    std::cout << "Connected." << std::endl;
-
-    // Executes multiple ';'-separated SQL queries read from stdin
     connector.async_query(read_from_stdin(),
                           boost::bind(handle_query,
                                       amy::placeholders::error,

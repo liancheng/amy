@@ -12,20 +12,6 @@
 
 global_options opts;
 
-void print_result_set(amy::result_set& rs) {
-    if (rs.empty()) {
-        std::cout << "\nAffected rows: " << rs.affected_rows() << std::endl;
-    } else {
-        std::cout
-            << boost::format("Field count: %1%, result set size: %2%, rows: \n")
-               % rs.field_count() % rs.size()
-            << std::endl;
-
-        std::copy(rs.begin(), rs.end(),
-                  std::ostream_iterator<amy::row>(std::cout, "\n"));
-    }
-}
-
 int main(int argc, char* argv[]) try {
     parse_command_line_options(argc, argv);
 
@@ -37,13 +23,24 @@ int main(int argc, char* argv[]) try {
                       opts.schema,
                       amy::client_multi_statements);
 
-    // Executes multiple ';'-separated SQL queries read from stdin
     connector.query(read_from_stdin());
 
-    // Prints all result sets using amy::results_iterator
     auto first = amy::results_iterator(connector);
     auto last = amy::results_iterator();
-    std::for_each(first, last, &print_result_set);
+
+    std::for_each(first, last, [](amy::result_set& rs) {
+        if (rs.empty()) {
+            std::cout << "Affected rows: " << rs.affected_rows() << std::endl;
+        } else {
+            std::cout
+                << boost::format("Field count: %1%, result set size: %2%")
+                   % rs.field_count() % rs.size()
+                << std::endl;
+
+            auto out = std::ostream_iterator<amy::row>(std::cout, "\n");
+            std::copy(rs.begin(), rs.end(), out);
+        }
+    });
 
     return 0;
 } catch (boost::system::system_error const& e) {
