@@ -104,6 +104,11 @@ Please check the following examples for a taste of Amy:
   - [example/async_multi_query.cpp](example/async_multi_query.cpp)
   - [example/blocking_multi_query.cpp](example/blocking_multi_query.cpp)
 
+- How to perform a DDL/DML statement?
+
+  - [example/async_execute.cpp](example/async_execute.cpp)
+  - [example/blocking_execute.cpp](example/blocking_execute.cpp)
+
 To build the examples, simply run `scons` under the root directory of the source tree of Amy.
 
 Note that an extra dependency, Boost.Program_options, is needed to build and run the examples. Usually, it's already properly installed together with Boost.
