@@ -10,6 +10,7 @@ utils = env.Object(source='utils.cpp')
                      utils],
              LIBS=libs)
  for example in ['async_connect',
+                 'async_execute',
                  'async_multi_query',
                  'async_single_query',
                  'blocking_connect',

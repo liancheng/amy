@@ -1,6 +1,5 @@
 #include "utils.hpp"
 
-#include <amy/connect.hpp>
 #include <amy/connector.hpp>
 
 #include <boost/asio/io_service.hpp>
@@ -18,34 +17,36 @@ int main(int argc, char* argv[]) try {
     boost::asio::io_service io_service;
     amy::connector connector(io_service);
 
-    using namespace amy::keyword;
-
-    amy::connect(_connector = connector,
-                 _endpoint  = opts.tcp_endpoint(),
-                 _auth      = opts.auth_info(),
-                 _database  = opts.schema);
+    connector.connect(opts.tcp_endpoint(),
+                      opts.auth_info(),
+                      opts.schema,
+                      amy::default_flags);
 
     std::string statement =
-        "SELECT * FROM "
-        "information_schema.character_sets "
-        "WHERE "
-        "CHARACTER_SET_NAME LIKE 'latin%'";
+        "SELECT character_set_name, maxlen\n"
+        "FROM information_schema.character_sets\n"
+        "WHERE character_set_name LIKE 'latin%'";
 
     connector.query(statement);
 
-    amy::result_set result_set = connector.store_result();
+    amy::result_set rs = connector.store_result();
+
     std::cout
         << boost::format("Field count: %1%, "
                          "result set size: %2%, "
-                         "affected rows: %3%, contents:\n")
-           % result_set.field_count()
-           % result_set.size()
-           % result_set.affected_rows()
+                         "affected rows: %3%, contents:")
+           % rs.field_count() % rs.size() % rs.affected_rows()
         << std::endl;
 
-    std::copy(result_set.begin(),
-              result_set.end(),
-              std::ostream_iterator<amy::row>(std::cout, "\n"));
+    const auto& fields_info = rs.fields_info();
+
+    for (const auto& row : rs) {
+        std::cout
+            << boost::format("%1%: %2%, %3%: %4%")
+               % fields_info[0].name() % row[0].as<std::string>()
+               % fields_info[1].name() % row[1].as<amy::sql_bigint>()
+            << std::endl;
+    }
 
     return 0;
 } catch (boost::system::system_error const& e) {

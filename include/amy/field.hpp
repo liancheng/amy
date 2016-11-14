@@ -42,10 +42,9 @@ private:
 }; // class field
 
 inline std::ostream& operator<<(std::ostream& out, field const& f) {
-    if(f.is_null()) {
+    if (f.is_null()) {
         return out << "null";
-    }
-    else {
+    } else {
         return out << f.value_str_;
     }
 }

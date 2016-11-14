@@ -1,6 +1,5 @@
 #include "utils.hpp"
 
-#include <amy/connect.hpp>
 #include <amy/connector.hpp>
 #include <amy/placeholders.hpp>
 
@@ -14,31 +13,33 @@
 global_options opts;
 
 void handle_store_result(boost::system::error_code const& ec,
-                         amy::result_set result_set,
+                         amy::result_set rs,
                          amy::connector& connector)
 {
-    if (!!ec) {
-        std::cerr
-            << boost::format("Failed to store result: %1% - %2%")
-               % ec.value() % ec.message()
+    check_error(ec);
+
+    std::cout
+        << boost::format("Field count: %1%, "
+                         "result set size: %2%, "
+                         "affected rows: %3%, contents:")
+           % rs.field_count() % rs.size() % rs.affected_rows()
+        << std::endl;
+
+    const auto& fields_info = rs.fields_info();
+
+    for (const auto& row : rs) {
+        std::cout
+            << boost::format("%1%: %2%, %3%: %4%")
+               % fields_info[0].name() % row[0].as<std::string>()
+               % fields_info[1].name() % row[1].as<amy::sql_bigint>()
             << std::endl;
     }
-
-    std::copy(result_set.begin(),
-              result_set.end(),
-              std::ostream_iterator<amy::row>(std::cout, "\n"));
 }
 
 void handle_query(boost::system::error_code const& ec,
                   amy::connector& connector)
 {
-    if (!!ec) {
-        std::cerr
-            << boost::format("Query error: %1% - %2%")
-               % ec.value() % ec.message()
-            << std::endl;
-    }
-
+    check_error(ec);
     connector.async_store_result(
             boost::bind(handle_store_result,
                         amy::placeholders::error,
@@ -49,17 +50,13 @@ void handle_query(boost::system::error_code const& ec,
 void handle_connect(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
-    if (!!ec) {
-        std::cerr
-            << boost::format("Connection error: %1% - %2%")
-               % ec.value() % ec.message()
-            << std::endl;
-        return;
-    }
+    check_error(ec);
 
-    std::cout << "Connected." << std::endl;
+    auto statement =
+        "SELECT character_set_name, maxlen\n"
+        "FROM information_schema.character_sets\n"
+        "WHERE character_set_name LIKE 'latin%'";
 
-    std::string statement = "SHOW DATABASES;";
     connector.async_query(statement,
                           boost::bind(handle_query,
                                       amy::placeholders::error,
@@ -72,14 +69,13 @@ int main(int argc, char* argv[]) try {
     boost::asio::io_service io_service;
     amy::connector connector(io_service);
 
-    using namespace amy::keyword;
-
-    amy::async_connect(_connector = connector,
-                       _endpoint  = opts.tcp_endpoint(),
-                       _auth      = opts.auth_info(),
-                       _handler   = boost::bind(handle_connect,
-                                                amy::placeholders::error,
-                                                boost::ref(connector)));
+    connector.async_connect(opts.tcp_endpoint(),
+                            opts.auth_info(),
+                            opts.schema,
+                            amy::default_flags,
+                            boost::bind(handle_connect,
+                                        amy::placeholders::error,
+                                        boost::ref(connector)));
 
     io_service.run();
 

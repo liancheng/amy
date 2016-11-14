@@ -14,7 +14,7 @@ namespace amy {
 /// Provides MySQL query result set functionality.
 /**
  * The \c result_set class wraps the underlying \c MYSQL_RES* pointer returned
- * by a \c ::mysql_store_result() call. It also provides STL compatible random
+ * by a \c mysql_store_result() call. It also provides STL compatible random
  * access iterator over rows in the result set.
  */
 class result_set {

@@ -35,4 +35,6 @@ void parse_command_line_options(int argc, char* argv[]);
 
 std::string read_from_stdin();
 
+void check_error(boost::system::error_code const& ec);
+
 #endif // __AMY_EXAMPLE_UTILS_HPP__

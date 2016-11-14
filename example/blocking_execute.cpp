@@ -1,6 +1,5 @@
 #include "utils.hpp"
 
-#include <amy/connect.hpp>
 #include <amy/connector.hpp>
 #include <amy/execute.hpp>
 
@@ -19,17 +18,14 @@ int main(int argc, char* argv[]) try {
     boost::asio::io_service io_service;
     amy::connector connector(io_service);
 
-    using namespace amy::keyword;
+    connector.connect(opts.tcp_endpoint(),
+                      opts.auth_info(),
+                      opts.schema,
+                      amy::default_flags);
 
-    amy::connect(_connector = connector,
-                 _endpoint  = opts.tcp_endpoint(),
-                 _auth      = opts.auth_info(),
-                 _database  = opts.schema);
-
-    std::cout
-        << boost::format("Affected rows: %3%, contents:\n")
-           % amy::execute(connector, read_from_stdin())
-        << std::endl;
+    // Executes an arbitrary SQL statement read from stdin.
+    auto affected_rows = amy::execute(connector, read_from_stdin());
+    std::cout << "Affected rows: " << affected_rows << std::endl;
 
     return 0;
 } catch (boost::system::system_error const& e) {
