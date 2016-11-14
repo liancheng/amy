@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) try {
     connector.async_connect(opts.tcp_endpoint(),
                             opts.auth_info(),
                             opts.schema,
-                            amy::default_flags,
+                            amy::client_multi_statements,
                             boost::bind(handle_connect,
                                         amy::placeholders::error,
                                         boost::ref(connector)));
