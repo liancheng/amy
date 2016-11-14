@@ -2,6 +2,7 @@
 #define __AMY_IMPL_MYSQL_SERVICE_IPP__
 
 #include <amy/detail/mysql_ops.hpp>
+#include <amy/client_flags.hpp>
 #include <amy/endpoint_traits.hpp>
 
 #include <boost/bind.hpp>
@@ -305,12 +306,12 @@ struct noop_deleter {
 }; // struct noop_deleter
 
 inline mysql_service::implementation::implementation() :
-    flags(0),
+    flags(amy::default_flags),
     initialized(false),
     first_result_stored(false),
-    last_result(static_cast<detail::result_set_handle>(0),
+    last_result(static_cast<detail::result_set_handle>(nullptr),
                 result_set_deleter()),
-    cancelation_token(static_cast<void*>(0), noop_deleter())
+    cancelation_token(static_cast<void*>(nullptr), noop_deleter())
 {}
 
 inline mysql_service::implementation::~implementation() {
@@ -353,7 +354,7 @@ inline void mysql_service::implementation::free_result() {
 }
 
 inline void mysql_service::implementation::cancel() {
-    this->cancelation_token.reset(static_cast<void*>(0), noop_deleter());
+    this->cancelation_token.reset(static_cast<void*>(nullptr), noop_deleter());
 }
 
 template<typename Handler>

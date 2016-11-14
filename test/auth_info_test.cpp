@@ -13,7 +13,7 @@ TEST(auth_info_test,
      should_construct_instance_without_password)
 {
     amy::auth_info auth;
-    ASSERT_EQ(0, auth.password());
+    ASSERT_EQ(nullptr, auth.password());
 }
 
 TEST(auth_info_test,
@@ -45,7 +45,7 @@ TEST(auth_info_test,
     amy::auth_info auth;
     auth.password("secret");
     auth.clear_password();
-    ASSERT_EQ(0, auth.password());
+    ASSERT_EQ(nullptr, auth.password());
 }
 
 // vim:ft=cpp ts=4 sw=4 et

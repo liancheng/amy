@@ -64,7 +64,7 @@ inline sql_time value_cast(std::string const& str) {
 
     // It's a pity that Boost.Date_Time cannot correctly parse negative time
     // durations, so we have to deal with the sign here.
-    bool negative = (str[ 0 ] == '-') ? true : false;
+    bool negative = (str[0] == '-') ? true : false;
     std::string const* ptr = &str;
     std::string s;
     if (negative) {

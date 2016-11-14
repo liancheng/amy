@@ -44,28 +44,28 @@ public:
     typedef std::vector<field_info> fields_info_type;
 
     explicit result_set() :
-        mysql_      (0),
-        values_     (new values_type),
+        mysql_(nullptr),
+        values_(new values_type),
         fields_info_(new fields_info_type)
     {}
 
     result_set(result_set const& other) :
-        mysql_      (other.mysql_),
-        result_set_ (other.result_set_),
-        values_     (other.values_),
+        mysql_(other.mysql_),
+        result_set_(other.result_set_),
+        values_(other.values_),
         fields_info_(other.fields_info_)
     {}
 
     explicit result_set(native_mysql_type mysql) :
-        mysql_      (mysql),
-        values_     (new values_type()),
+        mysql_(mysql),
+        values_(new values_type()),
         fields_info_(new fields_info_type)
     {}
 
     result_set const& operator=(result_set const& other) {
-        mysql_       = other.mysql_;
-        result_set_  = other.result_set_;
-        values_      = other.values_;
+        mysql_ = other.mysql_;
+        result_set_ = other.result_set_;
+        values_ = other.values_;
         fields_info_ = other.fields_info_;
 
         return *this;
@@ -103,7 +103,7 @@ public:
         uint32_t field_count = ops::mysql_num_fields(rs.get());
         fields_info_.reset(new fields_info_type);
         fields_info_->reserve(field_count);
-        detail::field_handle f = 0;
+        detail::field_handle f = nullptr;
 
         while ((f = ops::mysql_fetch_field(rs.get()))) {
             fields_info_->push_back(field_info(f));

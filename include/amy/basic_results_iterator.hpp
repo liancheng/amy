@@ -39,7 +39,7 @@ public:
     typedef typename base_type::reference reference;
 
     basic_results_iterator() :
-        connector_(0),
+        connector_(nullptr),
         end_(true)
     {}
 

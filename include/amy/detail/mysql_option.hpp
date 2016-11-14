@@ -11,7 +11,7 @@ template<int Option>
 class unsigned_integer {
 public:
     unsigned_integer() :
-        value_( 0u )
+        value_(0u)
     {}
 
     explicit unsigned_integer(unsigned int value) :

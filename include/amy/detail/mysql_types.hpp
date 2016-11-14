@@ -13,13 +13,13 @@ typedef MYSQL* mysql_handle;
 
 using ::my_bool;
 
-const mysql_handle invalid_mysql_handle = static_cast<mysql_handle>(0);
+const mysql_handle invalid_mysql_handle = static_cast<mysql_handle>(nullptr);
 
 typedef MYSQL_RES  result_set_type;
 typedef MYSQL_RES* result_set_handle;
 
 const result_set_handle
-    invalid_result_set_handle = static_cast<result_set_handle>(0);
+    invalid_result_set_handle = static_cast<result_set_handle>(nullptr);
 
 typedef MYSQL_ROW row_type;
 typedef MYSQL_ROW_OFFSET row_offset;

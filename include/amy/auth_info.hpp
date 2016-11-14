@@ -73,7 +73,7 @@ public:
      *         returns NULL.
      */
     char const* password() const {
-        return !!password_ ? password_->c_str() : 0;
+        return !!password_ ? password_->c_str() : nullptr;
     }
 
     /// Clears any previously set password.
