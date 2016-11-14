@@ -484,7 +484,7 @@ void mysql_service::store_result_handler<StoreResultHandler>::operator()() {
         if (!service.has_more_results(this->impl_)) {
             ec = amy::error::no_more_results;
         } else {
-            ops::mysql_store_result(&this->impl_.mysql, ec);
+            ops::mysql_next_result(&this->impl_.mysql, ec);
         }
     } else {
         this->impl_.first_result_stored = true;

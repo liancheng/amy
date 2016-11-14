@@ -1,6 +1,7 @@
 #ifndef __AMY_BASIC_RESULTS_ITERATOR_HPP__
 #define __AMY_BASIC_RESULTS_ITERATOR_HPP__
 
+#include <amy/detail/throw_error.hpp>
 #include <amy/result_set.hpp>
 
 #include <boost/iterator/iterator_facade.hpp>
@@ -46,14 +47,12 @@ public:
         connector_(&connector),
         end_(false)
     {
-        if (connector_->is_open() && connector_->has_more_results()) {
-            store_result();
-            if (connector_->has_more_results()) {
-                end_ = true;
-            }
-        } else {
-            end_ = true;
+        if (!connector_->is_open()) {
+            boost::system::error_code ec = amy::error::not_initialized;
+            amy::detail::throw_error(ec, connector_->native());
         }
+
+        increment();
     }
 
 private:
