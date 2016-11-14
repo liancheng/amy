@@ -210,6 +210,7 @@ inline result_set mysql_service::store_result(implementation_type& impl,
     namespace ops = amy::detail::mysql_ops;
 
     if (impl.first_result_stored) {
+        // Frees the last result set.
         impl.free_result();
 
         if (!has_more_results(impl)) {
@@ -222,9 +223,11 @@ inline result_set mysql_service::store_result(implementation_type& impl,
     }
 
     if (ec) {
+        // If anything went wrong, returns an empty result set.
         return result_set::empty_set(&impl.mysql);
     }
 
+    // Retrieves the next result set.
     impl.last_result.reset(ops::mysql_store_result(&impl.mysql, ec),
                            result_set_deleter());
 
@@ -476,7 +479,7 @@ void mysql_service::store_result_handler<StoreResultHandler>::operator()() {
     boost::system::error_code ec;
 
     if (this->impl_.first_result_stored) {
-        // Free the last result set.
+        // Frees the last result set.
         this->impl_.free_result();
 
         mysql_service& service =
@@ -492,6 +495,8 @@ void mysql_service::store_result_handler<StoreResultHandler>::operator()() {
     }
 
     if (ec) {
+        // If anything went wrong, invokes the user-defined handler with the
+        // error code and an empty result set.
         this->io_service_.post(
                 boost::bind(boost::type<void>(),
                             this->handler_,
@@ -500,6 +505,7 @@ void mysql_service::store_result_handler<StoreResultHandler>::operator()() {
         return;
     }
 
+    // Retrieves the next result set.
     this->impl_.last_result.reset(
             ops::mysql_store_result(&this->impl_.mysql, ec),
             result_set_deleter());

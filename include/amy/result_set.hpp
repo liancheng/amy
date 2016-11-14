@@ -72,7 +72,7 @@ public:
     }
 
     void assign(native_mysql_type mysql,
-                boost::shared_ptr<detail::result_set_type> rs )
+                boost::shared_ptr<detail::result_set_type> rs)
     {
         boost::system::error_code ec;
         assign(mysql, rs, ec);
