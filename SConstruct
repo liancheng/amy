@@ -7,7 +7,7 @@ libpath = [Dir('/usr/lib'), Dir('/usr/local/lib')] +\
 
 env = Environment(ENV=os.environ,
                   CXX=os.environ.get('CXX', 'clang++'),
-                  CCFLAGS='-ggdb -std=c++11',
+                  CCFLAGS='-ggdb -O0 -std=c++11',
                   CPPPATH=[Dir('include'),
                            Dir('/usr/local/include')],
                   CPPDEFINES=[('BOOST_PARAMETER_MAX_ARITY', 6)],
