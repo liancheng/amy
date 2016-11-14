@@ -13,13 +13,21 @@
 global_options opts;
 
 void handle_store_result(boost::system::error_code const& ec,
-                         amy::result_set result_set,
+                         amy::result_set rs,
                          amy::connector& connector)
 {
     check_error(ec);
 
+    // Prints result sets of each executed query.
+    std::cout
+        << boost::format("Affected rows: %1%, "
+                         "field count: %2%, "
+                         "result set size %3%")
+           % rs.affected_rows() % rs.field_count() % rs.size()
+        << std::endl;
+
     auto out = std::ostream_iterator<amy::row>(std::cout, "\n");
-    std::copy(result_set.begin(), result_set.end(), out);
+    std::copy(rs.begin(), rs.end(), out);
 
     if (connector.has_more_results()) {
         connector.async_store_result(
@@ -45,6 +53,8 @@ void handle_connect(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
     check_error(ec);
+
+    // Executes multiple ';'-separated SQL queries read from stdin.
     connector.async_query(read_from_stdin(),
                           boost::bind(handle_query,
                                       amy::placeholders::error,

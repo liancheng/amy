@@ -26,6 +26,8 @@ void handle_connect(boost::system::error_code const& ec,
                     amy::connector& connector)
 {
     check_error(ec);
+
+    // Executes an arbitrary SQL statement read from stdin.
     amy::async_execute(connector,
                        read_from_stdin(),
                        boost::bind(handle_execute,

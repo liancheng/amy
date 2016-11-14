@@ -23,23 +23,23 @@ int main(int argc, char* argv[]) try {
                       opts.schema,
                       amy::client_multi_statements);
 
+    // Executes multiple ';'-separated SQL queries read from stdin.
     connector.query(read_from_stdin());
 
     auto first = amy::results_iterator(connector);
     auto last = amy::results_iterator();
 
-    std::for_each(first, last, [](amy::result_set& rs) {
-        if (rs.empty()) {
-            std::cout << "Affected rows: " << rs.affected_rows() << std::endl;
-        } else {
-            std::cout
-                << boost::format("Field count: %1%, result set size: %2%")
-                   % rs.field_count() % rs.size()
-                << std::endl;
+    // Prints result sets of each executed query.
+    std::for_each(first, last, [](const amy::result_set& rs) {
+        std::cout
+            << boost::format("Affected rows: %1%, "
+                             "field count: %2%, "
+                             "result set size %3%")
+               % rs.affected_rows() % rs.field_count() % rs.size()
+            << std::endl;
 
-            auto out = std::ostream_iterator<amy::row>(std::cout, "\n");
-            std::copy(rs.begin(), rs.end(), out);
-        }
+        auto out = std::ostream_iterator<amy::row>(std::cout, "\n");
+        std::copy(rs.begin(), rs.end(), out);
     });
 
     return 0;

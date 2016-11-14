@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) try {
                       opts.schema,
                       amy::default_flags);
 
+    // Executes an arbitrary SQL statement read from stdin.
     auto affected_rows = amy::execute(connector, read_from_stdin());
     std::cout << "Affected rows: " << affected_rows << std::endl;
 
