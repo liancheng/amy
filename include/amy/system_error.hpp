@@ -33,4 +33,4 @@ private:
 
 #endif // __AMY_SYSTEM_ERROR_HPP__
 
-// vim:ft=cpp ts=4 sw=4 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et

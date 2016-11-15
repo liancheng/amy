@@ -105,3 +105,5 @@ using boost::uintmax_t;
 #endif // ifdef WIN32
 
 #endif // __AMY_DETAIL_MYSQL_TYPES_HPP__
+
+// vim:ft=cpp sw=4 ts=4 tw=80 et

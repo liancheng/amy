@@ -57,3 +57,5 @@ int main(int argc, char* argv[]) try {
 } catch (std::exception const& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
 }
+
+// vim:ft=cpp sw=4 ts=4 tw=80 et

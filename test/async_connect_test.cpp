@@ -37,4 +37,4 @@ BOOST_AUTO_TEST_CASE(should_async_connect_to_localhost_with_given_auth_info) {
     BOOST_CHECK(fixture.handler_invoked);
 }
 
-// vim:ft=cpp ts=4 sw=4 tw=80 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et

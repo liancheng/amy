@@ -11,4 +11,4 @@ BOOST_AUTO_TEST_CASE(should_connect_to_localhost_with_given_auth_info) {
     amy::connect(c, _auth = amy::auth_info("amy", "amy"));
 }
 
-// vim:ft=cpp ts=4 sw=4 tw=80 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et

@@ -38,4 +38,4 @@ BOOST_AUTO_TEST_CASE(should_return_null_after_clearing_password) {
     BOOST_TEST(static_cast<const char*>(nullptr) == auth.password());
 }
 
-// vim:ft=cpp ts=4 sw=4 tw=80 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et

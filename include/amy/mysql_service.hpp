@@ -242,4 +242,4 @@ struct mysql_service::result_set_deleter {
 
 #include <amy/impl/mysql_service.ipp>
 
-// vim:ft=cpp ts=4 sw=4 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et

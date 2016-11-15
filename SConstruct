@@ -30,4 +30,4 @@ env.SConscript(dirs=['example'],
                variant_dir='build/example',
                duplicate=0)
 
-# vim:ft=python ts=4 sw=4 et
+# vim:ft=python sw=4 ts=4 tw=80 et

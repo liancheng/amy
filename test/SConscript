@@ -11,4 +11,4 @@ program = env.Program(target='test',
              source=p,
              action=p.abspath) for p in program]
 
-# vim:ft=python ts=4 sw=4 et
+# vim:ft=python sw=4 ts=4 tw=80 et

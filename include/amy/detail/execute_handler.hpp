@@ -36,3 +36,5 @@ private:
 } // namespace amy
 
 #endif  //  __AMY_DETAIL_EXECUTE_HANDLER_HPP__
+
+// vim:ft=cpp sw=4 ts=4 tw=80 et

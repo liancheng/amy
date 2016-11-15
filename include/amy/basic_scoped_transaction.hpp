@@ -25,18 +25,18 @@ public:
         committed_ = true;
     }
 
-	boost::system::error_code commit(boost::system::error_code& ec) {
-		committed_ = !!connector_.commit(ec);
-		return ec;
-	}
+    boost::system::error_code commit(boost::system::error_code& ec) {
+        committed_ = !!connector_.commit(ec);
+        return ec;
+    }
 
-	void rollback() {
-		connector_.rollback();
-	}
+    void rollback() {
+        connector_.rollback();
+    }
 
-	boost::system::error_code rollback(boost::system::error_code& ec) {
-		return connector_.rollback(ec);
-	}
+    boost::system::error_code rollback(boost::system::error_code& ec) {
+        return connector_.rollback(ec);
+    }
 
     ~basic_scoped_transaction() {
         if (!committed_) {
@@ -55,3 +55,5 @@ private:
 } // namespace amy
 
 #endif // __AMY_TRANSACTION_HPP__
+
+// vim:ft=cpp sw=4 ts=4 tw=80 et

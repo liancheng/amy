@@ -20,3 +20,5 @@
 #include <amy/system_error.hpp>
 
 #endif // __AMY_AMY_HPP__
+
+// vim:ft=cpp sw=4 ts=4 tw=80 et

@@ -52,4 +52,4 @@ void async_execute(basic_connector<MySQLService>& connector,
 
 #endif // __AMY_EXECUTE_HPP__
 
-// vim:ft=cpp ts=4 sw=4 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et

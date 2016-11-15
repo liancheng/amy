@@ -41,4 +41,4 @@ typedef boost::posix_time::time_duration sql_time;
 
 #endif // __AMY_SQL_TYPES_HPP__
 
-// vim:ft=cpp ts=4 sw=4 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et

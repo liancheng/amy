@@ -529,4 +529,4 @@ inline void mysql_service::result_set_deleter::operator()(void* p) {
 
 #endif // __AMY_IMPL_MYSQL_SERVICE_IPP__
 
-// vim:ft=cpp ts=4 sw=4 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et

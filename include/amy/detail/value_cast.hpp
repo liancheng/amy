@@ -111,4 +111,4 @@ inline sql_bigint_unsigned value_cast(std::string const& str) {
 
 #endif // __AMY_DETAIL_VALUE_CAST_HPP__
 
-// vim:ft=cpp ts=4 sw=4 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et

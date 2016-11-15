@@ -54,3 +54,5 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
+// vim:ft=cpp sw=4 ts=4 tw=80 et

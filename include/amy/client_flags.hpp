@@ -20,13 +20,13 @@ const client_flags client_found_rows = detail::client_found_rows;
 const client_flags client_ignore_sigpipe = detail::client_ignore_sigpipe;
 
 /// Allow spaces after function names. Makes all functions names reserved
-/// words. 
+/// words.
 const client_flags client_ignore_space = detail::client_ignore_space;
 
 /// Allow \c interactive_timeout seconds (instead of \c wait_timeout seconds)
 /// of inactivity before closing the connection. The client's session \c
 /// wait_timeout  variable is set to the value of the session \c
-/// interactive_timeout variable. 
+/// interactive_timeout variable.
 const client_flags client_interactive = detail::client_interactive;
 
 /// Enable <tt>LOAD DATA LOCAL</tt> handling.
@@ -64,4 +64,4 @@ const client_flags default_flags = 0;
 
 #endif // __AMY_CLIENT_FLAGS_HPP__
 
-// vim:ft=cpp ts=4 sw=4 et
+// vim:ft=cpp sw=4 ts=4 tw=80 et
