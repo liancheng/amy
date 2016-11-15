@@ -73,3 +73,5 @@ void check_error(boost::system::error_code const& ec) {
         boost::throw_exception(boost::system::system_error(ec));
     }
 }
+
+// vim:ft=cpp ts=4 sw=4 et

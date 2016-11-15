@@ -1,9 +1,4 @@
-#include <gtest/gtest.h>
+#define BOOST_TEST_MODULE amy
+#define BOOST_TEST_DYN_LINK
 
-int main(int argc, char* argv[]) try {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-} catch (std::exception& e) {
-    std::cout << "EXCEPTION: " << e.what() << std::endl;
-    throw;
-}
+#include <boost/test/unit_test.hpp>

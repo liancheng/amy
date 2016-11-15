@@ -1,15 +1,11 @@
 Import('env')
 Import('libs')
 
-GTEST_ROOT = '#3rdparty/googletest/googletest'
-
-env.Prepend(CPPPATH=[Dir(GTEST_ROOT + '/include'),
-                     Dir(GTEST_ROOT)])
+test_libs = libs + ['boost_unit_test_framework']
 
 program = env.Program(target='test',
-                      source=[env.Glob('*.cpp'),
-                              env.File(GTEST_ROOT + '/src/gtest-all.cc')],
-                      LIBS=libs)
+                      source=[env.Glob('*.cpp')],
+                      LIBS=test_libs)
 
 [env.Command(target='run-test',
              source=p,

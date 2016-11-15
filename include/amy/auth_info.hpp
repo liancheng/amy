@@ -70,7 +70,7 @@ public:
     /// Gets the password.
     /**
      * \return Returns the password set previously.  If no password is set,
-     *         returns NULL.
+     *         returns \c nullptr.
      */
     char const* password() const {
         return !!password_ ? password_->c_str() : nullptr;

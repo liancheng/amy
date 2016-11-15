@@ -1,51 +1,41 @@
-#include <gtest/gtest.h>
+#include <boost/test/unit_test.hpp>
 
 #include <amy/auth_info.hpp>
 
-TEST(auth_info_test,
-     should_construct_instance_with_anonymous_user)
-{
+BOOST_AUTO_TEST_CASE(should_construct_instance_with_anonymous_user) {
     amy::auth_info auth;
-    ASSERT_STREQ("", auth.user());
+    BOOST_TEST("" == auth.user());
 }
 
-TEST(auth_info_test,
-     should_construct_instance_without_password)
-{
+BOOST_AUTO_TEST_CASE(should_construct_instance_without_password) {
     amy::auth_info auth;
-    ASSERT_EQ(nullptr, auth.password());
+    BOOST_TEST(static_cast<const char*>(nullptr) == auth.password());
 }
 
-TEST(auth_info_test,
-     should_construct_instance_with_user)
-{
+BOOST_AUTO_TEST_CASE(should_construct_instance_with_user) {
     amy::auth_info auth("user");
-    ASSERT_STREQ("user", auth.user());
+    BOOST_TEST("user" == auth.user());
 }
 
-TEST(auth_info_test,
-     should_construct_instance_with_user_and_nonempty_password)
-{
+BOOST_AUTO_TEST_CASE(
+    should_construct_instance_with_user_and_nonempty_password
+) {
     amy::auth_info auth("user", "secret");
-    ASSERT_STREQ("user", auth.user());
-    ASSERT_STREQ("secret", auth.password());
+    BOOST_TEST("user", auth.user());
+    BOOST_TEST("secret" == auth.password());
 }
 
-TEST(auth_info_test,
-     should_return_previously_set_password)
-{
+BOOST_AUTO_TEST_CASE(should_return_previously_set_password) {
     amy::auth_info auth;
     auth.password("secret");
-    ASSERT_STREQ("secret", auth.password());
+    BOOST_TEST("secret" == auth.password());
 }
 
-TEST(auth_info_test,
-     should_return_null_after_clearing_password)
-{
+BOOST_AUTO_TEST_CASE(should_return_null_after_clearing_password) {
     amy::auth_info auth;
     auth.password("secret");
     auth.clear_password();
-    ASSERT_EQ(nullptr, auth.password());
+    BOOST_TEST(static_cast<const char*>(nullptr) == auth.password());
 }
 
-// vim:ft=cpp ts=4 sw=4 et
+// vim:ft=cpp ts=4 sw=4 tw=80 et
