@@ -1,14 +1,14 @@
 Import('env')
 Import('libs')
 
-libs.extend(['boost_program_options'])
+example_libs = libs + (['boost_program_options'])
 
 utils = env.Object(source='utils.cpp')
 
 [env.Program(target=example,
              source=['%s.cpp' % (example),
                      utils],
-             LIBS=libs)
+             LIBS=example_libs)
  for example in ['async_connect',
                  'async_execute',
                  'async_multi_query',

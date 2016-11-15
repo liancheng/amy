@@ -1,29 +1,25 @@
-#include <gtest/gtest.h>
+#include <boost/test/unit_test.hpp>
 
 #include <amy/connect.hpp>
 #include <amy/connector.hpp>
 #include <amy/placeholders.hpp>
 
-#include <boost/bind.hpp>
-
-class async_connect_test : public testing::Test {
-protected:
+struct async_connect_test {
     bool handler_invoked;
 
-    virtual void SetUp() {
+    async_connect_test() {
         handler_invoked = false;
     } 
 
-public:
     void handle_connect(boost::system::error_code const& ec) {
         handler_invoked = true;
     }
 
-}; // class async_connect_test
+}; // struct async_connect_test
 
-TEST_F(async_connect_test,
-       should_connect_to_localhost_with_given_auth_info)
-{
+BOOST_AUTO_TEST_CASE(should_async_connect_to_localhost_with_given_auth_info) {
+    async_connect_test fixture;
+
     boost::asio::io_service io_service;
     amy::connector c(io_service);
 
@@ -33,10 +29,12 @@ TEST_F(async_connect_test,
                        _auth      = amy::auth_info("amy", "amy"),
                        _handler   = boost::bind(
                                         &async_connect_test::handle_connect,
-                                        this,
+                                        &fixture,
                                         amy::placeholders::error));
 
     io_service.run();
 
-    ASSERT_TRUE(handler_invoked);
+    BOOST_CHECK(fixture.handler_invoked);
 }
+
+// vim:ft=cpp ts=4 sw=4 tw=80 et
