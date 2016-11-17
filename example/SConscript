@@ -16,6 +16,7 @@ utils = env.Object(source='utils.cpp')
                  'blocking_connect',
                  'blocking_execute',
                  'blocking_multi_query',
-                 'blocking_single_query']]
+                 'blocking_single_query',
+                 'coroutine']]
 
 # vim:ft=python sw=4 ts=4 tw=80 et
