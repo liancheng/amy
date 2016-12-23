@@ -69,7 +69,7 @@ std::string read_from_stdin() {
 }
 
 void check_error(boost::system::error_code const& ec) {
-    if (!!ec) {
+    if (ec) {
         boost::throw_exception(boost::system::system_error(ec));
     }
 }

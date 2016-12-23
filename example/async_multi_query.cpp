@@ -42,6 +42,7 @@ void handle_query(boost::system::error_code const& ec,
                   amy::connector& connector)
 {
     check_error(ec);
+
     connector.async_store_result(
             boost::bind(handle_store_result,
                         amy::placeholders::error,
