@@ -4,9 +4,10 @@
 #include <amy/detail/mysql.hpp>
 #include <amy/error.hpp>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/system/system_error.hpp>
 #include <boost/throw_exception.hpp>
+
+#include <memory>
 
 namespace amy {
 namespace detail {
@@ -26,8 +27,8 @@ private:
             return result_;
         }
 
-        static boost::shared_ptr<do_init> instance() {
-            static boost::shared_ptr<do_init> init(new do_init());
+        static std::shared_ptr<do_init> instance() {
+            static std::shared_ptr<do_init> init(new do_init());
 
             if (0 != init->result()) {
                 boost::system::system_error e(init->result(),
@@ -53,7 +54,7 @@ public:
     }
 
 private:
-    boost::shared_ptr<do_init> ref_;
+    std::shared_ptr<do_init> ref_;
 
 }; // class mysql_lib_init
 

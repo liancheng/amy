@@ -6,8 +6,7 @@
 #include <amy/field_info.hpp>
 #include <amy/row.hpp>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 
 namespace amy {
 
@@ -72,7 +71,7 @@ public:
     }
 
     void assign(native_mysql_type mysql,
-                boost::shared_ptr<detail::result_set_type> rs)
+                std::shared_ptr<detail::result_set_type> rs)
     {
         boost::system::error_code ec;
         assign(mysql, rs, ec);
@@ -81,7 +80,7 @@ public:
 
     boost::system::error_code
     assign(native_mysql_type mysql,
-           boost::shared_ptr<detail::result_set_type> rs,
+           std::shared_ptr<detail::result_set_type> rs,
            boost::system::error_code& ec )
     {
         namespace ops = amy::detail::mysql_ops;
@@ -148,12 +147,12 @@ public:
     }
 
     bool empty() const {
-        boost::shared_ptr<detail::result_set_type> p = result_set_.lock();
+        std::shared_ptr<detail::result_set_type> p = result_set_.lock();
         return !p.get() || !size();
     }
 
     uint64_t size() const {
-        boost::shared_ptr<detail::result_set_type> p = result_set_.lock();
+        std::shared_ptr<detail::result_set_type> p = result_set_.lock();
         return p.get() ?  detail::mysql_ops::mysql_num_rows(p.get()) : 0u;
     }
 
@@ -168,7 +167,7 @@ public:
     }
 
     native_type native() const {
-        boost::shared_ptr<detail::result_set_type> p = result_set_.lock();
+        std::shared_ptr<detail::result_set_type> p = result_set_.lock();
         return p.get();
     }
 
@@ -191,9 +190,9 @@ public:
 
 private:
     native_mysql_type mysql_;
-    boost::weak_ptr<detail::result_set_type> result_set_;
-    boost::shared_ptr<values_type> values_;
-    boost::shared_ptr<fields_info_type> fields_info_;
+    std::weak_ptr<detail::result_set_type> result_set_;
+    std::shared_ptr<values_type> values_;
+    std::shared_ptr<fields_info_type> fields_info_;
 
 }; // class result_set
 

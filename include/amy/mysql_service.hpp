@@ -7,8 +7,7 @@
 #include <amy/endpoint_traits.hpp>
 #include <amy/result_set.hpp>
 
-#include <boost/scoped_ptr.hpp>
-
+#include <memory>
 #include <mutex>
 #include <thread>
 
@@ -114,9 +113,9 @@ private:
 
     detail::mysql_lib_init mysql_lib_init_;
     std::mutex work_mutex_;
-    boost::scoped_ptr<boost::asio::io_service> work_io_service_;
-    boost::scoped_ptr<boost::asio::io_service::work> work_;
-    boost::scoped_ptr<std::thread> work_thread_;
+    std::unique_ptr<boost::asio::io_service> work_io_service_;
+    std::unique_ptr<boost::asio::io_service::work> work_;
+    std::unique_ptr<std::thread> work_thread_;
 
     void start_work_thread();
 
@@ -138,10 +137,10 @@ struct mysql_service::implementation {
     bool first_result_stored;
 
     /// The last stored result set of the last query.
-    boost::shared_ptr<detail::result_set_type> last_result;
+    std::shared_ptr<detail::result_set_type> last_result;
 
     /// Token used to cancel unfinished asynchronous operations.
-    boost::shared_ptr<void> cancelation_token;
+    std::shared_ptr<void> cancelation_token;
 
     /// Constructor.
     /**
@@ -176,7 +175,7 @@ public:
 
 protected:
     implementation_type& impl_;
-    boost::weak_ptr<void> cancelation_token_;
+    std::weak_ptr<void> cancelation_token_;
     boost::asio::io_service& io_service_;
     boost::asio::io_service::work work_;
     Handler handler_;

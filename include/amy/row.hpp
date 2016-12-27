@@ -25,7 +25,7 @@ public:
     explicit row(detail::result_set_handle rs,
                  detail::row_type row,
                  unsigned long* lengths,
-                 boost::shared_ptr<fields_info_type> fields_info)
+                 std::shared_ptr<fields_info_type> fields_info)
       : result_set_(rs),
         row_(row),
         lengths_(lengths),
@@ -75,7 +75,7 @@ private:
     detail::row_type row_;
     unsigned long* lengths_;
     fields_type fields_;
-    boost::shared_ptr<fields_info_type> fields_info_;
+    std::shared_ptr<fields_info_type> fields_info_;
 
     void build_fields() {
         uint32_t field_count = size();
