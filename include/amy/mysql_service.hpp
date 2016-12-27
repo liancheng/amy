@@ -8,8 +8,9 @@
 #include <amy/result_set.hpp>
 
 #include <boost/scoped_ptr.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
+
+#include <mutex>
+#include <thread>
 
 namespace amy {
 
@@ -112,10 +113,10 @@ private:
     struct result_set_deleter;
 
     detail::mysql_lib_init mysql_lib_init_;
-    boost::mutex work_mutex_;
+    std::mutex work_mutex_;
     boost::scoped_ptr<boost::asio::io_service> work_io_service_;
     boost::scoped_ptr<boost::asio::io_service::work> work_;
-    boost::scoped_ptr<boost::thread> work_thread_;
+    boost::scoped_ptr<std::thread> work_thread_;
 
     void start_work_thread();
 

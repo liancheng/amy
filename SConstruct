@@ -14,7 +14,6 @@ env = Environment(ENV=os.environ,
                   LIBPATH=libpath)
 
 libs = ['boost_system',
-        'boost_thread-mt' if system == 'Darwin' else 'boost_thread',
         'mysqlclient',
         'pthread']
 

@@ -85,11 +85,11 @@ inline void mysql_service::close(implementation_type& impl) {
 }
 
 inline void mysql_service::start_work_thread() {
-    boost::mutex::scoped_lock lock(work_mutex_);
+    std::lock_guard<std::mutex> lock(work_mutex_);
 
     if (!work_thread_) {
         work_thread_.reset(
-                new boost::thread(
+                new std::thread(
                     boost::bind(&boost::asio::io_service::run,
                                 work_io_service_.get())));
     }
