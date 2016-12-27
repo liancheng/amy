@@ -6,7 +6,6 @@
 #include <amy/detail/throw_error.hpp>
 #include <amy/result_set.hpp>
 
-#include <boost/config.hpp>
 #include <boost/asio/basic_io_object.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/system/system_error.hpp>

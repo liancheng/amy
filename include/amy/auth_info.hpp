@@ -1,8 +1,7 @@
 #ifndef __AMY_AUTH_INFO_HPP__
 #define __AMY_AUTH_INFO_HPP__
 
-#include <boost/optional.hpp>
-
+#include <memory>
 #include <string>
 
 namespace amy {
@@ -40,8 +39,18 @@ public:
      */
     auth_info(std::string const& user, std::string const& password) :
         user_(user),
-        password_(password)
+        password_(new std::string(password))
     {}
+
+    /// Copy constructor for \c auth_info.
+    auth_info(auth_info const& that) :
+        user_(that.user()),
+        password_()
+    {
+        if (that.password()) {
+            password_.reset(new std::string(that.password()));
+        }
+    }
 
     /// Sets the user.
     /**
@@ -64,7 +73,7 @@ public:
      * \param password The password.
      */
     void password(std::string const& password) {
-        password_ = password;
+        password_.reset(new std::string(password));
     }
 
     /// Gets the password.
@@ -83,7 +92,7 @@ public:
 
 private:
     std::string user_;
-    boost::optional<std::string> password_;
+    std::unique_ptr<std::string> password_;
 
 }; // class auth_info
 
