@@ -60,6 +60,7 @@ Add `amy/include` into your header search path and make sure to link your progra
 
 - `libmysqlclient`
 - `libboost_system`
+- `pthread`
 
 Most of the time, the following compiler options should be sufficient:
 
@@ -68,6 +69,7 @@ clang++ -L/usr/lib       \
         -L/usr/local/lib \
         -lboost_system   \
         -lmysqlclient    \
+        -lpthread        \
         ...
 ```
 
