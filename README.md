@@ -14,10 +14,6 @@ The following dependencies are required to use Amy:
 
   Amy uses various header-only Boost libraries as well as the following compiled Boost libraries:
 
-  - Boost.Thread
-
-    For threading support.
-
   - Boost.System
 
     Same as Boost.Asio, Amy uses Boost.System for error handling.
@@ -64,8 +60,6 @@ Add `amy/include` into your header search path and make sure to link your progra
 
 - `libmysqlclient`
 - `libboost_system`
-- `libboost_thread` (or `libboost_thread-mt` under some systems)
-- `libpthread`
 
 Most of the time, the following compiler options should be sufficient:
 
@@ -73,9 +67,7 @@ Most of the time, the following compiler options should be sufficient:
 clang++ -L/usr/lib       \
         -L/usr/local/lib \
         -lboost_system   \
-        -lboost_thread   \
         -lmysqlclient    \
-        -lpthread        \
         ...
 ```
 
