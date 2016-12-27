@@ -10,7 +10,6 @@ env = Environment(ENV=os.environ,
                   CCFLAGS='-ggdb -O0 -std=c++11',
                   CPPPATH=[Dir('include'),
                            Dir('/usr/local/include')],
-                  CPPDEFINES=[('BOOST_PARAMETER_MAX_ARITY', 6)],
                   LIBPATH=libpath)
 
 libs = ['boost_system',

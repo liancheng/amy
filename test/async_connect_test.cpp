@@ -1,6 +1,5 @@
 #include <boost/test/unit_test.hpp>
 
-#include <amy/connect.hpp>
 #include <amy/connector.hpp>
 #include <amy/placeholders.hpp>
 
@@ -23,14 +22,13 @@ BOOST_AUTO_TEST_CASE(should_async_connect_to_localhost_with_given_auth_info) {
     boost::asio::io_service io_service;
     amy::connector c(io_service);
 
-    using namespace amy::keyword;
-
-    amy::async_connect(_connector = c,
-                       _auth      = amy::auth_info("amy", "amy"),
-                       _handler   = boost::bind(
-                                        &async_connect_test::handle_connect,
-                                        &fixture,
-                                        amy::placeholders::error));
+    c.async_connect(amy::null_endpoint(),
+                    amy::auth_info("amy", "amy"),
+                    "test_amy",
+                    amy::default_flags,
+                    boost::bind(&async_connect_test::handle_connect,
+                                &fixture,
+                                amy::placeholders::error));
 
     io_service.run();
 
