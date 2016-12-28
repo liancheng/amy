@@ -5,8 +5,6 @@
 #include <amy/detail/value_cast.hpp>
 #include <amy/error.hpp>
 
-#include <boost/any.hpp>
-#include <boost/optional.hpp>
 #include <cstring>
 
 namespace amy {

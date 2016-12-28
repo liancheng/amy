@@ -3,13 +3,12 @@
 
 #include <amy/basic_connector.hpp>
 
-#include <boost/noncopyable.hpp>
 #include <boost/system/error_code.hpp>
 
 namespace amy {
 
 template<typename MySQLService>
-class basic_scoped_transaction : private boost::noncopyable {
+class basic_scoped_transaction {
 public:
     typedef basic_connector<MySQLService> connector_type;
 
@@ -38,6 +37,7 @@ public:
         return connector_.rollback(ec);
     }
 
+protected:
     ~basic_scoped_transaction() {
         if (!committed_) {
             boost::system::error_code ec;
@@ -45,6 +45,12 @@ public:
         }
         connector_.autocommit(true);
     }
+
+    basic_scoped_transaction(
+            basic_scoped_transaction<MySQLService> const&) = delete;
+
+    basic_scoped_transaction<MySQLService>& operator=(
+            basic_scoped_transaction<MySQLService> const&) = delete;
 
 private:
     connector_type& connector_;
