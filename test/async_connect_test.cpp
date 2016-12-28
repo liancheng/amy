@@ -8,7 +8,7 @@ struct async_connect_test {
 
     async_connect_test() {
         handler_invoked = false;
-    } 
+    }
 
     void handle_connect(boost::system::error_code const& ec) {
         handler_invoked = true;
@@ -26,9 +26,9 @@ BOOST_AUTO_TEST_CASE(should_async_connect_to_localhost_with_given_auth_info) {
                     amy::auth_info("amy", "amy"),
                     "test_amy",
                     amy::default_flags,
-                    boost::bind(&async_connect_test::handle_connect,
-                                &fixture,
-                                amy::placeholders::error));
+                    std::bind(&async_connect_test::handle_connect,
+                              &fixture,
+                              amy::placeholders::error));
 
     io_service.run();
 

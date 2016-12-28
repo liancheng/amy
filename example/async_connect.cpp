@@ -4,10 +4,10 @@
 #include <amy/placeholders.hpp>
 
 #include <boost/asio/io_service.hpp>
-#include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/system/system_error.hpp>
 
+#include <functional>
 #include <iostream>
 
 global_options opts;
@@ -29,9 +29,9 @@ int main(int argc, char* argv[]) try {
                             opts.auth_info(),
                             opts.schema,
                             amy::default_flags,
-                            boost::bind(handle_connect,
-                                        amy::placeholders::error,
-                                        boost::ref(connector)));
+                            std::bind(handle_connect,
+                                      amy::placeholders::error,
+                                      std::ref(connector)));
 
     io_service.run();
 

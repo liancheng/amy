@@ -6,8 +6,6 @@
 #include <amy/detail/throw_error.hpp>
 #include <amy/placeholders.hpp>
 
-#include <boost/bind.hpp>
-
 namespace amy {
 
 template<typename MySQLService>

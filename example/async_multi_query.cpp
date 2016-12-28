@@ -4,10 +4,10 @@
 #include <amy/placeholders.hpp>
 
 #include <boost/asio/io_service.hpp>
-#include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/system/system_error.hpp>
 
+#include <functional>
 #include <iostream>
 
 global_options opts;
@@ -31,10 +31,10 @@ void handle_store_result(boost::system::error_code const& ec,
 
     if (connector.has_more_results()) {
         connector.async_store_result(
-                boost::bind(handle_store_result,
-                            amy::placeholders::error,
-                            amy::placeholders::result_set,
-                            boost::ref(connector)));
+                std::bind(handle_store_result,
+                          amy::placeholders::error,
+                          amy::placeholders::result_set,
+                          std::ref(connector)));
     }
 }
 
@@ -44,10 +44,10 @@ void handle_query(boost::system::error_code const& ec,
     check_error(ec);
 
     connector.async_store_result(
-            boost::bind(handle_store_result,
-                        amy::placeholders::error,
-                        amy::placeholders::result_set,
-                        boost::ref(connector)));
+            std::bind(handle_store_result,
+                      amy::placeholders::error,
+                      amy::placeholders::result_set,
+                      std::ref(connector)));
 }
 
 void handle_connect(boost::system::error_code const& ec,
@@ -57,9 +57,9 @@ void handle_connect(boost::system::error_code const& ec,
 
     // Executes multiple ';'-separated SQL queries read from stdin.
     connector.async_query(read_from_stdin(),
-                          boost::bind(handle_query,
-                                      amy::placeholders::error,
-                                      boost::ref(connector)));
+                          std::bind(handle_query,
+                                    amy::placeholders::error,
+                                    std::ref(connector)));
 }
 
 int main(int argc, char* argv[]) try {
@@ -72,9 +72,9 @@ int main(int argc, char* argv[]) try {
                             opts.auth_info(),
                             opts.schema,
                             amy::client_multi_statements,
-                            boost::bind(handle_connect,
-                                        amy::placeholders::error,
-                                        boost::ref(connector)));
+                            std::bind(handle_connect,
+                                      amy::placeholders::error,
+                                      std::ref(connector)));
 
     io_service.run();
 

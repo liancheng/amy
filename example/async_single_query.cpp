@@ -42,10 +42,10 @@ void handle_query(boost::system::error_code const& ec,
     check_error(ec);
 
     connector.async_store_result(
-            boost::bind(handle_store_result,
-                        amy::placeholders::error,
-                        amy::placeholders::result_set,
-                        boost::ref(connector)));
+            std::bind(handle_store_result,
+                      amy::placeholders::error,
+                      amy::placeholders::result_set,
+                      std::ref(connector)));
 }
 
 void handle_connect(boost::system::error_code const& ec,
@@ -59,9 +59,9 @@ void handle_connect(boost::system::error_code const& ec,
         "WHERE character_set_name LIKE 'latin%'";
 
     connector.async_query(statement,
-                          boost::bind(handle_query,
-                                      amy::placeholders::error,
-                                      boost::ref(connector)));
+                          std::bind(handle_query,
+                                    amy::placeholders::error,
+                                    std::ref(connector)));
 }
 
 int main(int argc, char* argv[]) try {
@@ -74,9 +74,9 @@ int main(int argc, char* argv[]) try {
                             opts.auth_info(),
                             opts.schema,
                             amy::default_flags,
-                            boost::bind(handle_connect,
-                                        amy::placeholders::error,
-                                        boost::ref(connector)));
+                            std::bind(handle_connect,
+                                      amy::placeholders::error,
+                                      std::ref(connector)));
 
     io_service.run();
 

@@ -5,7 +5,7 @@
 #include <amy/client_flags.hpp>
 #include <amy/endpoint_traits.hpp>
 
-#include <boost/bind.hpp>
+#include <functional>
 
 namespace amy {
 
@@ -90,8 +90,9 @@ inline void mysql_service::start_work_thread() {
     if (!work_thread_) {
         work_thread_.reset(
                 new std::thread(
-                    boost::bind(&boost::asio::io_service::run,
-                                work_io_service_.get())));
+                    std::bind<size_t(boost::asio::io_service::*)()>(
+                        &boost::asio::io_service::run,
+                        work_io_service_.get())));
     }
 }
 
@@ -135,7 +136,7 @@ void mysql_service::async_connect(implementation_type& impl,
         boost::system::error_code ec;
         if (!!open(impl, ec)) {
             this->get_io_service().post(
-                    boost::bind(boost::type<void>(), handler, ec));
+                    std::bind(handler, ec));
             return;
         }
     }
@@ -174,9 +175,8 @@ void mysql_service::async_query(implementation_type& impl,
                                 QueryHandler handler)
 {
     if (!is_open(impl)) {
-        this->get_io_service().post(boost::bind(boost::type<void>(),
-                                                handler,
-                                                amy::error::not_initialized));
+        this->get_io_service().post(
+                std::bind(handler, amy::error::not_initialized));
     } else {
         if (!!work_io_service_) {
             start_work_thread();
@@ -243,10 +243,9 @@ void mysql_service::async_store_result(implementation_type& impl,
 {
     if (!is_open(impl)) {
         this->get_io_service().post(
-                boost::bind(boost::type<void>(),
-                            handler,
-                            amy::error::not_initialized,
-                            result_set::empty_set(&impl.mysql)));
+                std::bind(handler,
+                          amy::error::not_initialized,
+                          result_set::empty_set(&impl.mysql)));
     } else {
         if (!!work_io_service_) {
             start_work_thread();
@@ -395,9 +394,8 @@ void mysql_service::connect_handler<Endpoint, ConnectHandler>::operator()() {
 
     if (this->cancelation_token_.expired()) {
         this->io_service_.post(
-                boost::bind(boost::type<void>(),
-                            this->handler_,
-                            boost::asio::error::operation_aborted));
+                std::bind(this->handler_,
+                          boost::asio::error::operation_aborted));
         return;
     }
 
@@ -415,8 +413,7 @@ void mysql_service::connect_handler<Endpoint, ConnectHandler>::operator()() {
                             ec);
 
     this->impl_.flags = flags_;
-    this->io_service_.post(
-            boost::bind(boost::type<void>(), this->handler_, ec));
+    this->io_service_.post(std::bind(this->handler_, ec));
 }
 
 template<typename QueryHandler>
@@ -436,9 +433,8 @@ void mysql_service::query_handler<QueryHandler>::operator()() {
 
     if (this->cancelation_token_.expired()) {
         this->io_service_.post(
-                boost::bind(boost::type<void>(),
-                            this->handler_,
-                            boost::asio::error::operation_aborted));
+                std::bind(this->handler_,
+                          boost::asio::error::operation_aborted));
         return;
     }
 
@@ -451,8 +447,7 @@ void mysql_service::query_handler<QueryHandler>::operator()() {
                           stmt_.length(),
                           ec);
 
-    this->io_service_.post(
-            boost::bind(boost::type<void>(), this->handler_, ec));
+    this->io_service_.post(std::bind(this->handler_, ec));
 }
 
 template<typename StoreResultHandler>
@@ -469,10 +464,9 @@ void mysql_service::store_result_handler<StoreResultHandler>::operator()() {
 
     if (this->cancelation_token_.expired()) {
         this->io_service_.post(
-                boost::bind(boost::type<void>(),
-                            this->handler_,
-                            boost::asio::error::operation_aborted,
-                            result_set::empty_set(&this->impl_.mysql)));
+                std::bind(this->handler_,
+                          boost::asio::error::operation_aborted,
+                          result_set::empty_set(&this->impl_.mysql)));
         return;
     }
 
@@ -498,10 +492,9 @@ void mysql_service::store_result_handler<StoreResultHandler>::operator()() {
         // If anything went wrong, invokes the user-defined handler with the
         // error code and an empty result set.
         this->io_service_.post(
-                boost::bind(boost::type<void>(),
-                            this->handler_,
-                            ec,
-                            result_set::empty_set(&this->impl_.mysql)));
+                std::bind(this->handler_,
+                          ec,
+                          result_set::empty_set(&this->impl_.mysql)));
         return;
     }
 
@@ -513,8 +506,7 @@ void mysql_service::store_result_handler<StoreResultHandler>::operator()() {
     result_set rs;
     rs.assign(&this->impl_.mysql, this->impl_.last_result, ec);
 
-    this->io_service_.post(
-            boost::bind(boost::type<void>(), this->handler_, ec, rs));
+    this->io_service_.post(std::bind(this->handler_, ec, rs));
 }
 
 inline void mysql_service::result_set_deleter::operator()(void* p) {

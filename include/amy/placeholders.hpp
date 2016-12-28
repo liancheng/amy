@@ -3,23 +3,40 @@
 
 #include <boost/asio/placeholders.hpp>
 
+#include <type_traits>
+
 namespace amy {
 namespace placeholders {
 
-inline boost::arg<1> error() {
-    return boost::arg<1>();
-}
+struct _ph_error {};
+struct _ph_result_set {};
+struct _ph_affected_rows {};
 
-inline boost::arg<2> result_set() {
-    return boost::arg<2>();
-}
-
-inline boost::arg<2> affected_rows() {
-    return boost::arg<2>();
-}
+constexpr _ph_error         error {};
+constexpr _ph_result_set    result_set {};
+constexpr _ph_affected_rows affected_rows {};
 
 } // namespace placeholders
 } // namespace amy
+
+namespace std {
+
+template<>
+struct is_placeholder<amy::placeholders::_ph_error> :
+    std::integral_constant<int, 1>
+{};
+
+template<>
+struct is_placeholder<amy::placeholders::_ph_result_set> :
+    std::integral_constant<int, 2>
+{};
+
+template<>
+struct is_placeholder<amy::placeholders::_ph_affected_rows> :
+    std::integral_constant<int, 2>
+{};
+
+} // std
 
 #endif // __AMY_PLACEHOLDERS_HPP__
 
