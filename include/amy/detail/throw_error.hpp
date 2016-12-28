@@ -5,9 +5,6 @@
 #include <amy/error.hpp>
 #include <amy/system_error.hpp>
 
-#include <boost/system/system_error.hpp>
-#include <boost/throw_exception.hpp>
-
 namespace amy {
 namespace detail {
 
@@ -16,11 +13,9 @@ inline void throw_error(boost::system::error_code const& ec,
 {
     if (ec) {
         if (ec.category() == amy::error::get_client_category()) {
-            amy::system_error e(ec, ::mysql_error(m));
-            boost::throw_exception(e);
+            throw amy::system_error(ec, ::mysql_error(m));
         } else {
-            amy::system_error e(ec);
-            boost::throw_exception(e);
+            throw amy::system_error(ec);
         }
     }
 }

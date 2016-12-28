@@ -5,7 +5,6 @@
 #include <amy/error.hpp>
 
 #include <boost/system/system_error.hpp>
-#include <boost/throw_exception.hpp>
 
 #include <memory>
 
@@ -31,10 +30,10 @@ private:
             static std::shared_ptr<do_init> init(new do_init());
 
             if (0 != init->result()) {
-                boost::system::system_error e(init->result(),
-                                              boost::system::system_category(),
-                                              "mysql_library_init()");
-                boost::throw_exception(e);
+                throw boost::system::system_error(
+                        init->result(),
+                        boost::system::system_category(),
+                        "mysql_library_init()");
             }
 
             return init;

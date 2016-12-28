@@ -3,7 +3,7 @@
 
 #include <amy/detail/mysql_types.hpp>
 
-#include <boost/assert.hpp>
+#include <cassert>
 #include <string>
 
 namespace amy {
@@ -13,18 +13,18 @@ public:
     explicit field_info(detail::field_handle f) :
         field_(f)
     {
-        BOOST_ASSERT(nullptr != f);
+        assert(nullptr != f);
     }
 
     field_info(field_info const& other) :
         field_(other.field_)
     {
-        BOOST_ASSERT(nullptr != field_);
+        assert(nullptr != field_);
     }
 
     field_info& operator=(field_info const& other) {
         field_ = other.field_;
-        BOOST_ASSERT(nullptr != field_);
+        assert(nullptr != field_);
         return *this;
     }
 
