@@ -16,8 +16,6 @@ libs = ['boost_system',
         'mysqlclient',
         'pthread']
 
-env.Execute('@doxygen Doxyfile')
-
 env.SConscript(dirs=['test'],
                exports=['env', 'libs'],
                variant_dir='build/test',
