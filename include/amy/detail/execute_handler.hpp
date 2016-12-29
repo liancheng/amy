@@ -1,9 +1,8 @@
 #ifndef __AMY_DETAIL_EXECUTE_HANDLER_HPP__
 #define __AMY_DETAIL_EXECUTE_HANDLER_HPP__
 
+#include <amy/asio.hpp>
 #include <amy/basic_connector.hpp>
-
-#include <boost/system/error_code.hpp>
 
 namespace amy {
 namespace detail {
@@ -22,7 +21,7 @@ public:
         handler(handler)
     {}
 
-    void operator()(boost::system::error_code const& ec) {
+    void operator()(AMY_SYSTEM_NS::error_code const& ec) {
         handler(ec, !!ec ? connector.affected_rows() : 0u);
     }
 

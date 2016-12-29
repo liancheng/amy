@@ -5,12 +5,12 @@
 #include <amy/connector.hpp>
 
 BOOST_AUTO_TEST_CASE(should_construct_a_connector_instance) {
-    boost::asio::io_service io_service;
+    AMY_ASIO_NS::io_service io_service;
     amy::connector connector(io_service);
 }
 
 BOOST_AUTO_TEST_CASE(should_be_opened_successfully) {
-    boost::asio::io_service io_service;
+    AMY_ASIO_NS::io_service io_service;
     amy::connector connector(io_service);
 
     connector.open();
@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(should_be_opened_successfully) {
 }
 
 BOOST_AUTO_TEST_CASE(should_be_closed_successfully) {
-    boost::asio::io_service io_service;
+    AMY_ASIO_NS::io_service io_service;
     amy::connector connector(io_service);
 
     connector.open();

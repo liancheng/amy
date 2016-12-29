@@ -9,11 +9,11 @@
 
 namespace amy {
 
-inline mysql_service::mysql_service(boost::asio::io_service& io_service) :
+inline mysql_service::mysql_service(AMY_ASIO_NS::io_service& io_service) :
     detail::service_base<mysql_service>(io_service),
     work_mutex_(),
-    work_io_service_(new boost::asio::io_service),
-    work_(new boost::asio::io_service::work(*work_io_service_)),
+    work_io_service_(new AMY_ASIO_NS::io_service),
+    work_(new AMY_ASIO_NS::io_service::work(*work_io_service_)),
     work_thread_()
 {}
 
@@ -50,7 +50,7 @@ mysql_service::native(implementation_type& impl) {
 
 inline std::string
 mysql_service::error_message(implementation_type& impl,
-                             boost::system::error_code const& ec)
+                             AMY_SYSTEM_NS::error_code const& ec)
 {
     uint32_t ev = static_cast<uint32_t>(ec.value());
 
@@ -61,8 +61,8 @@ mysql_service::error_message(implementation_type& impl,
     }
 }
 
-inline boost::system::error_code
-mysql_service::open(implementation_type& impl, boost::system::error_code& ec) {
+inline AMY_SYSTEM_NS::error_code
+mysql_service::open(implementation_type& impl, AMY_SYSTEM_NS::error_code& ec) {
     namespace ops = amy::detail::mysql_ops;
 
     ops::clear_error(ec);
@@ -87,25 +87,25 @@ inline void mysql_service::close(implementation_type& impl) {
 inline void mysql_service::start_work_thread() {
     std::lock_guard<std::mutex> lock(work_mutex_);
 
-    typedef size_t(boost::asio::io_service::*run_function)();
+    typedef size_t(AMY_ASIO_NS::io_service::*run_function)();
 
     if (!work_thread_) {
         work_thread_.reset(
                 new std::thread(
                     std::bind<run_function>(
-                        &boost::asio::io_service::run,
+                        &AMY_ASIO_NS::io_service::run,
                         work_io_service_.get())));
     }
 }
 
 template<typename Endpoint>
-boost::system::error_code
+AMY_SYSTEM_NS::error_code
 mysql_service::connect(implementation_type& impl,
                        Endpoint const& endpoint,
                        auth_info const& auth,
                        std::string const& database,
                        client_flags client_flag,
-                       boost::system::error_code& ec)
+                       AMY_SYSTEM_NS::error_code& ec)
 {
     if (!is_open(impl)) {
         if (open(impl, ec)) {
@@ -135,7 +135,7 @@ void mysql_service::async_connect(implementation_type& impl,
                                   ConnectHandler handler)
 {
     if (!is_open(impl)) {
-        boost::system::error_code ec;
+        AMY_SYSTEM_NS::error_code ec;
         if (!!open(impl, ec)) {
             this->get_io_service().post(std::bind(handler, ec));
             return;
@@ -151,10 +151,10 @@ void mysql_service::async_connect(implementation_type& impl,
     }
 }
 
-inline boost::system::error_code
+inline AMY_SYSTEM_NS::error_code
 mysql_service::query(implementation_type& impl,
                      std::string const& stmt,
-                     boost::system::error_code& ec)
+                     AMY_SYSTEM_NS::error_code& ec)
 {
     if (!is_open(impl)) {
         ec = amy::error::not_initialized;
@@ -206,7 +206,7 @@ mysql_service::has_more_results(implementation_type const& impl) const {
 }
 
 inline result_set mysql_service::store_result(implementation_type& impl,
-                                              boost::system::error_code& ec)
+                                              AMY_SYSTEM_NS::error_code& ec)
 {
     namespace ops = amy::detail::mysql_ops;
 
@@ -257,19 +257,19 @@ void mysql_service::async_store_result(implementation_type& impl,
     }
 }
 
-inline boost::system::error_code
+inline AMY_SYSTEM_NS::error_code
 mysql_service::autocommit(implementation_type& impl,
                           bool mode,
-                          boost::system::error_code& ec)
+                          AMY_SYSTEM_NS::error_code& ec)
 {
     namespace ops = amy::detail::mysql_ops;
     ops::mysql_autocommit(&impl.mysql, mode, ec);
     return ec;
 }
 
-inline boost::system::error_code
+inline AMY_SYSTEM_NS::error_code
 mysql_service::commit(implementation_type& impl,
-                      boost::system::error_code& ec)
+                      AMY_SYSTEM_NS::error_code& ec)
 {
     namespace ops = amy::detail::mysql_ops;
 
@@ -282,9 +282,9 @@ mysql_service::commit(implementation_type& impl,
     return ec;
 }
 
-inline boost::system::error_code
+inline AMY_SYSTEM_NS::error_code
 mysql_service::rollback(implementation_type& impl,
-                        boost::system::error_code& ec)
+                        AMY_SYSTEM_NS::error_code& ec)
 {
     namespace ops = amy::detail::mysql_ops;
 
@@ -333,10 +333,10 @@ inline void mysql_service::implementation::close() {
 }
 
 template<typename Option>
-boost::system::error_code
+AMY_SYSTEM_NS::error_code
 mysql_service::set_option(implementation_type& impl,
                           Option const& option,
-                          boost::system::error_code& ec)
+                          AMY_SYSTEM_NS::error_code& ec)
 {
     namespace ops = detail::mysql_ops;
 
@@ -363,7 +363,7 @@ inline void mysql_service::implementation::cancel() {
 template<typename Handler>
 mysql_service::handler_base<Handler>::handler_base(
         implementation_type& impl,
-        boost::asio::io_service& io_service,
+        AMY_ASIO_NS::io_service& io_service,
         Handler handler)
   : impl_(impl),
     cancelation_token_(impl.cancelation_token),
@@ -379,7 +379,7 @@ mysql_service::connect_handler<Endpoint, ConnectHandler>::connect_handler(
         amy::auth_info const& auth,
         std::string const& database,
         client_flags flags,
-        boost::asio::io_service& io_service,
+        AMY_ASIO_NS::io_service& io_service,
         ConnectHandler handler)
   : handler_base<ConnectHandler>(impl, io_service, handler),
     endpoint_(endpoint),
@@ -396,13 +396,13 @@ void mysql_service::connect_handler<Endpoint, ConnectHandler>::operator()() {
     if (this->cancelation_token_.expired()) {
         this->io_service_.post(
                 std::bind(this->handler_,
-                          boost::asio::error::operation_aborted));
+                          AMY_ASIO_NS::error::operation_aborted));
         return;
     }
 
     amy::endpoint_traits<Endpoint> traits(this->endpoint_);
 
-    boost::system::error_code ec;
+    AMY_SYSTEM_NS::error_code ec;
     ops::mysql_real_connect(&this->impl_.mysql,
                             traits.host(),
                             auth_.user(),
@@ -421,7 +421,7 @@ template<typename QueryHandler>
 mysql_service::query_handler<QueryHandler>::query_handler(
         implementation_type& impl,
         std::string const& stmt,
-        boost::asio::io_service& io_service,
+        AMY_ASIO_NS::io_service& io_service,
         QueryHandler handler)
   : handler_base<QueryHandler>(impl, io_service, handler),
     stmt_(stmt)
@@ -435,14 +435,14 @@ void mysql_service::query_handler<QueryHandler>::operator()() {
     if (this->cancelation_token_.expired()) {
         this->io_service_.post(
                 std::bind(this->handler_,
-                          boost::asio::error::operation_aborted));
+                          AMY_ASIO_NS::error::operation_aborted));
         return;
     }
 
     this->impl_.free_result();
     this->impl_.first_result_stored = false;
 
-    boost::system::error_code ec;
+    AMY_SYSTEM_NS::error_code ec;
     ops::mysql_real_query(&this->impl_.mysql,
                           stmt_.c_str(),
                           stmt_.length(),
@@ -454,7 +454,7 @@ void mysql_service::query_handler<QueryHandler>::operator()() {
 template<typename StoreResultHandler>
 mysql_service::store_result_handler<StoreResultHandler>::store_result_handler(
         implementation_type& impl,
-        boost::asio::io_service& io_service,
+        AMY_ASIO_NS::io_service& io_service,
         StoreResultHandler handler)
   : handler_base<StoreResultHandler>(impl, io_service, handler)
 {}
@@ -466,19 +466,19 @@ void mysql_service::store_result_handler<StoreResultHandler>::operator()() {
     if (this->cancelation_token_.expired()) {
         this->io_service_.post(
                 std::bind(this->handler_,
-                          boost::asio::error::operation_aborted,
+                          AMY_ASIO_NS::error::operation_aborted,
                           result_set::empty_set(&this->impl_.mysql)));
         return;
     }
 
-    boost::system::error_code ec;
+    AMY_SYSTEM_NS::error_code ec;
 
     if (this->impl_.first_result_stored) {
         // Frees the last result set.
         this->impl_.free_result();
 
         mysql_service& service =
-            boost::asio::use_service<mysql_service>(this->io_service_);
+            AMY_ASIO_NS::use_service<mysql_service>(this->io_service_);
 
         if (!service.has_more_results(this->impl_)) {
             ec = amy::error::no_more_results;

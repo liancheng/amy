@@ -48,7 +48,7 @@ public:
         end_(false)
     {
         if (!connector_->is_open()) {
-            boost::system::error_code ec = amy::error::not_initialized;
+            AMY_SYSTEM_NS::error_code ec = amy::error::not_initialized;
             amy::detail::throw_error(ec, connector_->native());
         }
 

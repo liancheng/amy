@@ -33,7 +33,7 @@ public:
 
     typedef detail::mysql_handle native_type;
 
-    explicit mysql_service(boost::asio::io_service& io_service);
+    explicit mysql_service(AMY_ASIO_NS::io_service& io_service);
 
     ~mysql_service();
 
@@ -46,29 +46,29 @@ public:
     native_type native(implementation_type& impl);
 
     std::string error_message(implementation_type& impl,
-                              boost::system::error_code const& ec);
+                              AMY_SYSTEM_NS::error_code const& ec);
 
-    boost::system::error_code open(implementation_type& impl,
-                                   boost::system::error_code& ec);
+    AMY_SYSTEM_NS::error_code open(implementation_type& impl,
+                                   AMY_SYSTEM_NS::error_code& ec);
 
     bool is_open(implementation_type const& impl) const;
 
     void close(implementation_type& impl);
 
     template<typename Option>
-    boost::system::error_code set_option(implementation_type& impl,
+    AMY_SYSTEM_NS::error_code set_option(implementation_type& impl,
                                          Option const& option,
-                                         boost::system::error_code& ec);
+                                         AMY_SYSTEM_NS::error_code& ec);
 
     void cancel(implementation_type& impl);
 
     template<typename Endpoint>
-    boost::system::error_code connect(implementation_type& impl,
+    AMY_SYSTEM_NS::error_code connect(implementation_type& impl,
                                       Endpoint const& endpoint,
                                       auth_info const& auth,
                                       std::string const& database,
                                       client_flags client_flag,
-                                      boost::system::error_code& ec);
+                                      AMY_SYSTEM_NS::error_code& ec);
 
     template<typename Endpoint, typename ConnectHandler>
     void async_connect(implementation_type& impl,
@@ -78,9 +78,9 @@ public:
                        client_flags flags,
                        ConnectHandler handler);
 
-    boost::system::error_code query(implementation_type& impl,
+    AMY_SYSTEM_NS::error_code query(implementation_type& impl,
                                     std::string const& stmt,
-                                    boost::system::error_code& ec);
+                                    AMY_SYSTEM_NS::error_code& ec);
 
     template<typename QueryHandler>
     void async_query(implementation_type& impl,
@@ -90,21 +90,21 @@ public:
     bool has_more_results(implementation_type const& impl) const;
 
     result_set store_result(implementation_type& impl,
-                            boost::system::error_code& ec);
+                            AMY_SYSTEM_NS::error_code& ec);
 
     template<typename StoreResultHandler>
     void async_store_result(implementation_type& impl,
                             StoreResultHandler handler);
 
-    boost::system::error_code autocommit(implementation_type& impl,
+    AMY_SYSTEM_NS::error_code autocommit(implementation_type& impl,
                                          bool mode,
-                                         boost::system::error_code& ec);
+                                         AMY_SYSTEM_NS::error_code& ec);
 
-    boost::system::error_code commit(implementation_type& impl,
-                                     boost::system::error_code& ec);
+    AMY_SYSTEM_NS::error_code commit(implementation_type& impl,
+                                     AMY_SYSTEM_NS::error_code& ec);
 
-    boost::system::error_code rollback(implementation_type& impl,
-                                       boost::system::error_code& ec);
+    AMY_SYSTEM_NS::error_code rollback(implementation_type& impl,
+                                       AMY_SYSTEM_NS::error_code& ec);
 
     uint64_t affected_rows(implementation_type& impl);
 
@@ -113,8 +113,8 @@ private:
 
     detail::mysql_lib_init mysql_lib_init_;
     std::mutex work_mutex_;
-    std::unique_ptr<boost::asio::io_service> work_io_service_;
-    std::unique_ptr<boost::asio::io_service::work> work_;
+    std::unique_ptr<AMY_ASIO_NS::io_service> work_io_service_;
+    std::unique_ptr<AMY_ASIO_NS::io_service::work> work_;
     std::unique_ptr<std::thread> work_thread_;
 
     void start_work_thread();
@@ -170,14 +170,14 @@ template<typename Handler>
 class mysql_service::handler_base {
 public:
     explicit handler_base(implementation_type& impl,
-                          boost::asio::io_service& io_service,
+                          AMY_ASIO_NS::io_service& io_service,
                           Handler handler);
 
 protected:
     implementation_type& impl_;
     std::weak_ptr<void> cancelation_token_;
-    boost::asio::io_service& io_service_;
-    boost::asio::io_service::work work_;
+    AMY_ASIO_NS::io_service& io_service_;
+    AMY_ASIO_NS::io_service::work work_;
     Handler handler_;
 
 }; // class mysql_service::handler_base
@@ -190,7 +190,7 @@ public:
                              amy::auth_info const& auth,
                              std::string const& database,
                              client_flags flags,
-                             boost::asio::io_service& io_service,
+                             AMY_ASIO_NS::io_service& io_service,
                              ConnectHandler handler);
 
     void operator()();
@@ -208,7 +208,7 @@ class mysql_service::query_handler : public handler_base<QueryHandler> {
 public:
     explicit query_handler(implementation_type& impl,
                            std::string const& stmt,
-                           boost::asio::io_service& io_service,
+                           AMY_ASIO_NS::io_service& io_service,
                            QueryHandler handler);
 
     void operator()();
@@ -224,7 +224,7 @@ class mysql_service::store_result_handler :
 {
 public:
     explicit store_result_handler(implementation_type& impl,
-                                  boost::asio::io_service& io_service,
+                                  AMY_ASIO_NS::io_service& io_service,
                                   StoreResultHandler handler);
 
     void operator()();

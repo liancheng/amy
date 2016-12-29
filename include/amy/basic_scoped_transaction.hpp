@@ -1,9 +1,8 @@
 #ifndef __AMY_TRANSACTION_HPP__
 #define __AMY_TRANSACTION_HPP__
 
+#include <amy/asio.hpp>
 #include <amy/basic_connector.hpp>
-
-#include <boost/system/error_code.hpp>
 
 namespace amy {
 
@@ -24,7 +23,7 @@ public:
         committed_ = true;
     }
 
-    boost::system::error_code commit(boost::system::error_code& ec) {
+    AMY_SYSTEM_NS::error_code commit(AMY_SYSTEM_NS::error_code& ec) {
         committed_ = !!connector_.commit(ec);
         return ec;
     }
@@ -33,14 +32,14 @@ public:
         connector_.rollback();
     }
 
-    boost::system::error_code rollback(boost::system::error_code& ec) {
+    AMY_SYSTEM_NS::error_code rollback(AMY_SYSTEM_NS::error_code& ec) {
         return connector_.rollback(ec);
     }
 
 protected:
     ~basic_scoped_transaction() {
         if (!committed_) {
-            boost::system::error_code ec;
+            AMY_SYSTEM_NS::error_code ec;
             connector_.rollback(ec);
         }
         connector_.autocommit(true);

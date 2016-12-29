@@ -6,8 +6,8 @@
 #include <iostream>
 #include <iterator>
 
-boost::asio::ip::tcp::endpoint global_options::tcp_endpoint() const {
-    using namespace boost::asio::ip;
+AMY_ASIO_NS::ip::tcp::endpoint global_options::tcp_endpoint() const {
+    using namespace AMY_ASIO_NS::ip;
 
     return host.empty() ?
         tcp::endpoint(address_v4::loopback(), port) :
@@ -68,9 +68,9 @@ std::string read_from_stdin() {
     return str;
 }
 
-void check_error(boost::system::error_code const& ec) {
+void check_error(AMY_SYSTEM_NS::error_code const& ec) {
     if (ec) {
-        boost::throw_exception(boost::system::system_error(ec));
+        boost::throw_exception(AMY_SYSTEM_NS::system_error(ec));
     }
 }
 

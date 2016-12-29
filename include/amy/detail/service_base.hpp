@@ -1,7 +1,7 @@
 #ifndef __AMY_DETAIL_SERVICE_BASE_HPP__
 #define __AMY_DETAIL_SERVICE_BASE_HPP__
 
-#include <boost/asio/io_service.hpp>
+#include <amy/asio.hpp>
 
 namespace amy {
 namespace detail {
@@ -9,7 +9,7 @@ namespace detail {
 // TODO Implements our own `service_base` class.
 //
 // Everything inside the `detail` namespace is not part of the public API.
-using boost::asio::detail::service_base;
+using AMY_ASIO_NS::detail::service_base;
 
 } // namespace detail
 } // namespace amy

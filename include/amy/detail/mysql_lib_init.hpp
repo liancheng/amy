@@ -1,10 +1,9 @@
 #ifndef __AMY_DETAIL_MYSQL_LIB_INIT_HPP__
 #define __AMY_DETAIL_MYSQL_LIB_INIT_HPP__
 
+#include <amy/asio.hpp>
 #include <amy/detail/mysql.hpp>
 #include <amy/error.hpp>
-
-#include <boost/system/system_error.hpp>
 
 #include <memory>
 
@@ -30,9 +29,9 @@ private:
             static std::shared_ptr<do_init> init(new do_init());
 
             if (0 != init->result()) {
-                throw boost::system::system_error(
+                throw AMY_SYSTEM_NS::system_error(
                         init->result(),
-                        boost::system::system_category(),
+                        AMY_SYSTEM_NS::system_category(),
                         "mysql_library_init()");
             }
 
