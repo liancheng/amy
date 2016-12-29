@@ -87,10 +87,12 @@ inline void mysql_service::close(implementation_type& impl) {
 inline void mysql_service::start_work_thread() {
     std::lock_guard<std::mutex> lock(work_mutex_);
 
+    typedef size_t(boost::asio::io_service::*run_function)();
+
     if (!work_thread_) {
         work_thread_.reset(
                 new std::thread(
-                    std::bind<size_t(boost::asio::io_service::*)()>(
+                    std::bind<run_function>(
                         &boost::asio::io_service::run,
                         work_io_service_.get())));
     }
@@ -135,8 +137,7 @@ void mysql_service::async_connect(implementation_type& impl,
     if (!is_open(impl)) {
         boost::system::error_code ec;
         if (!!open(impl, ec)) {
-            this->get_io_service().post(
-                    std::bind(handler, ec));
+            this->get_io_service().post(std::bind(handler, ec));
             return;
         }
     }

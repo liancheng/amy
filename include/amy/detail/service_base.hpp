@@ -6,6 +6,9 @@
 namespace amy {
 namespace detail {
 
+// TODO Implements our own `service_base` class.
+//
+// Everything inside the `detail` namespace is not part of the public API.
 using boost::asio::detail::service_base;
 
 } // namespace detail
