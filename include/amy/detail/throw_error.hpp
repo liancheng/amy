@@ -8,7 +8,7 @@
 namespace amy {
 namespace detail {
 
-inline void throw_error(boost::system::error_code const& ec,
+inline void throw_error(AMY_SYSTEM_NS::error_code const& ec,
                         detail::mysql_handle m)
 {
     if (ec) {

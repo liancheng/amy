@@ -73,15 +73,15 @@ public:
     void assign(native_mysql_type mysql,
                 std::shared_ptr<detail::result_set_type> rs)
     {
-        boost::system::error_code ec;
+        AMY_SYSTEM_NS::error_code ec;
         assign(mysql, rs, ec);
         detail::throw_error(ec, mysql);
     }
 
-    boost::system::error_code
-    assign(native_mysql_type mysql,
-           std::shared_ptr<detail::result_set_type> rs,
-           boost::system::error_code& ec )
+    AMY_SYSTEM_NS::error_code assign(
+            native_mysql_type mysql,
+            std::shared_ptr<detail::result_set_type> rs,
+            AMY_SYSTEM_NS::error_code& ec )
     {
         namespace ops = amy::detail::mysql_ops;
 

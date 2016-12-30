@@ -12,7 +12,7 @@ template<typename MySQLService>
 uint64_t execute(basic_connector<MySQLService>& connector,
                  std::string const& stmt)
 {
-    boost::system::error_code ec;
+    AMY_SYSTEM_NS::error_code ec;
     uint64_t affected_rows = execute(connector, stmt, ec);
     detail::throw_error(ec, connector.native());
     return affected_rows;
@@ -21,7 +21,7 @@ uint64_t execute(basic_connector<MySQLService>& connector,
 template<typename MySQLService>
 uint64_t execute(basic_connector<MySQLService>& connector,
                  std::string const& stmt,
-                 boost::system::error_code& ec)
+                 AMY_SYSTEM_NS::error_code& ec)
 {
     connector.query(stmt, ec);
     if (ec) {

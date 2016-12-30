@@ -10,7 +10,7 @@ struct async_connect_test {
         handler_invoked = false;
     }
 
-    void handle_connect(boost::system::error_code const& ec) {
+    void handle_connect(AMY_SYSTEM_NS::error_code const& ec) {
         handler_invoked = true;
     }
 
@@ -19,7 +19,7 @@ struct async_connect_test {
 BOOST_AUTO_TEST_CASE(should_async_connect_to_localhost_with_given_auth_info) {
     async_connect_test fixture;
 
-    boost::asio::io_service io_service;
+    AMY_ASIO_NS::io_service io_service;
     amy::connector c(io_service);
 
     c.async_connect(amy::null_endpoint(),

@@ -1,10 +1,9 @@
 #ifndef __AMY_ERROR_HPP__
 #define __AMY_ERROR_HPP__
 
+#include <amy/asio.hpp>
 #include <amy/detail/mysql.hpp>
 #include <amy/detail/mysql_types.hpp>
-
-#include <boost/system/error_code.hpp>
 
 namespace amy {
 namespace error {
@@ -218,13 +217,13 @@ enum misc_errors {
 
 namespace detail {
 
-class client_category : public boost::system::error_category {
+class client_category : public AMY_SYSTEM_NS::error_category {
 public:
     explicit client_category() :
-        boost::system::error_category()
+        AMY_SYSTEM_NS::error_category()
     {}
 
-    char const* name() const BOOST_SYSTEM_NOEXCEPT {
+    char const* name() const noexcept {
         return "mysql";
     }
 
@@ -414,16 +413,16 @@ public:
 
 } // namespace detail
 
-inline boost::system::error_category& get_client_category() {
+inline AMY_SYSTEM_NS::error_category& get_client_category() {
     static detail::client_category instance;
     return instance;
 }
 
 namespace detail {
 
-class misc_category : public boost::system::error_category {
+class misc_category : public AMY_SYSTEM_NS::error_category {
 public:
-    char const* name() const BOOST_SYSTEM_NOEXCEPT {
+    char const* name() const noexcept {
         return "mysql misc";
     }
 
@@ -451,7 +450,7 @@ public:
 
 } // namespace detail
 
-inline boost::system::error_category const& get_misc_category() {
+inline AMY_SYSTEM_NS::error_category const& get_misc_category() {
     static detail::misc_category instance;
     return instance;
 }
@@ -459,8 +458,12 @@ inline boost::system::error_category const& get_misc_category() {
 } // namespace error
 } // namespace amy
 
+#if defined(USE_BOOST_ASIO)
 namespace boost {
 namespace system {
+#else
+namespace std {
+#endif
 
 template<>
 struct is_error_code_enum<amy::error::client_errors> {
@@ -474,20 +477,24 @@ struct is_error_code_enum<amy::error::misc_errors> {
 
 }; // struct is_error_code_enum
 
+#if defined(USE_BOOST_ASIO)
 } // namespace system
 } // namespace boost
+#else
+} // namespace std
+#endif
 
 namespace amy {
 namespace error {
 
-inline boost::system::error_code make_error_code(client_errors e) {
-    return boost::system::error_code(static_cast<int>(e),
-                                     get_client_category());
+inline AMY_SYSTEM_NS::error_code make_error_code(client_errors e) {
+    return AMY_SYSTEM_NS::error_code(static_cast<int>(e),
+                                      get_client_category());
 }
 
-inline boost::system::error_code make_error_code(misc_errors e) {
-    return boost::system::error_code(static_cast<int>(e),
-                                     get_misc_category());
+inline AMY_SYSTEM_NS::error_code make_error_code(misc_errors e) {
+    return AMY_SYSTEM_NS::error_code(static_cast<int>(e),
+                                      get_misc_category());
 }
 
 } // namespace error

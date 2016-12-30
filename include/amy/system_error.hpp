@@ -1,19 +1,19 @@
 #ifndef __AMY_SYSTEM_ERROR_HPP__
 #define __AMY_SYSTEM_ERROR_HPP__
 
-#include <boost/system/system_error.hpp>
+#include <amy/asio.hpp>
 
 namespace amy {
 
-class system_error : public boost::system::system_error {
+class system_error : public AMY_SYSTEM_NS::system_error {
 public:
-    explicit system_error(boost::system::error_code const& ec) :
-        boost::system::system_error(ec)
+    explicit system_error(AMY_SYSTEM_NS::error_code const& ec) :
+        AMY_SYSTEM_NS::system_error(ec)
     {}
 
-    explicit system_error(boost::system::error_code const& ec,
-                          std::string const& message)
-      : boost::system::system_error(ec),
+    explicit system_error(AMY_SYSTEM_NS::error_code const& ec,
+                          std::string const& message) :
+        AMY_SYSTEM_NS::system_error(ec),
         message_(message)
     {}
 

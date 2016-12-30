@@ -1,12 +1,11 @@
 #ifndef __AMY_DETAIL_ENDPOINT_TRAITS_HPP__
 #define __AMY_DETAIL_ENDPOINT_TRAITS_HPP__
 
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/local/stream_protocol.hpp>
+#include <amy/asio.hpp>
 
 namespace amy {
 
-using namespace boost::asio;
+using namespace AMY_ASIO_NS;
 
 template<typename Endpoint>
 class endpoint_traits;
