@@ -1,6 +1,6 @@
 # Overview
 
-Amy is a C++11 compliant header-only **A**synchronous **My**SQL client library based on Boost.Asio. It enables you to work with MySQL in both asynchronous and blocking ways.
+Amy is a C++11 compliant header-only **A**synchronous **My**SQL client library based on [Asio][asio]. It enables you to work with MySQL in both asynchronous and blocking ways.
 
 # Getting Started
 
@@ -8,15 +8,21 @@ Amy had been tested using and Clang++ 3.8 under Ubuntu 16.04, FreeBSD 11.0, and 
 
 ## Dependencies
 
+Amy allows users to choose between [Boost.Asio][boost-asio] and vanilla Asio by defining the `USE_BOOST_ASIO` compilation flag or not. By default, Amy compiles against vanilla Asio to minimize dependencies.
+
 The following dependencies are required to use Amy:
 
-- Boost: 1.55 or newer
+- [Boost][boost]: 1.55 or newer
 
-  Amy uses various header-only Boost libraries as well as the following compiled Boost libraries:
+  - [Boost.Date_time][boost-date-time]
 
-  - Boost.System
+    Used for processing MySQL date and time data types.
 
-    Same as Boost.Asio, Amy uses Boost.System for error handling.
+  - [Boost.Iterator][boost-iterator]
+
+    Used for help implementing the result set iterator.
+
+  When compiled against Boost.Asio, [Boost.System][boost-system] is required as a transitive dependency.
 
 - MySQL client library: 5.6 or newer
 
@@ -25,22 +31,22 @@ Most of the time, you can obtain them pretty easily using package managers of yo
 - Ubuntu 16.04:
 
   ```
-  $ sudo apt-get install libboost-all-dev libmysqlclient-dev
+  $ sudo apt-get install libboost-all-dev libmysqlclient-dev libasio-dev
   ```
 
 - FreeBSD 11.0:
 
   ```
-  $ sudo pkg instal boost-all mysql-connector-c
+  $ sudo pkg instal boost-all mysql-connector-c asio
   ```
 
 - Mac OS X 10.10:
 
   ```
-  $ brew install boost mysql-connector-c
+  $ brew install boost mysql-connector-c asio
   ```
 
-Also, Amy uses [SCons](http://scons.org/) to build examples and tests. You may either install it using your favorite package manager or using Python `pip`:
+Also, Amy uses [SCons][scons] to build examples and tests. You may either install it using your favorite package manager or using Python `pip`:
 
 ```
 $ sudo pip install scons
@@ -59,17 +65,17 @@ $ git submodule update --init --recursive
 Add `amy/include` into your header search path and make sure to link your program against the following libraries:
 
 - `libmysqlclient`
-- `libboost_system`
 - `pthread`
+- `libboost_system` (if you are using Boost.Asio)
 
 Most of the time, the following compiler options should be sufficient:
 
 ```
 clang++ -L/usr/lib       \
         -L/usr/local/lib \
-        -lboost_system   \
         -lmysqlclient    \
         -lpthread        \
+        [-lboost_system] \
         ...
 ```
 
@@ -121,3 +127,11 @@ FLUSH PRIVILEGES;
 ```
 
 To run the tests, simply type `scons` under the root directory of Amy's source tree.
+
+[asio]: http://think-async.com/Asio
+[boost-asio]: http://www.boost.org/doc/libs/1_63_0/doc/html/boost_asio.html
+[boost-date-time]: http://www.boost.org/doc/libs/1_63_0/doc/html/date_time.html
+[boost-iterator]: http://www.boost.org/doc/libs/1_63_0/libs/iterator/doc/index.html
+[boost-system]: http://www.boost.org/doc/libs/1_63_0/libs/system/doc/index.html
+[boost]: http://www.boost.org/
+[scons]: http://scons.org/
