@@ -29,3 +29,5 @@
 #endif
 
 #endif // __AMY_ASIO_HPP__
+
+// vim:ft=cpp sw=4 ts=4 tw=80 et
