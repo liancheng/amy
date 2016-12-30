@@ -1,13 +1,15 @@
 #ifndef __AMY_TRANSACTION_HPP__
 #define __AMY_TRANSACTION_HPP__
 
+#include <amy/detail/noncopyable.hpp>
+
 #include <amy/asio.hpp>
 #include <amy/basic_connector.hpp>
 
 namespace amy {
 
 template<typename MySQLService>
-class basic_scoped_transaction {
+class basic_scoped_transaction : private amy::detail::noncopyable {
 public:
     typedef basic_connector<MySQLService> connector_type;
 
@@ -36,7 +38,6 @@ public:
         return connector_.rollback(ec);
     }
 
-protected:
     ~basic_scoped_transaction() {
         if (!committed_) {
             AMY_SYSTEM_NS::error_code ec;
@@ -44,12 +45,6 @@ protected:
         }
         connector_.autocommit(true);
     }
-
-    basic_scoped_transaction(
-            basic_scoped_transaction<MySQLService> const&) = delete;
-
-    basic_scoped_transaction<MySQLService>& operator=(
-            basic_scoped_transaction<MySQLService> const&) = delete;
 
 private:
     connector_type& connector_;
