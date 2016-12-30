@@ -1,7 +1,7 @@
 #ifndef __AMY_ERROR_HPP__
 #define __AMY_ERROR_HPP__
 
-#include <amy/asio.hpp>
+#include <amy/detail/asio.hpp>
 #include <amy/detail/mysql.hpp>
 #include <amy/detail/mysql_types.hpp>
 

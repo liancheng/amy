@@ -2,6 +2,7 @@
 #define __AMY_ROW_HPP__
 
 #include <amy/detail/mysql_ops.hpp>
+
 #include <amy/field.hpp>
 #include <amy/field_info.hpp>
 

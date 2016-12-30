@@ -1,6 +1,5 @@
 #include "utils.hpp"
 
-#include <amy/asio.hpp>
 #include <amy/connector.hpp>
 #include <amy/execute.hpp>
 
@@ -29,10 +28,7 @@ int main(int argc, char* argv[]) try {
 
     return 0;
 } catch (AMY_SYSTEM_NS::system_error const& e) {
-    std::cerr
-        << boost::format("System error: %1%: %2%")
-           % e.code().value() % e.what()
-        << std::endl;
+    report_system_error(e);
 } catch (std::exception const& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
 }

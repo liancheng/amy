@@ -3,6 +3,7 @@
 
 #include <amy/detail/mysql_types.hpp>
 #include <amy/detail/throw_error.hpp>
+
 #include <amy/field_info.hpp>
 #include <amy/row.hpp>
 

@@ -3,6 +3,7 @@
 
 #include <amy/detail/throw_error.hpp>
 #include <amy/detail/value_cast.hpp>
+
 #include <amy/error.hpp>
 
 #include <cstring>

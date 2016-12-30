@@ -1,7 +1,7 @@
 #ifndef __AMY_DETAIL_ENDPOINT_TRAITS_HPP__
 #define __AMY_DETAIL_ENDPOINT_TRAITS_HPP__
 
-#include <amy/asio.hpp>
+#include <amy/detail/asio.hpp>
 
 namespace amy {
 

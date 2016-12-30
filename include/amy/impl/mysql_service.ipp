@@ -2,6 +2,7 @@
 #define __AMY_IMPL_MYSQL_SERVICE_IPP__
 
 #include <amy/detail/mysql_ops.hpp>
+
 #include <amy/client_flags.hpp>
 #include <amy/endpoint_traits.hpp>
 

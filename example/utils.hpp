@@ -1,7 +1,8 @@
 #ifndef __AMY_EXAMPLE_UTILS_HPP__
 #define __AMY_EXAMPLE_UTILS_HPP__
 
-#include <amy/asio.hpp>
+#include <amy/detail/asio.hpp>
+
 #include <amy/auth_info.hpp>
 
 #include <boost/optional.hpp>
@@ -36,6 +37,8 @@ void parse_command_line_options(int argc, char* argv[]);
 std::string read_from_stdin();
 
 void check_error(AMY_SYSTEM_NS::error_code const& ec);
+
+void report_system_error(AMY_SYSTEM_NS::system_error const& e);
 
 #endif // __AMY_EXAMPLE_UTILS_HPP__
 

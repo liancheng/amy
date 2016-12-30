@@ -1,7 +1,7 @@
 #ifndef __AMY_DETAIL_SERVICE_BASE_HPP__
 #define __AMY_DETAIL_SERVICE_BASE_HPP__
 
-#include <amy/asio.hpp>
+#include <amy/detail/asio.hpp>
 
 namespace amy {
 namespace detail {

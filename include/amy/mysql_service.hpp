@@ -4,6 +4,7 @@
 #include <amy/detail/mysql_lib_init.hpp>
 #include <amy/detail/mysql_types.hpp>
 #include <amy/detail/service_base.hpp>
+
 #include <amy/endpoint_traits.hpp>
 #include <amy/result_set.hpp>
 

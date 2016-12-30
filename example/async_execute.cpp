@@ -1,6 +1,5 @@
 #include "utils.hpp"
 
-#include <amy/asio.hpp>
 #include <amy/connector.hpp>
 #include <amy/execute.hpp>
 #include <amy/placeholders.hpp>

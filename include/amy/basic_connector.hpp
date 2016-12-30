@@ -1,10 +1,11 @@
 #ifndef __AMY_BASIC_CONNECTOR_HPP__
 #define __AMY_BASIC_CONNECTOR_HPP__
 
-#include <amy/asio.hpp>
+#include <amy/detail/asio.hpp>
+#include <amy/detail/throw_error.hpp>
+
 #include <amy/auth_info.hpp>
 #include <amy/client_flags.hpp>
-#include <amy/detail/throw_error.hpp>
 #include <amy/result_set.hpp>
 
 namespace amy {

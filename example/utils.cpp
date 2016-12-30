@@ -1,5 +1,6 @@
 #include "utils.hpp"
 
+#include <boost/format.hpp>
 #include <boost/program_options.hpp>
 
 #include <cstdlib>
@@ -72,6 +73,13 @@ void check_error(AMY_SYSTEM_NS::error_code const& ec) {
     if (ec) {
         boost::throw_exception(AMY_SYSTEM_NS::system_error(ec));
     }
+}
+
+void report_system_error(AMY_SYSTEM_NS::system_error const& e) {
+    std::cerr
+        << boost::format("System error: %1%: %2%")
+           % e.code().value() % e.what()
+        << std::endl;
 }
 
 // vim:ft=cpp sw=4 ts=4 tw=80 et

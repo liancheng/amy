@@ -1,9 +1,10 @@
 #ifndef __AMY_EXECUTE_HPP__
 #define __AMY_EXECUTE_HPP__
 
-#include <amy/basic_connector.hpp>
 #include <amy/detail/execute_handler.hpp>
 #include <amy/detail/throw_error.hpp>
+
+#include <amy/basic_connector.hpp>
 #include <amy/placeholders.hpp>
 
 namespace amy {

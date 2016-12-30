@@ -2,6 +2,7 @@
 #define __AMY_DETAIL_THROW_ERROR_HPP__
 
 #include <amy/detail/mysql_types.hpp>
+
 #include <amy/error.hpp>
 #include <amy/system_error.hpp>
 

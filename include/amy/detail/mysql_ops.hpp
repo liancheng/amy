@@ -3,6 +3,7 @@
 
 #include <amy/detail/mysql.hpp>
 #include <amy/detail/mysql_types.hpp>
+
 #include <amy/error.hpp>
 
 #include <cerrno>

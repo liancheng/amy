@@ -2,6 +2,7 @@
 #define __AMY_BASIC_RESULTS_ITERATOR_HPP__
 
 #include <amy/detail/throw_error.hpp>
+
 #include <amy/result_set.hpp>
 
 #include <boost/iterator/iterator_facade.hpp>
