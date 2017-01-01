@@ -5,20 +5,19 @@
 
 #include <amy/result_set.hpp>
 
-#include <boost/iterator/iterator_facade.hpp>
+#include <cassert>
+#include <iterator>
 
 namespace amy {
 
 template<typename MySQLService>
-class basic_results_iterator :
-    public boost::iterator_facade<
-        basic_results_iterator<MySQLService>,
-        result_set,
-        boost::single_pass_traversal_tag
-    >
-{
-    friend class boost::iterator_core_access;
-
+class basic_results_iterator : public std::iterator<
+    std::forward_iterator_tag,
+    result_set,
+    void,
+    result_set*,
+    result_set&
+> {
 private:
     typedef MySQLService service_type;
 
@@ -26,25 +25,15 @@ private:
         basic_results_iterator<service_type>
         this_type;
 
-    typedef
-        boost::iterator_facade<
-            this_type,
-            result_set,
-            boost::single_pass_traversal_tag
-        >
-        base_type;
-
     typedef basic_connector<service_type> connector_type;
 
 public:
-    typedef typename base_type::reference reference;
-
-    basic_results_iterator() :
+    explicit basic_results_iterator() :
         connector_(nullptr),
         end_(true)
     {}
 
-    basic_results_iterator(connector_type& connector) :
+    explicit basic_results_iterator(connector_type& connector) :
         connector_(&connector),
         end_(false)
     {
@@ -54,6 +43,29 @@ public:
         }
 
         increment();
+    }
+
+    this_type& operator++() {
+        increment();
+        return *this;
+    }
+
+    this_type operator++(int) {
+        this_type last = *this;
+        ++(*this);
+        return last;
+    }
+
+    bool operator==(this_type const& other) const {
+        return equal(other);
+    }
+
+    bool operator!=(this_type const& other) const {
+        return !(*this == other);
+    }
+
+    reference operator*() const {
+        return dereference();
     }
 
 private:
@@ -74,12 +86,12 @@ private:
     }
 
     reference dereference() const {
-        BOOST_ASSERT(!end_);
+        assert(!end_);
         return result_set_;
     }
 
     void store_result() {
-        BOOST_ASSERT(connector_);
+        assert(connector_);
         result_set_ = connector_->store_result();
     }
 
