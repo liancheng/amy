@@ -1,8 +1,7 @@
 #ifndef __AMY_EXAMPLE_UTILS_HPP__
 #define __AMY_EXAMPLE_UTILS_HPP__
 
-#include <amy/detail/asio.hpp>
-
+#include <amy/asio.hpp>
 #include <amy/auth_info.hpp>
 
 #include <boost/optional.hpp>

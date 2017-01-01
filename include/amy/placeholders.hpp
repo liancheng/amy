@@ -1,7 +1,7 @@
 #ifndef __AMY_PLACEHOLDERS_HPP__
 #define __AMY_PLACEHOLDERS_HPP__
 
-#include <amy/detail/asio.hpp>
+#include <amy/asio.hpp>
 
 #include <type_traits>
 

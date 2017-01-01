@@ -1,9 +1,9 @@
 #ifndef __AMY_TRANSACTION_HPP__
 #define __AMY_TRANSACTION_HPP__
 
-#include <amy/detail/asio.hpp>
 #include <amy/detail/noncopyable.hpp>
 
+#include <amy/asio.hpp>
 #include <amy/basic_connector.hpp>
 
 namespace amy {

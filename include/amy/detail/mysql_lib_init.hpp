@@ -1,9 +1,9 @@
 #ifndef __AMY_DETAIL_MYSQL_LIB_INIT_HPP__
 #define __AMY_DETAIL_MYSQL_LIB_INIT_HPP__
 
-#include <amy/detail/asio.hpp>
 #include <amy/detail/mysql.hpp>
 
+#include <amy/asio.hpp>
 #include <amy/error.hpp>
 
 #include <memory>

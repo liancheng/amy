@@ -1,9 +1,10 @@
 #ifndef __AMY_ERROR_HPP__
 #define __AMY_ERROR_HPP__
 
-#include <amy/detail/asio.hpp>
 #include <amy/detail/mysql.hpp>
 #include <amy/detail/mysql_types.hpp>
+
+#include <amy/asio.hpp>
 
 namespace amy {
 namespace error {

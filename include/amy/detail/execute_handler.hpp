@@ -1,7 +1,7 @@
 #ifndef __AMY_DETAIL_EXECUTE_HANDLER_HPP__
 #define __AMY_DETAIL_EXECUTE_HANDLER_HPP__
 
-#include <amy/detail/asio.hpp>
+#include <amy/asio.hpp>
 
 #include <amy/basic_connector.hpp>
 
