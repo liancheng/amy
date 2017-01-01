@@ -2,8 +2,6 @@
 
 #include <amy/connector.hpp>
 
-#include <boost/format.hpp>
-
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -30,10 +28,9 @@ int main(int argc, char* argv[]) try {
     // Prints result sets of each executed query.
     std::for_each(first, last, [](const amy::result_set& rs) {
         std::cout
-            << boost::format("Affected rows: %1%, "
-                             "field count: %2%, "
-                             "result set size %3%")
-               % rs.affected_rows() % rs.field_count() % rs.size()
+            << "Affected rows: " << rs.affected_rows()
+            << ", field count: " << rs.field_count()
+            << ", result set size: " << rs.size()
             << std::endl;
 
         auto out = std::ostream_iterator<amy::row>(std::cout, "\n");

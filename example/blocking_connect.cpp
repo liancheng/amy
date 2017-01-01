@@ -2,8 +2,6 @@
 
 #include <amy/connector.hpp>
 
-#include <boost/format.hpp>
-
 #include <iostream>
 
 global_options opts;

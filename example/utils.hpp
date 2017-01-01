@@ -4,24 +4,22 @@
 #include <amy/asio.hpp>
 #include <amy/auth_info.hpp>
 
-#include <boost/optional.hpp>
-
 /// Global options.
 struct global_options {
     /// MySQL server host.
-    std::string host;
+    std::string host = "127.0.0.1";
 
     /// MySQL server port.
-    unsigned int port;
+    unsigned int port = 3306;
 
     /// Login user.
-    std::string user;
+    std::string user = "amy";
 
     /// Login password.
-    std::string password;
+    std::string password = "amy";
 
     /// Default schema to use.
-    std::string schema;
+    std::string schema = "test_amy";
 
     AMY_ASIO_NS::ip::tcp::endpoint tcp_endpoint() const;
 

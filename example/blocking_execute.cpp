@@ -3,8 +3,6 @@
 #include <amy/connector.hpp>
 #include <amy/execute.hpp>
 
-#include <boost/format.hpp>
-
 #include <algorithm>
 #include <iostream>
 #include <iterator>

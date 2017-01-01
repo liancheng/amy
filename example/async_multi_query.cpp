@@ -3,8 +3,6 @@
 #include <amy/connector.hpp>
 #include <amy/placeholders.hpp>
 
-#include <boost/format.hpp>
-
 #include <functional>
 #include <iostream>
 
@@ -16,12 +14,10 @@ void handle_store_result(AMY_SYSTEM_NS::error_code const& ec,
 {
     check_error(ec);
 
-    // Prints result sets of each executed query.
     std::cout
-        << boost::format("Affected rows: %1%, "
-                         "field count: %2%, "
-                         "result set size %3%")
-           % rs.affected_rows() % rs.field_count() % rs.size()
+        << "Affected rows: " << rs.affected_rows()
+        << ", field count: " << rs.field_count()
+        << ", result set size: " << rs.size()
         << std::endl;
 
     auto out = std::ostream_iterator<amy::row>(std::cout, "\n");

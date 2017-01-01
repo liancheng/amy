@@ -3,8 +3,6 @@
 #include <amy/connector.hpp>
 #include <amy/placeholders.hpp>
 
-#include <boost/format.hpp>
-
 #include <functional>
 #include <iostream>
 

@@ -4,8 +4,6 @@
 #include <amy/execute.hpp>
 #include <amy/placeholders.hpp>
 
-#include <boost/format.hpp>
-
 #include <functional>
 #include <iostream>
 

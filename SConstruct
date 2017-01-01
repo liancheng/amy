@@ -15,9 +15,10 @@ env = Environment(ENV=os.environ,
                   CPPDEFINES=[('USE_BOOST_ASIO', use_boost_asio)],
                   LIBPATH=libpath)
 
-libs = ['boost_system',
-        'mysqlclient',
-        'pthread']
+libs = ['mysqlclient', 'pthread']
+
+if use_boost_asio:
+    libs += ['boost_system']
 
 env.SConscript(dirs=['test'],
                exports=['env', 'libs'],

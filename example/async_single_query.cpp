@@ -3,8 +3,6 @@
 #include <amy/connector.hpp>
 #include <amy/placeholders.hpp>
 
-#include <boost/format.hpp>
-
 #include <iostream>
 
 global_options opts;
@@ -16,19 +14,17 @@ void handle_store_result(AMY_SYSTEM_NS::error_code const& ec,
     check_error(ec);
 
     std::cout
-        << boost::format("Field count: %1%, "
-                         "result set size: %2%, "
-                         "affected rows: %3%, contents:")
-           % rs.field_count() % rs.size() % rs.affected_rows()
+        << "Affected rows: " << rs.affected_rows()
+        << ", field count: " << rs.field_count()
+        << ", result set size: " << rs.size()
         << std::endl;
 
     const auto& fields_info = rs.fields_info();
 
     for (const auto& row : rs) {
         std::cout
-            << boost::format("%1%: %2%, %3%: %4%")
-               % fields_info[0].name() % row[0].as<std::string>()
-               % fields_info[1].name() % row[1].as<amy::sql_bigint>()
+            << fields_info[0].name() << ": " << row[0].as<std::string>() << ", "
+            << fields_info[1].name() << ": " << row[1].as<amy::sql_bigint>()
             << std::endl;
     }
 }

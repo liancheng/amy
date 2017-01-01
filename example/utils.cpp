@@ -1,7 +1,6 @@
 #include "utils.hpp"
 
-#include <boost/format.hpp>
-#include <boost/program_options.hpp>
+#include <getopt.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -19,42 +18,59 @@ amy::auth_info global_options::auth_info() const {
     return amy::auth_info(user, password);
 }
 
+static std::string usage =
+    "Available options:\n"
+    "  -h [ --help ]                   Show this help message\n"
+    "  -H [ --host ] arg (=127.0.0.1)  MySQL server host.\n"
+    "  -P [ --port ] arg (=3306)       MySQL server port.\n"
+    "  -u [ --user ] arg (=amy)        Login user.\n"
+    "  -p [ --password ] arg (=amy)    Login password.\n"
+    "  -s [ --schema ] arg (=test_amy) Default schema to use.";
+
+static struct option options[] = {
+    { "help",     no_argument,       NULL, 'h' },
+    { "host",     required_argument, NULL, 'H' },
+    { "port",     required_argument, NULL, 'P' },
+    { "user",     required_argument, NULL, 'u' },
+    { "password", required_argument, NULL, 'p' },
+    { "schema",   required_argument, NULL, 's' }
+};
+
 void parse_command_line_options(int argc, char* argv[]) {
-    using namespace boost::program_options;
+    char ch;
 
-    options_description opts_desc("Available options");
-    opts_desc.add_options()
-        ("help,h",
-         "Show this help message")
+    while ((ch = getopt_long(argc, argv, "hH:P:u:P:s:", options, NULL)) != -1) {
+        switch (ch) {
+            case 'h':
+                std::cout << usage << std::endl;
+                exit(EXIT_SUCCESS);
+                break;
 
-        ("host,H",
-         value(&opts.host)->default_value("127.0.0.1"),
-         "MySQL server host.")
+            case 'H':
+                opts.host = optarg;
+                break;
 
-        ("port,P",
-         value(&opts.port)->default_value(3306u),
-         "MySQL server port.")
+            case 'P':
+                opts.port = atoi(optarg);
+                break;
 
-        ("user,u",
-         value(&opts.user)->default_value("amy"),
-         "Login user.")
+            case 'u':
+                opts.user = optarg;
+                break;
 
-        ("password,p",
-         value(&opts.password)->default_value("amy"),
-         "Login password.")
+            case 'p':
+                opts.password = optarg;
+                break;
 
-        ("schema,s",
-         value(&opts.schema)->default_value("test_amy"),
-         "Default schema to use.")
-        ;
+            case 's':
+                opts.schema = optarg;
+                break;
 
-    variables_map vars;
-    store(parse_command_line(argc, argv, opts_desc), vars);
-    notify(vars);
-
-    if (vars.count("help")) {
-        std::cout << opts_desc << std::endl;
-        exit(EXIT_SUCCESS);
+            default:
+                std::cerr << "Command option not recognized." << std::endl;
+                std::cout << usage << std::endl;
+                break;
+        }
     }
 }
 
@@ -71,14 +87,14 @@ std::string read_from_stdin() {
 
 void check_error(AMY_SYSTEM_NS::error_code const& ec) {
     if (ec) {
-        boost::throw_exception(AMY_SYSTEM_NS::system_error(ec));
+        throw AMY_SYSTEM_NS::system_error(ec);
     }
 }
 
 void report_system_error(AMY_SYSTEM_NS::system_error const& e) {
     std::cerr
-        << boost::format("System error: %1%: %2%")
-           % e.code().value() % e.what()
+        << "System error: "
+        << e.code().value() << " - " << e.what()
         << std::endl;
 }
 

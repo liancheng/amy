@@ -2,8 +2,6 @@
 
 #include <amy/connector.hpp>
 
-#include <boost/format.hpp>
-
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -31,19 +29,17 @@ int main(int argc, char* argv[]) try {
     amy::result_set rs = connector.store_result();
 
     std::cout
-        << boost::format("Field count: %1%, "
-                         "result set size: %2%, "
-                         "affected rows: %3%, contents:")
-           % rs.field_count() % rs.size() % rs.affected_rows()
+        << "Affected rows: " << rs.affected_rows()
+        << ", field count: " << rs.field_count()
+        << ", result set size: " << rs.size()
         << std::endl;
 
     const auto& fields_info = rs.fields_info();
 
     for (const auto& row : rs) {
         std::cout
-            << boost::format("%1%: %2%, %3%: %4%")
-               % fields_info[0].name() % row[0].as<std::string>()
-               % fields_info[1].name() % row[1].as<amy::sql_bigint>()
+            << fields_info[0].name() << ": " << row[0].as<std::string>() << ", "
+            << fields_info[1].name() << ": " << row[1].as<amy::sql_bigint>()
             << std::endl;
     }
 
