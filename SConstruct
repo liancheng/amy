@@ -5,12 +5,14 @@ system = platform.system()
 libpath = [Dir('/usr/lib'), Dir('/usr/local/lib')] +\
           [Dir('/usr/local/lib/mysql')] if system == 'FreeBSD' else []
 
+use_boost_asio = ARGUMENTS.get('USE_BOOST_ASIO', 0)
+
 env = Environment(ENV=os.environ,
                   CXX=os.environ.get('CXX', 'clang++'),
                   CCFLAGS='-ggdb -O0 -std=c++11',
                   CPPPATH=[Dir('include'),
                            Dir('/usr/local/include')],
-                  CPPDEFINES=['USE_BOOST_ASIO'],
+                  CPPDEFINES=[('USE_BOOST_ASIO', use_boost_asio)],
                   LIBPATH=libpath)
 
 libs = ['boost_system',
