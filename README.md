@@ -128,8 +128,6 @@ Please check the following examples for a taste of Amy:
   - [example/async_execute.cpp](example/async_execute.cpp)
   - [example/blocking_execute.cpp](example/blocking_execute.cpp)
 
-Note that an extra dependency, [Boost.Program_options][boost-program-options], is used to build and run the examples. Usually, it should have already been installed together with Boost.
-
 To build the examples, run:
 
 ```
@@ -143,6 +141,8 @@ Built executables can be found under `$AMY_ROOT/build/example`. Run each example
 Run the example programs with `-h` command line option to find out how to use them.
 
 # Tests
+
+Note that an extra dependency, [Boost.Test][boost-test], is used to build and write test cases for Amy. Usually, it should have already been installed together with Boost.
 
 Some (integration) test cases need to establish actual connections to an existing MySQL server. To make sure these tests succeed, you need to start a MySQL server listening on localhost:3306 and setup the following testing database and user account:
 
@@ -162,11 +162,12 @@ $ scons USE_BOOST_ASIO=1 test # Using Boost.Asio
 ```
 
 [asio]: http://think-async.com/Asio
-[boost]: http://www.boost.org/
 [boost-asio]: http://www.boost.org/doc/libs/1_58_0/doc/html/boost_asio.html
 [boost-date-time]: http://www.boost.org/doc/libs/1_58_0/doc/html/date_time.html
 [boost-iterator]: http://www.boost.org/doc/libs/1_58_0/libs/iterator/doc/index.html
-[boost-program-options]: http://www.boost.org/doc/libs/1_58_0/doc/html/program_options.html
 [boost-system]: http://www.boost.org/doc/libs/1_58_0/libs/system/doc/index.html
+[boost-test]: http://www.boost.org/doc/libs/1_58_0/libs/test/doc/html/index.html
+[boost]: http://www.boost.org/
+[mysql-c-connector]: https://dev.mysql.com/downloads/connector/c/
 [scons]: http://scons.org/
 [vanilla-asio]: https://github.com/chriskohlhoff/asio
