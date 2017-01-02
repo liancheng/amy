@@ -4,36 +4,30 @@
 
 #include <cstring>
 
-BOOST_AUTO_TEST_CASE(should_construct_instance_with_anonymous_user) {
+BOOST_AUTO_TEST_CASE(anonymous_user_without_password) {
     amy::auth_info auth;
     BOOST_CHECK(std::strcmp("", auth.user()) == 0);
-}
-
-BOOST_AUTO_TEST_CASE(should_construct_instance_without_password) {
-    amy::auth_info auth;
     BOOST_CHECK(static_cast<const char*>(nullptr) == auth.password());
 }
 
-BOOST_AUTO_TEST_CASE(should_construct_instance_with_user) {
+BOOST_AUTO_TEST_CASE(user_without_password) {
     amy::auth_info auth("user");
     BOOST_CHECK(std::strcmp("user", auth.user()) == 0);
 }
 
-BOOST_AUTO_TEST_CASE(
-    should_construct_instance_with_user_and_nonempty_password
-) {
+BOOST_AUTO_TEST_CASE(user_with_password) {
     amy::auth_info auth("user", "secret");
     BOOST_CHECK(std::strcmp("user", auth.user()) == 0);
     BOOST_CHECK(std::strcmp("secret", auth.password()) == 0);
 }
 
-BOOST_AUTO_TEST_CASE(should_return_previously_set_password) {
+BOOST_AUTO_TEST_CASE(get_password) {
     amy::auth_info auth;
     auth.password("secret");
     BOOST_CHECK(std::strcmp("secret", auth.password()) == 0);
 }
 
-BOOST_AUTO_TEST_CASE(should_return_null_after_clearing_password) {
+BOOST_AUTO_TEST_CASE(clear_password) {
     amy::auth_info auth;
     auth.password("secret");
     auth.clear_password();

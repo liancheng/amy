@@ -4,12 +4,12 @@
 
 #include <amy/connector.hpp>
 
-BOOST_AUTO_TEST_CASE(should_construct_a_connector_instance) {
+BOOST_AUTO_TEST_CASE(construction) {
     AMY_ASIO_NS::io_service io_service;
     amy::connector connector(io_service);
 }
 
-BOOST_AUTO_TEST_CASE(should_be_opened_successfully) {
+BOOST_AUTO_TEST_CASE(open_after_construction) {
     AMY_ASIO_NS::io_service io_service;
     amy::connector connector(io_service);
 
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(should_be_opened_successfully) {
     BOOST_CHECK(connector.is_open());
 }
 
-BOOST_AUTO_TEST_CASE(should_be_closed_successfully) {
+BOOST_AUTO_TEST_CASE(open_and_close) {
     AMY_ASIO_NS::io_service io_service;
     amy::connector connector(io_service);
 
