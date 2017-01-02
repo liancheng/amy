@@ -1,30 +1,33 @@
 dist: trusty
 sudo: required
 
+language: cpp
+
 addons:
   apt:
     packages:
-      - lcov
       - libboost-all-dev
       - libmysqlclient-dev
-
-language: cpp
-
-matrix:
-  include:
-    - compiler: clang
-      env:
-        - CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
-        - USE_BOOST_AIO=0
-    - compiler: clang
-      env:
-        - CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
-        - USE_BOOST_AIO=1
 
 services: mysql
 
 before_script:
+  # Initializes testing MySQL account and database.
   - mysql -u root < test/init.sql
+  # The version of libasio-dev in Trusty is 1.10.1-1, which is too low.
   - git clone --branch asio-1-10-6 https://github.com/chriskohlhoff/asio.git asio-1-10-6
+
+matrix:
+  include:
+    # Builds against vanilla Asio
+    - compiler: clang
+      env:
+        - CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
+        - USE_BOOST_AIO=0
+    # Builds against Boost.Asio
+    - compiler: clang
+      env:
+        - CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
+        - USE_BOOST_AIO=1
 
 script: scons USE_BOOST_ASIO=${USE_BOOST_ASIO:-0}
