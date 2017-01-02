@@ -15,7 +15,10 @@ before_script:
   - mysql -u root -e "CREATE USER 'amy'@'localhost' IDENTIFIED BY 'amy';"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON test_amy.* TO 'amy'@'localhost';"
   - mysql -u root -e "FLUSH PRIVILEGES;"
-  - sudo apt-get install lcov libasio-dev libboost-all-dev libmysqlclient-dev
+  - sudo apt-get install lcov libboost-all-dev libmysqlclient-dev
+  - git clone --branch asio-1-10-6 https://github.com/chriskohlhoff/asio.git asio
+  - sudo ln -sf asio/include/asio /usr/local/include/
+  - sudo ln -sf asio/include/asio.hpp /usr/local/include/
 
 script:
   - scons USE_BOOST_ASIO=0
