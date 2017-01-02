@@ -5,6 +5,7 @@
 #include <amy/detail/throw_error.hpp>
 
 #include <amy/basic_connector.hpp>
+#include <amy/basic_results_iterator.hpp>
 #include <amy/placeholders.hpp>
 
 namespace amy {
@@ -30,6 +31,34 @@ uint64_t execute(basic_connector<MySQLService>& connector,
     } else {
         return connector.affected_rows();
     }
+}
+
+template<typename MySQLService>
+uint64_t forgetful_execute(basic_connector<MySQLService>& connector,
+                           std::string const& stmt,
+                           AMY_SYSTEM_NS::error_code& ec)
+{
+    typedef basic_results_iterator<MySQLService> iterator;
+
+    uint64_t affected_rows = execute(connector, stmt, ec);
+
+    iterator begin(connector);
+    iterator end;
+
+    for (; begin != end; ++begin)
+        ;
+
+    return affected_rows;
+}
+
+template<typename MySQLService>
+uint64_t forgetful_execute(basic_connector<MySQLService>& connector,
+                           std::string const& stmt)
+{
+    AMY_SYSTEM_NS::error_code ec;
+    uint64_t affected_rows = forgetful_execute(connector, stmt, ec);
+    detail::throw_error(ec, connector.native());
+    return affected_rows;
 }
 
 template<
