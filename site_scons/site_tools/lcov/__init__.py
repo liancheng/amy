@@ -19,6 +19,7 @@ def lcov_generator(source, target, env, for_signature):
         cmd = ['lcov --zerocounters']
     else:
         cmd = ['lcov --capture']
+        cmd += ['--no-external']
         cmd += ['--output-file', target[0].abspath]
 
     if 'LCOVDIR' in env:
