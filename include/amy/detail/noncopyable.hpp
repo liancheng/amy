@@ -1,8 +1,6 @@
 #ifndef __AMY_DETAIL_NONCOPYABLE_HPP__
 #define __AMY_DETAIL_NONCOPYABLE_HPP__
 
-#include <boost/noncopyable.hpp>
-
 namespace amy {
 namespace detail {
 
