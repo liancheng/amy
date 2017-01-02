@@ -1,25 +1,27 @@
 dist: trusty
+sudo: false
 
-sudo: required
+addons:
+  apt:
+    packages:
+      - lcov
+      - libboost-all-dev
+      - libmysqlclient-dev
 
 language: cpp
+compiler: clang
 
-services:
-  - mysql
+matrix:
+  include:
+    - env: USE_BOOST_ASIO=0
+    - env: USE_BOOST_ASIO=1
 
-compiler:
-  - clang
+services: mysql
+
+env: CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
 
 before_script:
-  - mysql -u root -e "CREATE DATABASE test_amy;"
-  - mysql -u root -e "CREATE USER 'amy'@'localhost' IDENTIFIED BY 'amy';"
-  - mysql -u root -e "GRANT ALL PRIVILEGES ON test_amy.* TO 'amy'@'localhost';"
-  - mysql -u root -e "FLUSH PRIVILEGES;"
-  - sudo apt-get install lcov libboost-all-dev libmysqlclient-dev
-  - git clone --branch asio-1-10-6 https://github.com/chriskohlhoff/asio.git asio
-  - sudo ln -sf asio/include/asio /usr/local/include/
-  - sudo ln -sf asio/include/asio.hpp /usr/local/include/
+  - mysql -u root < test/init.sql
+  - git clone --branch asio-1-10-6 https://github.com/chriskohlhoff/asio.git asio-1-10-6
 
-script:
-  - scons USE_BOOST_ASIO=0
-  - scons USE_BOOST_ASIO=1
+script: scons USE_BOOST_ASIO=$USE_BOOST_ASIO
