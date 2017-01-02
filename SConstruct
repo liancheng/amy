@@ -18,7 +18,7 @@ env = Environment(tools=['default', 'lcov', 'genhtml'],
                   LIBS=['mysqlclient', 'pthread'])
 
 if use_boost_asio:
-    libs += ['boost_system']
+    env.AppendUnique(LIBS=['boost_system'])
 
 env.SConscript(dirs=['test'],
                exports='env',
