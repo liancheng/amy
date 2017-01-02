@@ -1,6 +1,11 @@
+import platform
+
 Import('env')
 
-lcov_flags = ['-fprofile-arcs', '-ftest-coverage']
+# Only runs `lcov` on Mac.
+run_coverage = platform.system() == 'Darwin'
+
+lcov_flags = ['-fprofile-arcs', '-ftest-coverage'] if run_coverage else []
 
 test_env = env.Clone()
 test_env.AppendUnique(CCFLAGS=lcov_flags,
@@ -10,24 +15,29 @@ test_env.AppendUnique(CCFLAGS=lcov_flags,
 program = test_env.Program(target='test',
                            source=[env.Glob('*.cpp')])
 
-lcov_reset = env.LCov(target='lcov-reset',
-                      source=program,
-                      LCOVRESET=True,
-                      LCOVDIR='.',
-                      LCOVBASEDIR='#/')
+test_source = program
+
+if run_coverage:
+    lcov_reset = env.LCov(target='lcov-reset',
+                          source=program,
+                          LCOVRESET=True,
+                          LCOVDIR='.',
+                          LCOVBASEDIR='#/')
+    test_source.append(lcov_reset)
 
 run_test = env.Command(target='run-test',
-                       source=[program[0], lcov_reset],
+                       source=test_source,
                        action=program[0].abspath)
 
-env.GenHtml(target=Dir('html'),
-            source=env.LCov(target='coverage.info',
-                            source=run_test,
-                            LCOVDIR='.',
-                            LCOVBASEDIR='#/'))
+if run_coverage:
+    env.GenHtml(target=Dir('report'),
+                source=env.LCov(target='coverage.info',
+                                source=run_test,
+                                LCOVDIR='.',
+                                LCOVBASEDIR='#/'))
 
-env.Clean(program,
-          [env.Dir('html'),
-           env.File('test.gcno')])
+    env.Clean(program,
+              [env.Dir('report'),
+               env.File('test.gcno')])
 
 # vim:ft=python sw=4 ts=4 tw=80 et
