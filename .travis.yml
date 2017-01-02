@@ -1,0 +1,22 @@
+dist: trusty
+
+sudo: required
+
+language: cpp
+
+services:
+  - mysql
+
+compiler:
+  - clang
+
+before_script:
+  - mysql -u root -e "CREATE DATABASE test_amy;"
+  - mysql -u root -e "CREATE USER 'amy'@'localhost' IDENTIFIED BY 'amy';"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON test_amy.* TO 'amy'@'localhost';"
+  - mysql -u root -e "FLUSH PRIVILEGES;"
+  - sudo apt-get install lcov libasio-dev libboost-all-dev libmysqlclient-dev
+
+script:
+  - scons USE_BOOST_ASIO=0
+  - scons USE_BOOST_ASIO=1
