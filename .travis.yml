@@ -1,5 +1,5 @@
 dist: trusty
-sudo: false
+sudo: required
 
 addons:
   apt:
@@ -9,19 +9,22 @@ addons:
       - libmysqlclient-dev
 
 language: cpp
-compiler: clang
 
 matrix:
   include:
-    - env: USE_BOOST_ASIO=0
-    - env: USE_BOOST_ASIO=1
+    - compiler: clang
+      env:
+        - CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
+        - USE_BOOST_AIO=0
+    - compiler: clang
+      env:
+        - CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
+        - USE_BOOST_AIO=1
 
 services: mysql
-
-env: CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
 
 before_script:
   - mysql -u root < test/init.sql
   - git clone --branch asio-1-10-6 https://github.com/chriskohlhoff/asio.git asio-1-10-6
 
-script: scons USE_BOOST_ASIO=$USE_BOOST_ASIO
+script: scons USE_BOOST_ASIO=${USE_BOOST_ASIO:-0}
