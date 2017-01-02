@@ -1,4 +1,5 @@
 *.dblite
+*.pyc
 build
 doc/html
 tags

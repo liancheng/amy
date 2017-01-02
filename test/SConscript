@@ -1,14 +1,33 @@
 Import('env')
-Import('libs')
 
-test_libs = libs + ['boost_unit_test_framework']
+lcov_flags = ['-fprofile-arcs', '-ftest-coverage']
 
-program = env.Program(target='test',
-                      source=[env.Glob('*.cpp')],
-                      LIBS=test_libs)
+test_env = env.Clone()
+test_env.AppendUnique(CCFLAGS=lcov_flags,
+                      LINKFLAGS=lcov_flags,
+                      LIBS='boost_unit_test_framework')
 
-[env.Command(target='run-test',
-             source=p,
-             action=p.abspath) for p in program]
+program = test_env.Program(target='test',
+                           source=[env.Glob('*.cpp')])
+
+lcov_reset = env.LCov(target='lcov-reset',
+                      source=program,
+                      LCOVRESET=True,
+                      LCOVDIR='.',
+                      LCOVBASEDIR='#/')
+
+run_test = env.Command(target='run-test',
+                       source=[program[0], lcov_reset],
+                       action=program[0].abspath)
+
+env.GenHtml(target=Dir('html'),
+            source=env.LCov(target='coverage.info',
+                            source=run_test,
+                            LCOVDIR='.',
+                            LCOVBASEDIR='#/'))
+
+env.Clean(program,
+          [env.Dir('html'),
+           env.File('test.gcno')])
 
 # vim:ft=python sw=4 ts=4 tw=80 et

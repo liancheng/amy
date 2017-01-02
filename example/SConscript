@@ -1,11 +1,9 @@
 Import('env')
-Import('libs')
 
 utils = env.Object(source='utils.cpp')
 
 [env.Program(target=example,
-             source=['%s.cpp' % example, utils],
-             LIBS=libs)
+             source=['%s.cpp' % example, utils])
  for example in ['async_connect',
                  'async_execute',
                  'async_multi_query',
