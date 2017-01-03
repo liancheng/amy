@@ -20,11 +20,13 @@ struct global_fixture {
                 "test_amy",
                 amy::client_multi_statements);
 
-        amy::forgetful_execute(connector, read_from_file("test/setup.sql"));
+        amy::execute(connector, read_from_file("test/setup.sql"));
+        amy::discard_results(connector);
     }
 
     ~global_fixture() {
-        amy::forgetful_execute(connector, read_from_file("test/teardown.sql"));
+        amy::execute(connector, read_from_file("test/teardown.sql"));
+        amy::discard_results(connector);
     }
 
     std::string read_from_file(char const* path) {
