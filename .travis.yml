@@ -6,6 +6,7 @@ language: cpp
 addons:
   apt:
     packages:
+      - lcov
       - libboost-all-dev
       - libmysqlclient-dev
 
