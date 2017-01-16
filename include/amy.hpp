@@ -5,7 +5,6 @@
 #include <amy/basic_connector.hpp>
 #include <amy/basic_results_iterator.hpp>
 #include <amy/client_flags.hpp>
-#include <amy/connect.hpp>
 #include <amy/connector.hpp>
 #include <amy/endpoint_traits.hpp>
 #include <amy/error.hpp>
