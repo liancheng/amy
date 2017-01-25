@@ -46,7 +46,13 @@ int main(int argc, char* argv[]) {
                                       amy::placeholders::error,
                                       std::ref(connector)));
 
-    io_service.run();
+    try {
+        io_service.run();
+    } catch (AMY_SYSTEM_NS::system_error const& e) {
+        report_system_error(e);
+    } catch (std::exception const& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
 
     return 0;
 }
