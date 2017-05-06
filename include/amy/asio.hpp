@@ -26,7 +26,7 @@
 #define AMY_ASIO_NS ::boost::asio
 #define AMY_SYSTEM_NS ::boost::system
 
-#endif
+#endif // !defined(USE_BOOST_ASIO) || (USE_BOOST_ASIO == 0)
 
 #endif // __AMY_ASIO_HPP__
 
