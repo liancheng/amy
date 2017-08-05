@@ -44,17 +44,37 @@ You can probably obtain all the dependencies pretty easily using the package man
   $ sudo pkg instal boost-all mysql-connector-c asio
   ```
 
-- Mac OS X 10.10:
+- Mac OS X 10.10+:
 
   ```
   $ brew install boost mysql-connector-c asio
   ```
 
-Optionally, you may also want to install [SCons][scons] to build examples and tests:
+Optionally, to build examples and tests, you may also want to install [SCons][scons]:
 
 ```
 $ sudo pip install scons
 ```
+
+and [LCov][lcov]:
+
+- Ubuntu 16.04:
+
+  ```
+  $ sudo apt-get install lcov
+  ```
+
+- FreeBSD 11.0:
+
+  ```
+  $ sudo pkg instal lcov
+  ```
+
+- Mac OS X 10.10+:
+
+  ```
+  $ brew install lcov
+  ```
 
 ## Compile your program with Amy
 
@@ -165,6 +185,7 @@ $ scons USE_BOOST_ASIO=1 test # Using Boost.Asio
 [boost-system]: http://www.boost.org/doc/libs/1_58_0/libs/system/doc/index.html
 [boost-test]: http://www.boost.org/doc/libs/1_58_0/libs/test/doc/html/index.html
 [boost]: http://www.boost.org/
+[lcov]: http://ltp.sourceforge.net/coverage/lcov.php
 [mysql-c-connector]: https://dev.mysql.com/downloads/connector/c/
 [scons]: http://scons.org/
 [vanilla-asio]: https://github.com/chriskohlhoff/asio
