@@ -2,7 +2,7 @@
 
 # Overview
 
-Amy is a C++11 compliant header-only **A**synchronous **My**SQL client library based on [Asio][asio]. It enables you to work with MySQL in both asynchronous and blocking ways. Amy had been tested using and Clang++ 3.8 under Ubuntu 16.04, FreeBSD 11.0, and Mac OS X 10.10. It should also works under other similar UNIX-like systems with minimum efforts.
+Amy is a C++11 compliant header-only **A**synchronous **My**SQL client library based on [Asio][asio]. It enables you to work with MySQL in both asynchronous and blocking ways. Amy had been tested using Clang++ 3.8 under Ubuntu 16.04, FreeBSD 11.0, and Mac OS X 10.10. It should also works under other similar UNIX-like systems with minimum efforts.
 
 # Getting Started
 
