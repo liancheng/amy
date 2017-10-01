@@ -10,21 +10,28 @@ addons:
 
 language: cpp
 
+env:
+  global:
+    - ASIO_TARBALL=https://github.com/chriskohlhoff/asio/archive/asio-1-10-6.tar.gz
+    - CPLUS_INCLUDE_PATH=asio/include
+
+cache:
+  directories:
+    - asio
+
+before_script:
+  - mysql -u root < test/init.sql
+  - curl --silent --location $ASIO_TARBALL | tar --strip-components=1 -xzf -
+
 matrix:
   include:
     - compiler: clang
       env:
-        - CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
         - USE_BOOST_AIO=0
     - compiler: clang
       env:
-        - CPLUS_INCLUDE_PATH=asio-1-10-6/asio/include
         - USE_BOOST_AIO=1
 
 services: mysql
-
-before_script:
-  - mysql -u root < test/init.sql
-  - git clone --branch asio-1-10-6 https://github.com/chriskohlhoff/asio.git asio-1-10-6
 
 script: scons USE_BOOST_ASIO=${USE_BOOST_ASIO:-0}
