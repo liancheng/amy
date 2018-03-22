@@ -28,17 +28,29 @@ using ::mysql_row_seek;
 using ::mysql_row_tell;
 
 inline void clear_error(AMY_SYSTEM_NS::error_code& ec) {
-    errno = 0;
+    errno = 0; // this won't clear the ::mysql_errno()
     ec = AMY_SYSTEM_NS::error_code();
 }
 
 template<typename ReturnType>
-ReturnType error_wrapper(ReturnType return_value,
+inline ReturnType error_wrapper(ReturnType return_value,
                          mysql_handle m,
                          AMY_SYSTEM_NS::error_code& ec)
 {
-    ec = AMY_SYSTEM_NS::error_code(::mysql_errno(m),
-                                   amy::error::get_client_category());
+    if(return_value == nullptr)
+        ec = AMY_SYSTEM_NS::error_code(::mysql_errno(m),
+                                       amy::error::get_client_category());
+    return return_value;
+}
+
+template<>
+inline int error_wrapper(int return_value,
+                         mysql_handle m,
+                         AMY_SYSTEM_NS::error_code& ec)
+{
+    if(return_value != 0)
+        ec = AMY_SYSTEM_NS::error_code(::mysql_errno(m),
+                                       amy::error::get_client_category());
     return return_value;
 }
 
