@@ -11,6 +11,7 @@
 #include <amy/execute.hpp>
 #include <amy/field.hpp>
 #include <amy/field_info.hpp>
+#include <amy/mysql_options.hpp>
 #include <amy/mysql_service.hpp>
 #include <amy/placeholders.hpp>
 #include <amy/result_set.hpp>
