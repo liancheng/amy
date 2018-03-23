@@ -48,22 +48,20 @@ public:
     }
 
     void close() {
-        return this->service.close(this->implementation);
+        this->service.close(this->implementation);
     }
 
     template<typename Option>
     void set_option(Option const& option) {
         AMY_SYSTEM_NS::error_code ec;
-        detail::throw_error(set_option(this->implementation, option, ec),
+        detail::throw_error(set_option(option, ec),
                             &(this->implementation.mysql));
     }
 
     template<typename Option>
-    AMY_SYSTEM_NS::error_code set_option(Option const& option,
-                                         AMY_SYSTEM_NS::error_code& ec)
+    AMY_SYSTEM_NS::error_code set_option(Option const& option, AMY_SYSTEM_NS::error_code& ec)
     {
-        this->service.set_option(this->implementation, option, ec);
-        detail::throw_error(ec, &(this->implementation.mysql));
+        return this->service.set_option(this->implementation, option, ec);
     }
 
     void cancel() {
