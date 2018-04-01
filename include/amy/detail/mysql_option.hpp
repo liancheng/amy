@@ -23,7 +23,7 @@ public:
     }
 
     char const* data() const {
-        return static_cast<char const*>&value_;
+        return reinterpret_cast<char const*>(&value_);
     }
 
 private:
@@ -71,7 +71,7 @@ public:
     }
 
     char const* data() const {
-        return static_cast<char const*>(&value_);
+        return reinterpret_cast<char const*>(&value_);
     }
 
 private:
