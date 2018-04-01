@@ -11,7 +11,6 @@
 
 namespace amy {
 namespace detail {
-
 namespace mysql_ops {
 
 using ::mysql_affected_rows;
@@ -35,7 +34,12 @@ inline void clear_error(AMY_SYSTEM_NS::error_code& ec) {
 template<typename ReturnType>
 ReturnType error_wrapper(ReturnType return_value,
                          mysql_handle m,
-                         AMY_SYSTEM_NS::error_code& ec)
+                         AMY_SYSTEM_NS::error_code& ec);
+
+template<typename T>
+T* error_wrapper(T* return_value,
+                 mysql_handle m,
+                 AMY_SYSTEM_NS::error_code& ec)
 {
     if (return_value == nullptr)
         ec = AMY_SYSTEM_NS::error_code(::mysql_errno(m),
