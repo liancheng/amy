@@ -33,11 +33,11 @@ inline void clear_error(AMY_SYSTEM_NS::error_code& ec) {
 }
 
 template<typename ReturnType>
-inline ReturnType error_wrapper(ReturnType return_value,
+ReturnType error_wrapper(ReturnType return_value,
                          mysql_handle m,
                          AMY_SYSTEM_NS::error_code& ec)
 {
-    if(return_value == nullptr)
+    if (return_value == nullptr)
         ec = AMY_SYSTEM_NS::error_code(::mysql_errno(m),
                                        amy::error::get_client_category());
     return return_value;
@@ -48,7 +48,7 @@ inline int error_wrapper(int return_value,
                          mysql_handle m,
                          AMY_SYSTEM_NS::error_code& ec)
 {
-    if(return_value != 0)
+    if (return_value != 0)
         ec = AMY_SYSTEM_NS::error_code(::mysql_errno(m),
                                        amy::error::get_client_category());
     return return_value;
