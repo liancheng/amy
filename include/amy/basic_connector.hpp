@@ -27,45 +27,48 @@ public:
     {}
 
     native_type native() {
-        return this->service.native(this->implementation);
+        return this->get_service().native(this->get_implementation());
     }
 
     std::string error_message(AMY_SYSTEM_NS::error_code const& ec) {
-        return this->service.error_message(this->implementation, ec);
+        return this->get_service()
+            .error_message(this->get_implementation(), ec);
     }
 
     void open() {
         AMY_SYSTEM_NS::error_code ec;
-        detail::throw_error(open(ec), &(this->implementation.mysql));
+        detail::throw_error(open(ec), &(this->get_implementation().mysql));
     }
 
     AMY_SYSTEM_NS::error_code open(AMY_SYSTEM_NS::error_code& ec) {
-        return this->service.open(this->implementation, ec);
+        return this->get_service().open(this->get_implementation(), ec);
     }
 
     bool is_open() const {
-        return this->service.is_open(this->implementation);
+        return this->get_service().is_open(this->get_implementation());
     }
 
     void close() {
-        this->service.close(this->implementation);
+        this->get_service().close(this->get_implementation());
     }
 
     template<typename Option>
     void set_option(Option const& option) {
         AMY_SYSTEM_NS::error_code ec;
         detail::throw_error(set_option(option, ec),
-                            &(this->implementation.mysql));
+                            &(this->get_implementation().mysql));
     }
 
     template<typename Option>
-    AMY_SYSTEM_NS::error_code set_option(Option const& option, AMY_SYSTEM_NS::error_code& ec)
+    AMY_SYSTEM_NS::error_code set_option(Option const& option,
+                                         AMY_SYSTEM_NS::error_code& ec)
     {
-        return this->service.set_option(this->implementation, option, ec);
+        return this->get_service()
+            .set_option(this->get_implementation(), option, ec);
     }
 
     void cancel() {
-        this->service.cancel(this->implementation);
+        this->get_service().cancel(this->get_implementation());
     }
 
     template<typename Endpoint>
@@ -76,7 +79,7 @@ public:
     {
         AMY_SYSTEM_NS::error_code ec;
         detail::throw_error(connect(endpoint, auth, database, flags, ec),
-                            &(this->implementation.mysql));
+                            &(this->get_implementation().mysql));
     }
 
     template<typename Endpoint>
@@ -86,8 +89,9 @@ public:
                                       client_flags flags,
                                       AMY_SYSTEM_NS::error_code& ec)
     {
-        return this->service.connect(this->implementation,
-                                     endpoint, auth, database, flags, ec);
+        return this->get_service().connect(
+                this->get_implementation(),
+                endpoint, auth, database, flags, ec);
     }
 
     template<typename Endpoint, typename ConnectHandler>
@@ -97,81 +101,85 @@ public:
                        client_flags flags,
                        ConnectHandler handler)
     {
-        return this->service.async_connect(
-                this->implementation, endpoint, auth, database, flags, handler);
+        return this->get_service().async_connect(
+                this->get_implementation(),
+                endpoint, auth, database, flags, handler);
     }
 
     void query(std::string const& stmt) {
         AMY_SYSTEM_NS::error_code ec;
-        detail::throw_error(query(stmt, ec), &(this->implementation.mysql));
+        detail::throw_error(
+                query(stmt, ec), &(this->get_implementation().mysql));
     }
 
     AMY_SYSTEM_NS::error_code query(std::string const& stmt,
                                     AMY_SYSTEM_NS::error_code& ec)
     {
-        return this->service.query(this->implementation, stmt, ec);
+        return this->get_service().query(this->get_implementation(), stmt, ec);
     }
 
     template<typename QueryHandler>
     void async_query(std::string const& stmt, QueryHandler handler) {
-        this->service.async_query(this->implementation, stmt, handler);
+        this->get_service().async_query(
+                this->get_implementation(), stmt, handler);
     }
 
     bool has_more_results() const {
-        return this->service.has_more_results(this->implementation);
+        return this->get_service().has_more_results(this->get_implementation());
     }
 
     result_set store_result() {
         AMY_SYSTEM_NS::error_code ec;
         result_set rs = store_result(ec);
-        detail::throw_error(ec, &(this->implementation.mysql));
+        detail::throw_error(ec, &(this->get_implementation().mysql));
         return rs;
     }
 
     result_set store_result(AMY_SYSTEM_NS::error_code& ec) {
-        return this->service.store_result(this->implementation, ec);
+        return this->get_service().store_result(this->get_implementation(), ec);
     }
 
     template<typename StoreResultHandler>
     void async_store_result(StoreResultHandler handler) {
-        this->service.async_store_result(this->implementation, handler);
+        this->get_service().async_store_result(
+                this->get_implementation(), handler);
     }
 
     void autocommit(bool mode) {
         AMY_SYSTEM_NS::error_code ec;
         detail::throw_error(autocommit(mode, ec),
-                            &(this->implementation.mysql));
+                            &(this->get_implementation().mysql));
     }
 
     AMY_SYSTEM_NS::error_code autocommit(bool mode,
                                          AMY_SYSTEM_NS::error_code& ec)
     {
-        this->service.autocommit(this->implementation, mode, ec);
+        this->get_service().autocommit(this->get_implementation(), mode, ec);
         return ec;
     }
 
     void commit() {
         AMY_SYSTEM_NS::error_code ec;
-        detail::throw_error(commit(ec), &(this->implementation.mysql));
+        detail::throw_error(commit(ec), &(this->get_implementation().mysql));
     }
 
     AMY_SYSTEM_NS::error_code commit(AMY_SYSTEM_NS::error_code& ec) {
-        this->service.commit(this->implementation, ec);
+        this->get_service().commit(this->get_implementation(), ec);
         return ec;
     }
 
     void rollback() {
         AMY_SYSTEM_NS::error_code ec;
-        detail::throw_error(rollback(ec), &(this->implementation.mysql));
+        detail::throw_error(rollback(ec), &(this->get_implementation().mysql));
     }
 
     AMY_SYSTEM_NS::error_code rollback(AMY_SYSTEM_NS::error_code& ec) {
-        this->service.rollback(this->implementation, ec);
+        this->get_service().rollback(this->get_implementation(), ec);
         return ec;
     }
 
     uint64_t affected_rows() {
-        return this->service.affected_rows(this->implementation);
+        return this->get_service().affected_rows(this->get_implementation());
     }
 
 }; // class basic_connector
