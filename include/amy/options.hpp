@@ -1,10 +1,10 @@
-#ifndef __AMY_MYSQL_OPTIONS_HPP__
-#define __AMY_MYSQL_OPTIONS_HPP__
+#ifndef __AMY_OPTIONS_HPP__
+#define __AMY_OPTIONS_HPP__
 
 #include <amy/detail/mysql_option.hpp>
 
 namespace amy {
-namespace mysql_options {
+namespace options {
 
 using init_command = detail::mysql_option::char_sequence<detail::init_command>;
 using compress     = detail::mysql_option::switcher<detail::compress>;
@@ -44,7 +44,7 @@ using set_charset_name =
 using shared_memory_base_name =
     detail::mysql_option::char_sequence<detail::shared_memory_base_name>;
 
-} // namespace mysql_options
+} // namespace options
 } // namespace amy
 
-#endif /* __AMY_MYSQL_OPTIONS_HPP__ */
+#endif /* __AMY_OPTIONS_HPP__ */
