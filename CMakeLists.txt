@@ -4,6 +4,12 @@ project(amy CXX)
 
 include_directories(include)
 
+option(USE_BOOST_ASIO "USE_BOOST_ASIO" ON)
+if(USE_BOOST_ASIO)
+  set(USE_BOOST_ASIO "1")
+endif()
+configure_file(include/amy/asio.hpp.in ${PROJECT_SOURCE_DIR}/include/amy/asio.hpp @ONLY)
+
 option(build_tests "build tests" ON)
 if(build_tests)
     enable_testing()
@@ -32,4 +38,4 @@ if(build_examples)
     endforeach()
 endif()
 
-install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX} PATTERN include/amy/asio.hpp.in EXCLUDE)
