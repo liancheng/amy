@@ -3,11 +3,13 @@
 
 #include <amy/detail/mysql_types.hpp>
 
+#include <string>
+
 namespace amy {
 namespace detail {
 namespace mysql_option {
 
-template<int Option>
+template<int Option, typename Uint = unsigned int>
 class unsigned_integer {
 public:
     unsigned_integer() :
@@ -27,8 +29,7 @@ public:
     }
 
 private:
-    unsigned int value_;
-
+    Uint value_;
 }; // class unsigned_integer
 
 template<int Option>
