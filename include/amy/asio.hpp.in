@@ -1,6 +1,8 @@
 #ifndef __AMY_ASIO_HPP__
 #define __AMY_ASIO_HPP__
 
+#cmakedefine USE_BOOST_ASIO @USE_BOOST_ASIO@
+
 #if !defined(USE_BOOST_ASIO) || (USE_BOOST_ASIO == 0)
 
 #include <asio/basic_io_object.hpp>
