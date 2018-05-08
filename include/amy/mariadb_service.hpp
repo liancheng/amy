@@ -166,10 +166,6 @@ public:
   explicit handler_base(implementation_type& impl,
       AMY_ASIO_NS::io_service& io_service, Handler handler);
 
-private:
-  std::function<int(int, AMY_SYSTEM_NS::error_code&)> mysql_continue_;
-  void continue_(AMY_SYSTEM_NS::error_code, int);
-
 protected:
   implementation_type& impl_;
   std::weak_ptr<void> cancelation_token_;
@@ -177,14 +173,25 @@ protected:
   AMY_ASIO_NS::io_service::work work_;
   Handler handler_;
 
+  template <typename ContinueFun,
+      typename = std::void_t<decltype(std::declval<ContinueFun>()(
+          std::declval<AMY_SYSTEM_NS::error_code>(), 0))>>
+  void await(int status, ContinueFun continue_fun);
+
+  template <typename MysqlContinue>
   void await(AMY_SYSTEM_NS::error_code ec, int status,
-      std::function<int(int, AMY_SYSTEM_NS::error_code&)> mysql_continue) {
+      MysqlContinue mysql_continue) {
+    static_assert(std::is_same<decltype(std::declval<MysqlContinue>()(0,
+                                   std::declval<AMY_SYSTEM_NS::error_code&>())),
+                      int>::value,
+        "MysqlContinue mismatch int(int, error_code&)");
     mysql_continue_ = std::move(mysql_continue);
     continue_(ec, status);
   }
 
-  void await(int status,
-      std::function<void(AMY_SYSTEM_NS::error_code, int)> continue_fun_);
+private:
+  std::function<int(int, AMY_SYSTEM_NS::error_code&)> mysql_continue_;
+  void continue_(AMY_SYSTEM_NS::error_code, int);
 
 }; // class mariadb_service::handler_base
 
