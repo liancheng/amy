@@ -70,7 +70,6 @@ using ::mysql_free_result_cont;
 using ::mysql_free_result_start;
 
 using ::mysql_get_socket;
-using ::mysql_get_timeout_value_ms;
 
 enum wait_type {
   finish        = 0,
@@ -81,10 +80,8 @@ enum wait_type {
   read_or_write = read | write,
 };
 
-inline unsigned int mysql_get_timeout_value_ms(
-    mysql_handle m, AMY_SYSTEM_NS::error_code& ec) {
-  clear_error(ec);
-  return ::mysql_get_timeout_value_ms(m);
+inline auto mysql_get_timeout_value(mysql_handle m) {
+  return std::chrono::milliseconds(::mysql_get_timeout_value_ms(m));
 }
 
 template <typename F, typename R, typename... Args>

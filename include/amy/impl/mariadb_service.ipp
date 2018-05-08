@@ -323,7 +323,39 @@ void mariadb_service::handler_base<Handler>::continue_(
     return;
   }
 
-  using namespace amy::error;
+  namespace ops = amy::detail::mysql_ops;
+
+  assert(mysql_continue_);
+
+  auto self = this->shared_from_this();
+
+  this->await(status, [self, this](AMY_SYSTEM_NS::error_code ec, int status) {
+    if (ec) {
+      this->io_service_.post(std::bind(this->handler_, ec));
+      return;
+    }
+
+    if (this->cancelation_token_.expired()) {
+      this->io_service_.post(
+          std::bind(this->handler_, AMY_ASIO_NS::error::operation_aborted));
+      return;
+    }
+
+    status = this->mysql_continue_(status, ec);
+
+    if (status == ops::wait_type::finish || ec) {
+      this->io_service_.post(std::bind(this->handler_, ec));
+    } else {
+      this->io_service_.post(
+          std::bind(&mariadb_service::handler_base<Handler>::continue_, self,
+              ec, status));
+    }
+  });
+}
+
+template <typename Handler>
+void mariadb_service::handler_base<Handler>::await(int status,
+    std::function<void(AMY_SYSTEM_NS::error_code, int)> continue_fun_) {
   namespace ops = amy::detail::mysql_ops;
 
   auto& ev = *this->impl_.ev_;
@@ -339,35 +371,10 @@ void mariadb_service::handler_base<Handler>::continue_(
   if (this->impl_.timer_) this->impl_.timer_->cancel();
   if (ev.native_handle() != -1) ev.cancel();
 
-  assert(mysql_continue_);
-
-  auto self = this->shared_from_this();
-
-  auto continue_fun_ = [self, this](AMY_SYSTEM_NS::error_code ec, int status) {
-    if (ec) {
-      this->io_service_.post(std::bind(this->handler_, ec));
-      return;
-    }
-
-    if (this->cancelation_token_.expired()) {
-      this->io_service_.post(
-          std::bind(this->handler_, AMY_ASIO_NS::error::operation_aborted));
-      return;
-    }
-
-    status = (this->mysql_continue_)(status, std::ref(ec));
-
-    if (status == ops::wait_type::finish || ec) {
-      this->io_service_.post(std::bind(this->handler_, ec));
-    } else {
-      this->io_service_.post(
-          std::bind(&mariadb_service::handler_base<Handler>::continue_, self,
-              ec, status));
-    }
-  };
-
   using boost::asio::posix::descriptor_base;
   using namespace std::placeholders;
+
+  assert(continue_fun_);
 
   if (status & ops::wait_type::read)
     ev.async_wait(descriptor_base::wait_read,
@@ -382,11 +389,11 @@ void mariadb_service::handler_base<Handler>::continue_(
       this->impl_.timer_ =
           std::make_unique<AMY_ASIO_NS::steady_timer>(this->io_service_);
 
-    auto timeout = ops::mysql_get_timeout_value_ms(&this->impl_.mysql);
+    auto timeout = ops::mysql_get_timeout_value(&this->impl_.mysql);
 
     auto& timer = *this->impl_.timer_;
     timer.cancel();
-    timer.expires_after(std::chrono::milliseconds(timeout));
+    timer.expires_after(timeout);
     timer.async_wait(std::bind(continue_fun_, _1, ops::wait_type::timeout));
   }
 }
@@ -423,11 +430,10 @@ void mariadb_service::connect_handler<Endpoint, ConnectHandler>::operator()() {
   if (status == ops::wait_type::finish)
     this->io_service_.post(std::bind(this->handler_, ec));
   else {
-    this->continue_f(
-        ec, status, [this](int status, AMY_SYSTEM_NS::error_code& ec) {
-          return ops::mysql_real_connect_cont(
-              &this->result_, &this->impl_.mysql, status, ec);
-        });
+    this->await(ec, status, [this](int status, AMY_SYSTEM_NS::error_code& ec) {
+      return ops::mysql_real_connect_cont(
+          &this->result_, &this->impl_.mysql, status, ec);
+    });
   }
 }
 
@@ -459,11 +465,10 @@ void mariadb_service::query_handler<QueryHandler>::operator()() {
   if (status == ops::wait_type::finish)
     this->io_service_.post(std::bind(this->handler_, ec));
   else {
-    this->continue_f(
-        ec, status, [this](int status, AMY_SYSTEM_NS::error_code& ec) {
-          return ops::mysql_real_query_cont(
-              &this->result_, &this->impl_.mysql, status, ec);
-        });
+    this->await(ec, status, [this](int status, AMY_SYSTEM_NS::error_code& ec) {
+      return ops::mysql_real_query_cont(
+          &this->result_, &this->impl_.mysql, status, ec);
+    });
   }
 }
 
@@ -475,7 +480,6 @@ mariadb_service::next_result_handler<NextResultHandler>::next_result_handler(
 
 template <typename NextResultHandler>
 void mariadb_service::next_result_handler<NextResultHandler>::operator()() {
-  using namespace amy::error;
   namespace ops = amy::detail::mysql_ops;
 
   if (this->cancelation_token_.expired()) {
@@ -495,11 +499,10 @@ void mariadb_service::next_result_handler<NextResultHandler>::operator()() {
   if (status == ops::wait_type::finish)
     this->io_service_.post(std::bind(this->handler_, ec));
   else {
-    this->continue_f(
-        ec, status, [this](int status, AMY_SYSTEM_NS::error_code& ec) {
-          return ops::mysql_next_result_cont(
-              &this->result_, &this->impl_.mysql, status, ec);
-        });
+    this->await(ec, status, [this](int status, AMY_SYSTEM_NS::error_code& ec) {
+      return ops::mysql_next_result_cont(
+          &this->result_, &this->impl_.mysql, status, ec);
+    });
   }
 }
 
@@ -604,26 +607,12 @@ void mariadb_service::store_result_handler<StoreResultHandler>::continue_(
     return;
   }
 
-  using namespace amy::error;
   namespace ops = amy::detail::mysql_ops;
-
-  auto& ev = *this->impl_.ev_;
-  int fd   = -1;
-  if (status & ops::wait_type::read_or_write) {
-    fd = ops::mysql_get_socket(&this->impl_.mysql);
-    if (ev.native_handle() != fd) {
-      ev.release();
-      ev.assign(fd);
-    }
-  }
-
-  if (this->impl_.timer_) this->impl_.timer_->cancel();
-  if (ev.native_handle() != -1) ev.cancel();
 
   using self_type = mariadb_service::store_result_handler<StoreResultHandler>;
   auto self = std::static_pointer_cast<self_type>(this->shared_from_this());
 
-  auto continue_fun_ = [self, this](AMY_SYSTEM_NS::error_code ec, int status) {
+  this->await(status, [self, this](AMY_SYSTEM_NS::error_code ec, int status) {
     if (ec) {
       this->io_service_.post(std::bind(
           this->handler_, ec, result_set::empty_set(&this->impl_.mysql)));
@@ -638,7 +627,8 @@ void mariadb_service::store_result_handler<StoreResultHandler>::continue_(
     }
 
     status = ops::mysql_store_result_cont(
-        &this->result_, &this->impl_.mysql, status, std::ref(ec));
+        &this->result_, &this->impl_.mysql, status, ec);
+
     if (ec) {
       // If anything went wrong, invokes the user-defined handler with the
       // error code and an empty result set.
@@ -646,8 +636,8 @@ void mariadb_service::store_result_handler<StoreResultHandler>::continue_(
           this->handler_, ec, result_set::empty_set(&this->impl_.mysql)));
       return;
     }
-    if (status == ops::wait_type::finish) {
 
+    if (status == ops::wait_type::finish) {
       // Retrieves the next result set.
       this->impl_.last_result.reset(this->result_, result_set_deleter());
 
@@ -659,31 +649,7 @@ void mariadb_service::store_result_handler<StoreResultHandler>::continue_(
       this->io_service_.post(
           std::bind(&self_type::continue_, self, ec, status));
     }
-  };
-
-  using boost::asio::posix::descriptor_base;
-  using namespace std::placeholders;
-
-  if (status & ops::wait_type::read)
-    ev.async_wait(descriptor_base::wait_read,
-        std::bind(continue_fun_, _1, ops::wait_type::read));
-
-  if (status & ops::wait_type::write)
-    ev.async_wait(descriptor_base::wait_write,
-        std::bind(continue_fun_, _1, ops::wait_type::write));
-
-  if (status & ops::wait_type::timeout) {
-    if (!this->impl_.timer_)
-      this->impl_.timer_ =
-          std::make_unique<AMY_ASIO_NS::steady_timer>(this->io_service_);
-
-    auto timeout = ops::mysql_get_timeout_value_ms(&this->impl_.mysql);
-
-    auto& timer = *this->impl_.timer_;
-    timer.cancel();
-    timer.expires_after(std::chrono::milliseconds(timeout));
-    timer.async_wait(std::bind(continue_fun_, _1, ops::wait_type::timeout));
-  }
+  });
 }
 
 inline void mariadb_service::result_set_deleter::operator()(void* p) {
