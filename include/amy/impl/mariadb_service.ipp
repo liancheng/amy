@@ -325,7 +325,7 @@ void mariadb_service::handler_base<Handler>::continue_(
 
   namespace ops = amy::detail::mysql_ops;
 
-  assert(mysql_continue_);
+  assert(this->mysql_continue_);
 
   auto self = this->shared_from_this();
 
@@ -354,8 +354,9 @@ void mariadb_service::handler_base<Handler>::continue_(
 }
 
 template <typename Handler>
-void mariadb_service::handler_base<Handler>::await(int status,
-    std::function<void(AMY_SYSTEM_NS::error_code, int)> continue_fun_) {
+template <typename ContinueFun, typename>
+void mariadb_service::handler_base<Handler>::await(
+    int status, ContinueFun continue_fun) {
   namespace ops = amy::detail::mysql_ops;
 
   auto& ev = *this->impl_.ev_;
@@ -374,15 +375,13 @@ void mariadb_service::handler_base<Handler>::await(int status,
   using boost::asio::posix::descriptor_base;
   using namespace std::placeholders;
 
-  assert(continue_fun_);
-
   if (status & ops::wait_type::read)
     ev.async_wait(descriptor_base::wait_read,
-        std::bind(continue_fun_, _1, ops::wait_type::read));
+        std::bind(continue_fun, _1, ops::wait_type::read));
 
   if (status & ops::wait_type::write)
     ev.async_wait(descriptor_base::wait_write,
-        std::bind(continue_fun_, _1, ops::wait_type::write));
+        std::bind(continue_fun, _1, ops::wait_type::write));
 
   if (status & ops::wait_type::timeout) {
     if (!this->impl_.timer_)
@@ -394,7 +393,7 @@ void mariadb_service::handler_base<Handler>::await(int status,
     auto& timer = *this->impl_.timer_;
     timer.cancel();
     timer.expires_after(timeout);
-    timer.async_wait(std::bind(continue_fun_, _1, ops::wait_type::timeout));
+    timer.async_wait(std::bind(continue_fun, _1, ops::wait_type::timeout));
   }
 }
 
