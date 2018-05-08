@@ -166,13 +166,9 @@ public:
   explicit handler_base(implementation_type& impl,
       AMY_ASIO_NS::io_service& io_service, Handler handler);
 
+private:
+  std::function<int(int, AMY_SYSTEM_NS::error_code&)> mysql_continue_;
   void continue_(AMY_SYSTEM_NS::error_code, int);
-
-  void continue_f(AMY_SYSTEM_NS::error_code ec, int status,
-      std::function<int(int, AMY_SYSTEM_NS::error_code&)> mysql_continue) {
-    mysql_continue_ = std::move(mysql_continue);
-    continue_(ec, status);
-  }
 
 protected:
   implementation_type& impl_;
@@ -180,7 +176,15 @@ protected:
   AMY_ASIO_NS::io_service& io_service_;
   AMY_ASIO_NS::io_service::work work_;
   Handler handler_;
-  std::function<int(int, AMY_SYSTEM_NS::error_code&)> mysql_continue_;
+
+  void await(AMY_SYSTEM_NS::error_code ec, int status,
+      std::function<int(int, AMY_SYSTEM_NS::error_code&)> mysql_continue) {
+    mysql_continue_ = std::move(mysql_continue);
+    continue_(ec, status);
+  }
+
+  void await(int status,
+      std::function<void(AMY_SYSTEM_NS::error_code, int)> continue_fun_);
 
 }; // class mariadb_service::handler_base
 
@@ -240,9 +244,8 @@ public:
 
   void operator()();
 
-  void continue_(AMY_SYSTEM_NS::error_code ec, int status);
-
 private:
+  void continue_(AMY_SYSTEM_NS::error_code ec, int status);
   detail::result_set_type* result_ = nullptr;
 
 }; // class mariadb_service::store_result_handler
