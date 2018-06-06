@@ -38,7 +38,7 @@ inline void mysql_service::shutdown_service() {
     }
 }
 
-inline void mysql_service::construct(implementation_type& impl) {
+inline void mysql_service::construct(implementation_type&) {
 }
 
 inline void mysql_service::destroy(implementation_type& impl) {
