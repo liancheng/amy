@@ -8,9 +8,13 @@
 #include <amy/auth_info.hpp>
 #include <amy/endpoint_traits.hpp>
 #include <amy/result_set.hpp>
+#include <boost/beast/core/bind_handler.hpp>
 
+#if !defined(USE_BOOST_ASIO) || (USE_BOOST_ASIO == 0)
+#include <asio/posix/stream_descriptor.hpp>
+#else
 #include <boost/asio/posix/stream_descriptor.hpp>
-
+#endif
 #include <memory>
 
 namespace amy {
@@ -73,7 +77,8 @@ public:
       AMY_SYSTEM_NS::error_code& ec);
 
   template <typename Endpoint, typename ConnectHandler>
-  void async_connect(implementation_type& impl, Endpoint const& endpoint,
+  BOOST_ASIO_INITFN_RESULT_TYPE(ConnectHandler, void(AMY_SYSTEM_NS::error_code))
+  async_connect(implementation_type& impl, Endpoint const& endpoint,
       auth_info const& auth, std::string const& database, client_flags flags,
       ConnectHandler handler);
 
@@ -81,7 +86,8 @@ public:
       std::string const& stmt, AMY_SYSTEM_NS::error_code& ec);
 
   template <typename QueryHandler>
-  void async_query(
+  BOOST_ASIO_INITFN_RESULT_TYPE(QueryHandler, void(AMY_SYSTEM_NS::error_code))
+  async_query(
       implementation_type& impl, std::string const& stmt, QueryHandler handler);
 
   bool has_more_results(implementation_type const& impl) const;
@@ -90,8 +96,9 @@ public:
       implementation_type& impl, AMY_SYSTEM_NS::error_code& ec);
 
   template <typename StoreResultHandler>
-  void async_store_result(
-      implementation_type& impl, StoreResultHandler handler);
+  BOOST_ASIO_INITFN_RESULT_TYPE(
+      StoreResultHandler, void(AMY_SYSTEM_NS::error_code, amy::result_set))
+  async_store_result(implementation_type& impl, StoreResultHandler handler);
 
   AMY_SYSTEM_NS::error_code autocommit(
       implementation_type& impl, bool mode, AMY_SYSTEM_NS::error_code& ec);
@@ -166,6 +173,19 @@ public:
   explicit handler_base(implementation_type& impl,
       AMY_ASIO_NS::io_service& io_service, Handler handler);
 
+  BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code))
+  post(AMY_SYSTEM_NS::error_code ec) {
+    AMY_ASIO_NS::post(this->io_service_.get_executor(),
+        boost::beast::bind_handler(this->handler_, ec));
+  }
+
+  BOOST_ASIO_INITFN_RESULT_TYPE(
+      Handler, void(boost::system::error_code, amy::result_set))
+  post(AMY_SYSTEM_NS::error_code ec, amy::result_set rs) {
+    AMY_ASIO_NS::post(this->io_service_.get_executor(),
+        boost::beast::bind_handler(this->handler_, ec, rs));
+  }
+
 protected:
   implementation_type& impl_;
   std::weak_ptr<void> cancelation_token_;
@@ -179,8 +199,8 @@ protected:
   void await(int status, ContinueFun continue_fun);
 
   template <typename MysqlContinue>
-  void await(AMY_SYSTEM_NS::error_code ec, int status,
-      MysqlContinue mysql_continue) {
+  void await(
+      AMY_SYSTEM_NS::error_code ec, int status, MysqlContinue mysql_continue) {
     static_assert(std::is_same<decltype(std::declval<MysqlContinue>()(0,
                                    std::declval<AMY_SYSTEM_NS::error_code&>())),
                       int>::value,

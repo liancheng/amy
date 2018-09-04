@@ -95,15 +95,22 @@ public:
     }
 
     template<typename Endpoint, typename ConnectHandler>
-    void async_connect(Endpoint const& endpoint,
+    BOOST_ASIO_INITFN_RESULT_TYPE(ConnectHandler,
+                                  void (AMY_SYSTEM_NS::error_code))
+    async_connect(Endpoint const& endpoint,
                        auth_info const& auth,
                        std::string const& database,
                        client_flags flags,
                        ConnectHandler handler)
     {
-        return this->get_service().async_connect(
+        AMY_ASIO_NS::async_completion<ConnectHandler,
+            void (AMY_SYSTEM_NS::error_code)> init(handler);
+
+        this->get_service().async_connect(
                 this->get_implementation(),
-                endpoint, auth, database, flags, handler);
+                endpoint, auth, database, flags, init.completion_handler);
+
+        return init.result.get();
     }
 
     void query(std::string const& stmt) {
@@ -119,9 +126,16 @@ public:
     }
 
     template<typename QueryHandler>
-    void async_query(std::string const& stmt, QueryHandler handler) {
+    BOOST_ASIO_INITFN_RESULT_TYPE(QueryHandler,
+        void (AMY_SYSTEM_NS::error_code))
+    async_query(std::string const& stmt, QueryHandler handler) {
+        AMY_ASIO_NS::async_completion<QueryHandler,
+            void (AMY_SYSTEM_NS::error_code)> init(handler);
+
         this->get_service().async_query(
-                this->get_implementation(), stmt, handler);
+                this->get_implementation(), stmt, init.completion_handler);
+
+        return init.result.get();
     }
 
     bool has_more_results() const {
@@ -140,9 +154,16 @@ public:
     }
 
     template<typename StoreResultHandler>
-    void async_store_result(StoreResultHandler handler) {
+    BOOST_ASIO_INITFN_RESULT_TYPE(StoreResultHandler,
+        void (AMY_SYSTEM_NS::error_code, amy::result_set))
+    async_store_result(StoreResultHandler handler) {
+        AMY_ASIO_NS::async_completion<StoreResultHandler,
+            void (AMY_SYSTEM_NS::error_code, amy::result_set)> init(handler);
+
         this->get_service().async_store_result(
-                this->get_implementation(), handler);
+                this->get_implementation(), init.completion_handler);
+
+        return init.result.get();
     }
 
     void autocommit(bool mode) {
