@@ -8,7 +8,6 @@
 #include <amy/auth_info.hpp>
 #include <amy/endpoint_traits.hpp>
 #include <amy/result_set.hpp>
-#include <boost/beast/core/bind_handler.hpp>
 
 #if !defined(USE_BOOST_ASIO) || (USE_BOOST_ASIO == 0)
 #include <asio/posix/stream_descriptor.hpp>
@@ -23,19 +22,11 @@ class mariadb_service : public detail::service_base<mariadb_service> {
 public:
   struct implementation;
 
-  template <typename Handler>
-  class handler_base;
-
-  template <typename Endpoint, typename ConnectHandler>
+  template<class Handler, typename Endpoint>
   class connect_handler;
-
-  template <typename QueryHandler>
+  template<class Handler>
   class query_handler;
-
-  template <typename NextResultHandler>
-  class next_result_handler;
-
-  template <typename StoreResultHandler>
+  template<class Handler>
   class store_result_handler;
 
   typedef implementation implementation_type;
@@ -164,118 +155,6 @@ struct mariadb_service::implementation {
   void cancel();
 
 }; // struct mariadb_service::implementation
-
-template <typename Handler>
-class mariadb_service::handler_base
-    : public std::enable_shared_from_this<
-          mariadb_service::handler_base<Handler>> {
-public:
-  explicit handler_base(implementation_type& impl,
-      AMY_ASIO_NS::io_service& io_service, Handler handler);
-
-  BOOST_ASIO_INITFN_RESULT_TYPE(Handler, void(boost::system::error_code))
-  post(AMY_SYSTEM_NS::error_code ec) {
-    AMY_ASIO_NS::post(this->io_service_.get_executor(),
-        boost::beast::bind_handler(this->handler_, ec));
-  }
-
-  BOOST_ASIO_INITFN_RESULT_TYPE(
-      Handler, void(boost::system::error_code, amy::result_set))
-  post(AMY_SYSTEM_NS::error_code ec, amy::result_set rs) {
-    AMY_ASIO_NS::post(this->io_service_.get_executor(),
-        boost::beast::bind_handler(this->handler_, ec, rs));
-  }
-
-protected:
-  implementation_type& impl_;
-  std::weak_ptr<void> cancelation_token_;
-  AMY_ASIO_NS::io_service& io_service_;
-  AMY_ASIO_NS::io_service::work work_;
-  Handler handler_;
-
-  template <typename ContinueFun,
-      typename = std::void_t<decltype(std::declval<ContinueFun>()(
-          std::declval<AMY_SYSTEM_NS::error_code>(), 0))>>
-  void await(int status, ContinueFun continue_fun);
-
-  template <typename MysqlContinue>
-  void await(
-      AMY_SYSTEM_NS::error_code ec, int status, MysqlContinue mysql_continue) {
-    static_assert(std::is_same<decltype(std::declval<MysqlContinue>()(0,
-                                   std::declval<AMY_SYSTEM_NS::error_code&>())),
-                      int>::value,
-        "MysqlContinue mismatch int(int, error_code&)");
-    mysql_continue_ = std::move(mysql_continue);
-    continue_(ec, status);
-  }
-
-private:
-  std::function<int(int, AMY_SYSTEM_NS::error_code&)> mysql_continue_;
-  void continue_(AMY_SYSTEM_NS::error_code, int);
-
-}; // class mariadb_service::handler_base
-
-template <typename Endpoint, typename ConnectHandler>
-class mariadb_service::connect_handler : public handler_base<ConnectHandler> {
-public:
-  explicit connect_handler(implementation_type& impl, Endpoint const& endpoint,
-      amy::auth_info const& auth, std::string const& database,
-      client_flags flags, AMY_ASIO_NS::io_service& io_service,
-      ConnectHandler handler);
-
-  void operator()();
-
-private:
-  Endpoint endpoint_;
-  amy::auth_info auth_;
-  std::string database_;
-  client_flags flags_;
-  detail::mysql_type* result_ = nullptr;
-
-}; // class mariadb_service::connect_handler
-
-template <typename QueryHandler>
-class mariadb_service::query_handler : public handler_base<QueryHandler> {
-public:
-  explicit query_handler(implementation_type& impl, std::string const& stmt,
-      AMY_ASIO_NS::io_service& io_service, QueryHandler handler);
-
-  void operator()();
-
-private:
-  std::string stmt_;
-  int result_ = -1;
-
-}; // class mariadb_service::query_handler
-
-template <typename NextResultHandler>
-class mariadb_service::next_result_handler
-    : public handler_base<NextResultHandler> {
-public:
-  explicit next_result_handler(implementation_type& impl,
-      AMY_ASIO_NS::io_service& io_service, NextResultHandler handler);
-
-  void operator()();
-
-private:
-  int result_ = -1;
-
-}; // class mariadb_service::next_result_handler
-
-template <typename StoreResultHandler>
-class mariadb_service::store_result_handler
-    : public handler_base<StoreResultHandler> {
-public:
-  explicit store_result_handler(implementation_type& impl,
-      AMY_ASIO_NS::io_service& io_service, StoreResultHandler handler);
-
-  void operator()();
-
-private:
-  void continue_(AMY_SYSTEM_NS::error_code ec, int status);
-  detail::result_set_type* result_ = nullptr;
-
-}; // class mariadb_service::store_result_handler
 
 struct mariadb_service::result_set_deleter {
   void operator()(void* p);

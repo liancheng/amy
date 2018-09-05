@@ -7,6 +7,7 @@
 #include <amy/client_flags.hpp>
 #include <amy/endpoint_traits.hpp>
 #include <amy/noop_deleter.hpp>
+#include <boost/beast/core/handler_ptr.hpp>
 #include <boost/beast/core/bind_handler.hpp>
 
 #include <functional>
@@ -91,12 +92,6 @@ AMY_SYSTEM_NS::error_code mariadb_service::connect(implementation_type& impl,
   return ec;
 }
 
-template <typename T, typename... Args>
-auto make_shared_handler(Args&&... args) {
-  auto ptr = std::make_shared<T>(std::forward<Args>(args)...);
-  return [ptr]() { (*ptr)(); };
-}
-
 template <typename Endpoint, typename ConnectHandler>
 BOOST_ASIO_INITFN_RESULT_TYPE(ConnectHandler, void(AMY_SYSTEM_NS::error_code))
 mariadb_service::async_connect(implementation_type& impl,
@@ -119,9 +114,8 @@ mariadb_service::async_connect(implementation_type& impl,
     return;
   }
 
-  this->get_io_service().post(
-      make_shared_handler<connect_handler<Endpoint, ConnectHandler>>(impl,
-          endpoint, auth, database, flags, this->get_io_service(), handler));
+  connect_handler<ConnectHandler, Endpoint>(this->get_io_service(), handler,
+      impl, endpoint, auth, database, flags)(ec, 0);
 }
 
 inline AMY_SYSTEM_NS::error_code mariadb_service::query(
@@ -148,18 +142,11 @@ mariadb_service::async_query(
   if (!is_open(impl)) {
     AMY_ASIO_NS::post(this->get_io_service().get_executor(),
         boost::beast::bind_handler(handler, amy::error::not_initialized));
-  } else {
-    AMY_SYSTEM_NS::error_code ec;
-    if (!!open(impl, ec)) {
-      AMY_ASIO_NS::post(this->get_io_service().get_executor(),
-          boost::beast::bind_handler(handler, ec));
-      return;
-    }
-
-    this->get_io_service().post(
-        make_shared_handler<query_handler<QueryHandler>>(
-            impl, stmt, this->get_io_service(), handler));
+    return;
   }
+
+  query_handler<QueryHandler>(this->get_io_service(), handler, impl, stmt)(
+      {}, 0);
 }
 
 inline bool mariadb_service::has_more_results(
@@ -220,11 +207,11 @@ mariadb_service::async_store_result(
     AMY_ASIO_NS::post(this->get_io_service().get_executor(),
         boost::beast::bind_handler(handler, amy::error::not_initialized,
             result_set::empty_set(&impl.mysql)));
-  } else {
-    this->get_io_service().post(
-        make_shared_handler<store_result_handler<StoreResultHandler>>(
-            impl, this->get_io_service(), handler));
+    return;
   }
+
+  store_result_handler<StoreResultHandler>(
+      this->get_io_service(), handler, impl)({}, 0);
 }
 
 inline AMY_SYSTEM_NS::error_code mariadb_service::autocommit(
@@ -312,342 +299,510 @@ inline void mariadb_service::implementation::cancel() {
   this->cancelation_token.reset(static_cast<void*>(nullptr), noop_deleter());
 }
 
-template <typename Handler>
-mariadb_service::handler_base<Handler>::handler_base(implementation_type& impl,
-    AMY_ASIO_NS::io_service& io_service, Handler handler)
-    : impl_(impl), cancelation_token_(impl.cancelation_token),
-      io_service_(io_service), work_(io_service), handler_(handler) {}
+// This composed operation mysql_real_connect_[start|cont]
+template <class Handler, class Endpoint>
+class mariadb_service::connect_handler {
+  // This holds all of the state information required by the operation.
+  struct state {
+    // The executor to execute mysql nonblocking api
+    io_context& ioc_;
 
-template <typename Handler>
-void mariadb_service::handler_base<Handler>::continue_(
-    AMY_SYSTEM_NS::error_code ec, int status) {
-  if (ec) {
-    if (ec != AMY_ASIO_NS::error::operation_aborted) this->post(ec);
-    return;
+    // Boost.Asio and the Networking TS require an object of
+    // type executor_work_guard<T>, where T is the type of
+    // executor returned by the stream's get_executor function,
+    // to persist for the duration of the asynchronous operation.
+    boost::asio::executor_work_guard<decltype(
+        std::declval<io_context&>().get_executor())>
+        work;
+
+    // Indicates what step in the operation's state machine
+    // to perform next, starting from zero.
+    int step = 0;
+
+    implementation_type& impl_;
+    std::weak_ptr<void> cancelation_token_{impl_.cancelation_token};
+
+    Endpoint endpoint_;
+    amy::auth_info auth_;
+    std::string database_;
+    client_flags flags_;
+    detail::mysql_type* result_ = nullptr;
+
+    // handler_ptr requires that the first parameter to the
+    // contained object constructor is a reference to the
+    // managed final completion handler.
+    //
+    explicit state(Handler const&, io_context& ioc, implementation_type& impl,
+        Endpoint const& endpoint, amy::auth_info const& auth,
+        std::string const& database, client_flags flags)
+        : ioc_(ioc), work(ioc_.get_executor()), impl_(impl),
+          endpoint_(endpoint), auth_(auth), database_(database), flags_(flags) {
+    }
+  };
+
+  // The operation's data is kept in a cheap-to-copy smart
+  // pointer container called `handler_ptr`. This efficiently
+  // satisfies the CopyConstructible requirements of completion
+  // handlers with expensive-to-copy state.
+  //
+  // `handler_ptr` uses the allocator associated with the final
+  // completion handler, in order to allocate the storage for `state`.
+  //
+  boost::beast::handler_ptr<state, Handler> p_;
+
+public:
+  // Boost.Asio requires that handlers are CopyConstructible.
+  // In some cases, it takes advantage of handlers that are
+  // MoveConstructible. This operation supports both.
+  //
+  connect_handler(connect_handler&&)      = default;
+  connect_handler(connect_handler const&) = default;
+
+  // The constructor simply creates our state variables in
+  // the smart pointer container.
+  //
+  template <class DeducedHandler>
+  connect_handler(io_context& ioc, DeducedHandler&& handler,
+      implementation_type& impl, Endpoint const& endpoint,
+      amy::auth_info const& auth, std::string const& database,
+      client_flags flags)
+      : p_(std::forward<DeducedHandler>(handler), ioc, impl, endpoint, auth,
+            database, flags) {}
+
+  // Associated allocator support. This is Asio's system for
+  // allowing the final completion handler to customize the
+  // memory allocation strategy used for composed operation
+  // states. A composed operation should use the same allocator
+  // as the final handler. These declarations achieve that.
+
+  using allocator_type = boost::asio::associated_allocator_t<Handler>;
+
+  allocator_type get_allocator() const noexcept {
+    return (boost::asio::get_associated_allocator)(p_.handler());
   }
 
-  if (this->cancelation_token_.expired()) {
-    this->post(AMY_ASIO_NS::error::operation_aborted);
-    return;
+  // io_context hook. This is Asio's system for customizing the
+  // manner in which asynchronous completion handlers are invoked.
+  // A composed operation needs to use the same executor to invoke
+  // intermediate completion handlers as that used to invoke the
+  // final handler.
+
+  using executor_type = boost::asio::associated_executor_t<Handler,
+      decltype(std::declval<io_context&>().get_executor())>;
+
+  executor_type get_executor() const noexcept {
+    return (boost::asio::get_associated_executor)(p_.handler(), p_->ioc_);
   }
 
-  namespace ops = amy::detail::mysql_ops;
+  // The entry point for this handler. This will get called
+  // as our intermediate operations complete. Definition below.
+  //
+  void operator()(boost::beast::error_code ec, int status) {
+    // Store a reference to our state. The address of the state won't
+    // change, and this solves the problem where dereferencing the
+    // data member is undefined after a move.
+    auto& p = *p_;
 
-  assert(this->mysql_continue_);
+    using namespace amy::error;
+    namespace ops = amy::detail::mysql_ops;
+    if (p.cancelation_token_.expired())
+      ec = AMY_ASIO_NS::error::operation_aborted;
 
-  auto self = this->shared_from_this();
+    // Now perform the next step in the state machine
+    switch (ec ? 2 : p.step) {
+    // initial entry
+    case 0: {
 
-  this->await(status, [self, this](AMY_SYSTEM_NS::error_code ec, int status) {
-    if (ec) {
-      this->post(ec);
+      amy::endpoint_traits<Endpoint> traits(p.endpoint_);
+
+      status = ops::mysql_real_connect_start(&p.result_, &p.impl_.mysql,
+          traits.host(), p.auth_.user(), p.auth_.password(),
+          p.database_.c_str(), traits.port(), traits.unix_socket(), p.flags_,
+          ec);
+
+      p.impl_.flags = p.flags_;
+    } /* FALLTHRU */
+    case 1: {
+      if (p.step == 1)
+        status = ops::mysql_real_connect_cont(
+            &p.result_, &p.impl_.mysql, status, ec);
+      p.step = 1;
+
+      if (status == ops::wait_type::finish || ec) break;
+
+      auto& ev = *p.impl_.ev_;
+      if (status & ops::wait_type::read_or_write) {
+        int fd = ops::mysql_get_socket(&p.impl_.mysql);
+        if (ev.native_handle() != fd) {
+          ev.release();
+          ev.assign(fd);
+        }
+      }
+
+      if (p.impl_.timer_) p.impl_.timer_->cancel();
+      if (ev.native_handle() != -1) ev.cancel();
+
+      using AMY_ASIO_NS::posix::descriptor_base;
+      using namespace std::placeholders;
+      if (status & ops::wait_type::read) {
+        ev.async_wait(descriptor_base::wait_read,
+            boost::beast::bind_handler(
+                std::move(*this), _1, ops::wait_type::read));
+        return;
+      }
+      if (status & ops::wait_type::write) {
+        ev.async_wait(descriptor_base::wait_write,
+            boost::beast::bind_handler(
+                std::move(*this), _1, ops::wait_type::write));
+        return;
+      }
+      if (status & ops::wait_type::timeout) {
+        auto& impl = p.impl_;
+        if (!impl.timer_)
+          impl.timer_ = std::make_unique<AMY_ASIO_NS::steady_timer>(p.ioc_);
+
+        auto timeout = ops::mysql_get_timeout_value(&impl.mysql);
+
+        auto& timer = *impl.timer_;
+        timer.expires_after(timeout);
+        timer.async_wait(boost::beast::bind_handler(
+            std::move(*this), _1, ops::wait_type::timeout));
+        return;
+      }
       return;
     }
 
-    if (this->cancelation_token_.expired()) {
-      this->post(AMY_ASIO_NS::error::operation_aborted);
+    case 2: break;
+    }
+    // Invoke the final handler. The implementation of `handler_ptr`
+    // will deallocate the storage for the state before the handler
+    // is invoked. This is necessary to provide the
+    // destroy-before-invocation guarantee on handler memory
+    // customizations.
+    //
+    // If we wanted to pass any arguments to the handler which come
+    // from the `state`, they would have to be moved to the stack
+    // first or else undefined behavior results.
+    //
+    // The work guard is moved to the stack first, otherwise it would
+    // be destroyed before the handler is invoked.
+    //
+    auto work = std::move(p.work);
+    p_.invoke(ec);
+    return;
+  }
+};
+
+// This composed operation mysql_real_query_[start|cont]
+template <class Handler>
+class mariadb_service::query_handler {
+  struct state {
+    io_context& ioc_;
+
+    boost::asio::executor_work_guard<decltype(
+        std::declval<io_context&>().get_executor())>
+        work;
+
+    int step = 0;
+
+    implementation_type& impl_;
+    std::weak_ptr<void> cancelation_token_{impl_.cancelation_token};
+
+    std::string stmt_;
+    int result_ = -1;
+
+    explicit state(Handler const&, io_context& ioc, implementation_type& impl,
+        std::string const& stmt)
+        : ioc_(ioc), work(ioc_.get_executor()), impl_(impl), stmt_(stmt) {}
+  };
+
+  boost::beast::handler_ptr<state, Handler> p_;
+
+public:
+  query_handler(query_handler&&)      = default;
+  query_handler(query_handler const&) = default;
+
+  template <class DeducedHandler>
+  query_handler(io_context& ioc, DeducedHandler&& handler,
+      implementation_type& impl, std::string const& stmt)
+      : p_(std::forward<DeducedHandler>(handler), ioc, impl, stmt) {}
+
+  using allocator_type = boost::asio::associated_allocator_t<Handler>;
+
+  allocator_type get_allocator() const noexcept {
+    return (boost::asio::get_associated_allocator)(p_.handler());
+  }
+
+  using executor_type = boost::asio::associated_executor_t<Handler,
+      decltype(std::declval<io_context&>().get_executor())>;
+
+  executor_type get_executor() const noexcept {
+    return (boost::asio::get_associated_executor)(p_.handler(), p_->ioc_);
+  }
+
+  void operator()(boost::beast::error_code ec, int status) {
+    auto& p = *p_;
+
+    using namespace amy::error;
+    namespace ops = amy::detail::mysql_ops;
+    if (p.cancelation_token_.expired())
+      ec = AMY_ASIO_NS::error::operation_aborted;
+
+    switch (ec ? 2 : p.step) {
+    case 0: {
+      p.impl_.free_result();
+      p.impl_.first_result_stored = false;
+
+      status = ops::mysql_real_query_start(
+          &p.result_, &p.impl_.mysql, p.stmt_.c_str(), p.stmt_.size(), ec);
+
+    } /* FALLTHRU */
+    case 1: {
+      if (p.step == 1)
+        status =
+            ops::mysql_real_query_cont(&p.result_, &p.impl_.mysql, status, ec);
+
+      p.step = 1;
+
+      if (status == ops::wait_type::finish || ec) break;
+
+      auto& ev = *p.impl_.ev_;
+      if (status & ops::wait_type::read_or_write) {
+        int fd = ops::mysql_get_socket(&p.impl_.mysql);
+        if (ev.native_handle() != fd) {
+          ev.release();
+          ev.assign(fd);
+        }
+      }
+
+      if (p.impl_.timer_) p.impl_.timer_->cancel();
+      if (ev.native_handle() != -1) ev.cancel();
+
+      using AMY_ASIO_NS::posix::descriptor_base;
+      using namespace std::placeholders;
+      if (status & ops::wait_type::read) {
+        ev.async_wait(descriptor_base::wait_read,
+            boost::beast::bind_handler(
+                std::move(*this), _1, ops::wait_type::read));
+        return;
+      }
+      if (status & ops::wait_type::write) {
+        ev.async_wait(descriptor_base::wait_write,
+            boost::beast::bind_handler(
+                std::move(*this), _1, ops::wait_type::write));
+        return;
+      }
+      if (status & ops::wait_type::timeout) {
+        auto& impl = p.impl_;
+        if (!impl.timer_)
+          impl.timer_ = std::make_unique<AMY_ASIO_NS::steady_timer>(p.ioc_);
+
+        auto timeout = ops::mysql_get_timeout_value(&impl.mysql);
+
+        auto& timer = *impl.timer_;
+        timer.expires_after(timeout);
+        timer.async_wait(boost::beast::bind_handler(
+            std::move(*this), _1, ops::wait_type::timeout));
+        return;
+      }
       return;
     }
 
-    status = this->mysql_continue_(status, ec);
-
-    if (status == ops::wait_type::finish || ec) {
-      this->post(ec);
-    } else {
-      this->io_service_.post(
-          std::bind(&mariadb_service::handler_base<Handler>::continue_, self,
-              ec, status));
+    case 2: break;
     }
-  });
-}
-
-template <typename Handler>
-template <typename ContinueFun, typename>
-void mariadb_service::handler_base<Handler>::await(
-    int status, ContinueFun continue_fun) {
-  namespace ops = amy::detail::mysql_ops;
-
-  auto& ev = *this->impl_.ev_;
-  int fd   = -1;
-  if (status & ops::wait_type::read_or_write) {
-    fd = ops::mysql_get_socket(&this->impl_.mysql);
-    if (ev.native_handle() != fd) {
-      ev.release();
-      ev.assign(fd);
-    }
-  }
-
-  if (this->impl_.timer_) this->impl_.timer_->cancel();
-  if (ev.native_handle() != -1) ev.cancel();
-
-  using AMY_ASIO_NS::posix::descriptor_base;
-  using namespace std::placeholders;
-
-  if (status & ops::wait_type::read)
-    ev.async_wait(descriptor_base::wait_read,
-        std::bind(continue_fun, _1, ops::wait_type::read));
-
-  if (status & ops::wait_type::write)
-    ev.async_wait(descriptor_base::wait_write,
-        std::bind(continue_fun, _1, ops::wait_type::write));
-
-  if (status & ops::wait_type::timeout) {
-    if (!this->impl_.timer_)
-      this->impl_.timer_ =
-          std::make_unique<AMY_ASIO_NS::steady_timer>(this->io_service_);
-
-    auto timeout = ops::mysql_get_timeout_value(&this->impl_.mysql);
-
-    auto& timer = *this->impl_.timer_;
-    timer.cancel();
-    timer.expires_after(timeout);
-    timer.async_wait(std::bind(continue_fun, _1, ops::wait_type::timeout));
-  }
-}
-
-template <typename Endpoint, typename ConnectHandler>
-mariadb_service::connect_handler<Endpoint, ConnectHandler>::connect_handler(
-    implementation_type& impl, Endpoint const& endpoint,
-    amy::auth_info const& auth, std::string const& database, client_flags flags,
-    AMY_ASIO_NS::io_service& io_service, ConnectHandler handler)
-    : handler_base<ConnectHandler>(impl, io_service, handler),
-      endpoint_(endpoint), auth_(auth), database_(database), flags_(flags) {}
-
-template <typename Endpoint, typename ConnectHandler>
-void mariadb_service::connect_handler<Endpoint, ConnectHandler>::operator()() {
-  using namespace amy::error;
-  namespace ops = amy::detail::mysql_ops;
-
-  if (this->cancelation_token_.expired()) {
-    this->post(AMY_ASIO_NS::error::operation_aborted);
+    auto work = std::move(p.work);
+    p_.invoke(ec);
     return;
   }
+};
 
-  amy::endpoint_traits<Endpoint> traits(this->endpoint_);
+// This composed operation mysql_[store|next]_result_[start|cont]
+template <class Handler>
+class mariadb_service::store_result_handler {
+  struct state {
+    io_context& ioc_;
 
-  AMY_SYSTEM_NS::error_code ec;
+    boost::asio::executor_work_guard<decltype(
+        std::declval<io_context&>().get_executor())>
+        work;
 
-  int status = ops::mysql_real_connect_start(&this->result_, &this->impl_.mysql,
-      traits.host(), auth_.user(), auth_.password(), database_.c_str(),
-      traits.port(), traits.unix_socket(), flags_, ec);
+    int step = 0;
 
-  this->impl_.flags = flags_;
+    implementation_type& impl_;
+    std::weak_ptr<void> cancelation_token_{impl_.cancelation_token};
 
-  if (status == ops::wait_type::finish) {
-    this->post(ec);
-  } else {
-    this->await(ec, status, [this](int status, AMY_SYSTEM_NS::error_code& ec) {
-      return ops::mysql_real_connect_cont(
-          &this->result_, &this->impl_.mysql, status, ec);
-    });
-  }
-}
+    int next_result_                 = -1;
+    detail::result_set_type* result_ = nullptr;
 
-template <typename QueryHandler>
-mariadb_service::query_handler<QueryHandler>::query_handler(
-    implementation_type& impl, std::string const& stmt,
-    AMY_ASIO_NS::io_service& io_service, QueryHandler handler)
-    : handler_base<QueryHandler>(impl, io_service, handler), stmt_(stmt) {}
+    explicit state(Handler const&, io_context& ioc, implementation_type& impl)
+        : ioc_(ioc), work(ioc_.get_executor()), impl_(impl) {}
+  };
 
-template <typename QueryHandler>
-void mariadb_service::query_handler<QueryHandler>::operator()() {
-  using namespace amy::error;
-  namespace ops = amy::detail::mysql_ops;
+  boost::beast::handler_ptr<state, Handler> p_;
 
-  if (this->cancelation_token_.expired()) {
-    this->post(AMY_ASIO_NS::error::operation_aborted);
-    return;
-  }
+public:
+  store_result_handler(store_result_handler&&)      = default;
+  store_result_handler(store_result_handler const&) = default;
 
-  this->impl_.free_result();
-  this->impl_.first_result_stored = false;
+  template <class DeducedHandler>
+  store_result_handler(
+      io_context& ioc, DeducedHandler&& handler, implementation_type& impl)
+      : p_(std::forward<DeducedHandler>(handler), ioc, impl) {}
 
-  AMY_SYSTEM_NS::error_code ec;
+  using allocator_type = boost::asio::associated_allocator_t<Handler>;
 
-  int status = ops::mysql_real_query_start(
-      &this->result_, &this->impl_.mysql, stmt_.c_str(), stmt_.length(), ec);
-
-  if (status == ops::wait_type::finish)
-    this->post(ec);
-  else {
-    this->await(ec, status, [this](int status, AMY_SYSTEM_NS::error_code& ec) {
-      return ops::mysql_real_query_cont(
-          &this->result_, &this->impl_.mysql, status, ec);
-    });
-  }
-}
-
-template <typename NextResultHandler>
-mariadb_service::next_result_handler<NextResultHandler>::next_result_handler(
-    implementation_type& impl, AMY_ASIO_NS::io_service& io_service,
-    NextResultHandler handler)
-    : handler_base<NextResultHandler>(impl, io_service, handler) {}
-
-template <typename NextResultHandler>
-void mariadb_service::next_result_handler<NextResultHandler>::operator()() {
-  namespace ops = amy::detail::mysql_ops;
-
-  if (this->cancelation_token_.expired()) {
-    this->post(AMY_ASIO_NS::error::operation_aborted);
-    return;
+  allocator_type get_allocator() const noexcept {
+    return (boost::asio::get_associated_allocator)(p_.handler());
   }
 
-  this->impl_.free_result();
-  this->impl_.first_result_stored = false;
+  using executor_type = boost::asio::associated_executor_t<Handler,
+      decltype(std::declval<io_context&>().get_executor())>;
 
-  AMY_SYSTEM_NS::error_code ec;
-
-  int status =
-      ops::mysql_next_result_start(&this->result_, &this->impl_.mysql, ec);
-
-  if (status == ops::wait_type::finish) {
-    this->post(ec);
-  } else {
-    this->await(ec, status, [this](int status, AMY_SYSTEM_NS::error_code& ec) {
-      return ops::mysql_next_result_cont(
-          &this->result_, &this->impl_.mysql, status, ec);
-    });
-  }
-}
-
-template <typename StoreResultHandler>
-mariadb_service::store_result_handler<StoreResultHandler>::store_result_handler(
-    implementation_type& impl, AMY_ASIO_NS::io_service& io_service,
-    StoreResultHandler handler)
-    : handler_base<StoreResultHandler>(impl, io_service, handler) {}
-
-template <typename StoreResultHandler>
-void mariadb_service::store_result_handler<StoreResultHandler>::operator()() {
-  namespace ops = amy::detail::mysql_ops;
-
-  if (this->cancelation_token_.expired()) {
-    this->post(AMY_ASIO_NS::error::operation_aborted,
-        result_set::empty_set(&this->impl_.mysql));
-    return;
+  executor_type get_executor() const noexcept {
+    return (boost::asio::get_associated_executor)(p_.handler(), p_->ioc_);
   }
 
-  AMY_SYSTEM_NS::error_code ec;
+  void operator()(boost::beast::error_code ec, int status) {
+    auto& p = *p_;
+    auto rs = result_set::empty_set(&p.impl_.mysql);
 
-  if (this->impl_.first_result_stored) {
-    // Frees the last result set.
-    this->impl_.free_result();
+    using namespace amy::error;
+    namespace ops = amy::detail::mysql_ops;
 
-    mariadb_service& service =
-        AMY_ASIO_NS::use_service<mariadb_service>(this->io_service_);
+    for (;;) {
+      if (p.cancelation_token_.expired())
+        ec = AMY_ASIO_NS::error::operation_aborted;
 
-    if (!service.has_more_results(this->impl_)) {
-      ec = amy::error::no_more_results;
-    } else {
-      using self_type =
-          mariadb_service::store_result_handler<StoreResultHandler>;
-      auto self = std::static_pointer_cast<self_type>(this->shared_from_this());
+      enum {
+        S_ENTRY = 0,
+        S_CONT_STORE,
+        S_ERROR,
+        S_STORE_START,
+        S_CONT_NEXT,
+        S_WAIT_NEXT,
+      };
+      switch (ec ? S_ERROR : p.step) {
+      case S_ENTRY: {
 
-      auto next = [self, this](AMY_SYSTEM_NS::error_code ec) {
-        if (ec) {
-          // If anything went wrong, invokes the user-defined handler with the
-          // error code and an empty result set.
-          this->post(AMY_ASIO_NS::error::operation_aborted,
-              result_set::empty_set(&this->impl_.mysql));
+        if (p.impl_.first_result_stored) {
+          // Frees the last result set.
+          p.impl_.free_result();
+
+          mariadb_service& service =
+              AMY_ASIO_NS::use_service<mariadb_service>(p.ioc_);
+
+          if (!service.has_more_results(p.impl_)) {
+            ec = amy::error::no_more_results;
+            break;
+          } else {
+            status = ops::mysql_next_result_start(
+                &p.next_result_, &p.impl_.mysql, ec);
+            if (ec) break;
+            if (status != ops::wait_type::finish) {
+              p.step = S_WAIT_NEXT;
+              continue; // goto mysql_next_result_cont
+            }
+          }
+        } else {
+          p.impl_.first_result_stored = true;
+        }
+      } /* FALLTHRU */
+      case S_STORE_START: {
+        p.step = S_STORE_START;
+        p.impl_.free_result();
+
+        status = ops::mysql_store_result_start(&p.result_, &p.impl_.mysql, ec);
+
+        if (ec || status == ops::wait_type::finish) break;
+      } /* FALLTHRU */
+      case S_WAIT_NEXT:
+      case S_CONT_NEXT:
+      case S_CONT_STORE: {
+        if (p.step == S_STORE_START)
+          p.step = S_CONT_STORE;
+        else if (p.step == S_CONT_STORE)
+          status = ops::mysql_store_result_cont(
+              &p.result_, &p.impl_.mysql, status, ec);
+        else if (p.step == S_CONT_NEXT)
+          status = ops::mysql_next_result_cont(
+              &p.next_result_, &p.impl_.mysql, status, ec);
+        else if (p.step == S_WAIT_NEXT)
+          p.step = S_CONT_NEXT;
+
+        if (ec) break;
+
+        if (status == ops::wait_type::finish) {
+          if (p.step == S_CONT_NEXT) {
+            p.step = S_STORE_START;
+            continue; // goto mysql_store_result_start
+          }
+          BOOST_ASSERT(p.step == S_CONT_STORE);
+          break;
+        }
+
+        auto& ev = *p.impl_.ev_;
+        if (status & ops::wait_type::read_or_write) {
+          int fd = ops::mysql_get_socket(&p.impl_.mysql);
+          if (ev.native_handle() != fd) {
+            ev.release();
+            ev.assign(fd);
+          }
+        }
+
+        if (p.impl_.timer_) p.impl_.timer_->cancel();
+        if (ev.native_handle() != -1) ev.cancel();
+
+        using AMY_ASIO_NS::posix::descriptor_base;
+        using namespace std::placeholders;
+        if (status & ops::wait_type::read) {
+          ev.async_wait(descriptor_base::wait_read,
+              boost::beast::bind_handler(
+                  std::move(*this), _1, ops::wait_type::read));
           return;
         }
-        (*self)();
-      };
+        if (status & ops::wait_type::write) {
+          ev.async_wait(descriptor_base::wait_write,
+              boost::beast::bind_handler(
+                  std::move(*this), _1, ops::wait_type::write));
+          return;
+        }
+        if (status & ops::wait_type::timeout) {
+          auto& impl = p.impl_;
+          if (!impl.timer_)
+            impl.timer_ = std::make_unique<AMY_ASIO_NS::steady_timer>(p.ioc_);
 
-      this->io_service_.post(
-          make_shared_handler<next_result_handler<decltype(next)>>(
-              this->impl_, this->io_service_, next));
-      return;
-    }
-  } else {
-    this->impl_.first_result_stored = true;
-  }
+          auto timeout = ops::mysql_get_timeout_value(&impl.mysql);
 
-  if (ec) {
-    // If anything went wrong, invokes the user-defined handler with the
-    // error code and an empty result set.
-    this->post(ec, result_set::empty_set(&this->impl_.mysql));
-    return;
-  }
+          auto& timer = *impl.timer_;
+          timer.expires_after(timeout);
+          timer.async_wait(boost::beast::bind_handler(
+              std::move(*this), _1, ops::wait_type::timeout));
+          return;
+        }
+        return;
+      }
 
-  int status =
-      ops::mysql_store_result_start(&this->result_, &this->impl_.mysql, ec);
+      case S_ERROR: break;
+      }
 
-  if (ec) {
-    // If anything went wrong, invokes the user-defined handler with the
-    // error code and an empty result set.
-    this->post(ec, result_set::empty_set(&this->impl_.mysql));
-    return;
-  }
-
-  if (status == ops::wait_type::finish) {
-    // Retrieves the next result set.
-    this->impl_.last_result.reset(this->result_, result_set_deleter());
-
-    result_set rs;
-    rs.assign(&this->impl_.mysql, this->impl_.last_result, ec);
-
-    this->post(ec, rs);
-  } else {
-    this->continue_(ec, status);
-  }
-}
-
-template <typename StoreResultHandler>
-void mariadb_service::store_result_handler<StoreResultHandler>::continue_(
-    AMY_SYSTEM_NS::error_code ec, int status) {
-  if (ec) {
-    if (ec != AMY_ASIO_NS::error::operation_aborted) {
-      this->post(ec, result_set::empty_set(&this->impl_.mysql));
-    }
-    return;
-  }
-
-  if (this->cancelation_token_.expired()) {
-    this->post(AMY_ASIO_NS::error::operation_aborted,
-        result_set::empty_set(&this->impl_.mysql));
-    return;
-  }
-
-  namespace ops = amy::detail::mysql_ops;
-
-  using self_type = mariadb_service::store_result_handler<StoreResultHandler>;
-  auto self = std::static_pointer_cast<self_type>(this->shared_from_this());
-
-  this->await(status, [self, this](AMY_SYSTEM_NS::error_code ec, int status) {
-    if (ec) {
-      this->post(ec, result_set::empty_set(&this->impl_.mysql));
-      return;
-    }
-
-    if (this->cancelation_token_.expired()) {
-      this->post(AMY_ASIO_NS::error::operation_aborted,
-          result_set::empty_set(&this->impl_.mysql));
-      return;
-    }
-
-    status = ops::mysql_store_result_cont(
-        &this->result_, &this->impl_.mysql, status, ec);
-
-    if (ec) {
-      // If anything went wrong, invokes the user-defined handler with the
-      // error code and an empty result set.
-      this->post(ec, result_set::empty_set(&this->impl_.mysql));
-      return;
-    }
-
-    if (status == ops::wait_type::finish) {
-      // Retrieves the next result set.
-      this->impl_.last_result.reset(this->result_, result_set_deleter());
+      auto work = std::move(p.work);
 
       result_set rs;
-      rs.assign(&this->impl_.mysql, this->impl_.last_result, ec);
+      if (!ec) {
+        // Retrieves the next result set.
+        p.impl_.last_result.reset(p.result_, result_set_deleter());
 
-      this->post(ec, rs);
-    } else {
-      this->io_service_.post(
-          std::bind(&self_type::continue_, self, ec, status));
-    }
-  });
-}
+        rs.assign(&p.impl_.mysql, p.impl_.last_result, ec);
+      } else {
+        // If anything went wrong, invokes the user-defined handler with the
+        // error code and an empty result set.
+        rs = result_set::empty_set(&p.impl_.mysql);
+      }
+      p_.invoke(ec, rs);
+      return;
+    } // for(;;)
+  }
+};
 
 inline void mariadb_service::result_set_deleter::operator()(void* p) {
   namespace ops = detail::mysql_ops;
