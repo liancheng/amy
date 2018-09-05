@@ -299,6 +299,51 @@ inline void mariadb_service::implementation::cancel() {
   this->cancelation_token.reset(static_cast<void*>(nullptr), noop_deleter());
 }
 
+namespace {
+template <typename T1, typename T2>
+void async_wait_mysql(int& status, T1& p, T2& self) {
+  namespace ops = amy::detail::mysql_ops;
+
+  auto& ev = *p.impl_.ev_;
+  if (status & ops::wait_type::read_or_write) {
+    int fd = ops::mysql_get_socket(&p.impl_.mysql);
+    if (ev.native_handle() != fd) {
+      ev.release();
+      ev.assign(fd);
+    }
+  }
+
+  if (p.impl_.timer_) p.impl_.timer_->cancel();
+  if (ev.native_handle() != -1) ev.cancel();
+
+  using AMY_ASIO_NS::posix::descriptor_base;
+  using namespace std::placeholders;
+  if (status & ops::wait_type::read) {
+    ev.async_wait(descriptor_base::wait_read,
+        boost::beast::bind_handler(std::move(self), _1, ops::wait_type::read));
+    return;
+  }
+  if (status & ops::wait_type::write) {
+    ev.async_wait(descriptor_base::wait_write,
+        boost::beast::bind_handler(std::move(self), _1, ops::wait_type::write));
+    return;
+  }
+  if (status & ops::wait_type::timeout) {
+    auto& impl = p.impl_;
+    if (!impl.timer_)
+      impl.timer_ = std::make_unique<AMY_ASIO_NS::steady_timer>(p.ioc_);
+
+    auto timeout = ops::mysql_get_timeout_value(&impl.mysql);
+
+    auto& timer = *impl.timer_;
+    timer.expires_after(timeout);
+    timer.async_wait(boost::beast::bind_handler(
+        std::move(self), _1, ops::wait_type::timeout));
+    return;
+  }
+};
+} // namespace
+
 // This composed operation mysql_real_connect_[start|cont]
 template <class Handler, class Endpoint>
 class mariadb_service::connect_handler {
@@ -430,45 +475,7 @@ public:
 
       if (status == ops::wait_type::finish || ec) break;
 
-      auto& ev = *p.impl_.ev_;
-      if (status & ops::wait_type::read_or_write) {
-        int fd = ops::mysql_get_socket(&p.impl_.mysql);
-        if (ev.native_handle() != fd) {
-          ev.release();
-          ev.assign(fd);
-        }
-      }
-
-      if (p.impl_.timer_) p.impl_.timer_->cancel();
-      if (ev.native_handle() != -1) ev.cancel();
-
-      using AMY_ASIO_NS::posix::descriptor_base;
-      using namespace std::placeholders;
-      if (status & ops::wait_type::read) {
-        ev.async_wait(descriptor_base::wait_read,
-            boost::beast::bind_handler(
-                std::move(*this), _1, ops::wait_type::read));
-        return;
-      }
-      if (status & ops::wait_type::write) {
-        ev.async_wait(descriptor_base::wait_write,
-            boost::beast::bind_handler(
-                std::move(*this), _1, ops::wait_type::write));
-        return;
-      }
-      if (status & ops::wait_type::timeout) {
-        auto& impl = p.impl_;
-        if (!impl.timer_)
-          impl.timer_ = std::make_unique<AMY_ASIO_NS::steady_timer>(p.ioc_);
-
-        auto timeout = ops::mysql_get_timeout_value(&impl.mysql);
-
-        auto& timer = *impl.timer_;
-        timer.expires_after(timeout);
-        timer.async_wait(boost::beast::bind_handler(
-            std::move(*this), _1, ops::wait_type::timeout));
-        return;
-      }
+      async_wait_mysql(status, p, *this);
       return;
     }
 
@@ -566,45 +573,7 @@ public:
 
       if (status == ops::wait_type::finish || ec) break;
 
-      auto& ev = *p.impl_.ev_;
-      if (status & ops::wait_type::read_or_write) {
-        int fd = ops::mysql_get_socket(&p.impl_.mysql);
-        if (ev.native_handle() != fd) {
-          ev.release();
-          ev.assign(fd);
-        }
-      }
-
-      if (p.impl_.timer_) p.impl_.timer_->cancel();
-      if (ev.native_handle() != -1) ev.cancel();
-
-      using AMY_ASIO_NS::posix::descriptor_base;
-      using namespace std::placeholders;
-      if (status & ops::wait_type::read) {
-        ev.async_wait(descriptor_base::wait_read,
-            boost::beast::bind_handler(
-                std::move(*this), _1, ops::wait_type::read));
-        return;
-      }
-      if (status & ops::wait_type::write) {
-        ev.async_wait(descriptor_base::wait_write,
-            boost::beast::bind_handler(
-                std::move(*this), _1, ops::wait_type::write));
-        return;
-      }
-      if (status & ops::wait_type::timeout) {
-        auto& impl = p.impl_;
-        if (!impl.timer_)
-          impl.timer_ = std::make_unique<AMY_ASIO_NS::steady_timer>(p.ioc_);
-
-        auto timeout = ops::mysql_get_timeout_value(&impl.mysql);
-
-        auto& timer = *impl.timer_;
-        timer.expires_after(timeout);
-        timer.async_wait(boost::beast::bind_handler(
-            std::move(*this), _1, ops::wait_type::timeout));
-        return;
-      }
+      async_wait_mysql(status, p, *this);
       return;
     }
 
@@ -740,45 +709,7 @@ public:
           break;
         }
 
-        auto& ev = *p.impl_.ev_;
-        if (status & ops::wait_type::read_or_write) {
-          int fd = ops::mysql_get_socket(&p.impl_.mysql);
-          if (ev.native_handle() != fd) {
-            ev.release();
-            ev.assign(fd);
-          }
-        }
-
-        if (p.impl_.timer_) p.impl_.timer_->cancel();
-        if (ev.native_handle() != -1) ev.cancel();
-
-        using AMY_ASIO_NS::posix::descriptor_base;
-        using namespace std::placeholders;
-        if (status & ops::wait_type::read) {
-          ev.async_wait(descriptor_base::wait_read,
-              boost::beast::bind_handler(
-                  std::move(*this), _1, ops::wait_type::read));
-          return;
-        }
-        if (status & ops::wait_type::write) {
-          ev.async_wait(descriptor_base::wait_write,
-              boost::beast::bind_handler(
-                  std::move(*this), _1, ops::wait_type::write));
-          return;
-        }
-        if (status & ops::wait_type::timeout) {
-          auto& impl = p.impl_;
-          if (!impl.timer_)
-            impl.timer_ = std::make_unique<AMY_ASIO_NS::steady_timer>(p.ioc_);
-
-          auto timeout = ops::mysql_get_timeout_value(&impl.mysql);
-
-          auto& timer = *impl.timer_;
-          timer.expires_after(timeout);
-          timer.async_wait(boost::beast::bind_handler(
-              std::move(*this), _1, ops::wait_type::timeout));
-          return;
-        }
+        async_wait_mysql(status, p, *this);
         return;
       }
 
