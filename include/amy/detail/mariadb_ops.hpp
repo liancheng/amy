@@ -90,6 +90,10 @@ int mysql_start(
   clear_error(ec);
   int status = f(r, m, args...);
   if (status == wait_type::finish) error_wrapper(*r, m, ec);
+  else if (status | wait_type::except){
+    ec = amy::error::unknown;
+    error_wrapper(*r, m, ec);
+  }
   return status;
 }
 
@@ -99,6 +103,10 @@ int mysql_continue(
   clear_error(ec);
   int status2 = f(r, m, status);
   if (status2 == wait_type::finish) error_wrapper(*r, m, ec);
+  else if (status2 | wait_type::except) {
+    ec = amy::error::unknown;
+    error_wrapper(*r, m, ec);
+  }
   return status2;
 }
 
@@ -160,6 +168,10 @@ inline int mysql_fetch_row_start(row_type* ret, detail::mysql_handle m,
   clear_error(ec);
   int status = ::mysql_fetch_row_start(ret, rs);
   if (status == 0) error_wrapper(*ret, m, ec);
+  else if (status | wait_type::except) {
+    ec = amy::error::unknown;
+    error_wrapper(*ret, m, ec);
+  }
   return status;
 }
 
@@ -168,6 +180,10 @@ inline int mysql_fetch_row_cont(row_type* ret, mysql_handle m,
   clear_error(ec);
   int status2 = mysql_fetch_row_cont(ret, rs, status);
   if (status2 == 0) error_wrapper(*ret, m, ec);
+  else if (status2 | wait_type::except) {
+    ec = amy::error::unknown;
+    error_wrapper(*ret, m, ec);
+  }
   return status2;
 }
 
