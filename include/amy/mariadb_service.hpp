@@ -28,6 +28,8 @@ public:
   class query_handler;
   template<class Handler>
   class store_result_handler;
+  template<class Handler>
+  class query_result_handler;
 
   typedef implementation implementation_type;
 
@@ -90,6 +92,12 @@ public:
   BOOST_ASIO_INITFN_RESULT_TYPE(
       StoreResultHandler, void(AMY_SYSTEM_NS::error_code, amy::result_set))
   async_store_result(implementation_type& impl, StoreResultHandler handler);
+
+  template <typename Handler>
+  BOOST_ASIO_INITFN_RESULT_TYPE(
+      Handler, void(AMY_SYSTEM_NS::error_code, amy::result_set))
+  async_query_result(implementation_type& impl,
+                     std::string const& stmt, Handler handler);
 
   AMY_SYSTEM_NS::error_code autocommit(
       implementation_type& impl, bool mode, AMY_SYSTEM_NS::error_code& ec);

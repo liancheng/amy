@@ -214,6 +214,22 @@ mariadb_service::async_store_result(
       this->get_io_service(), handler, impl)({}, 0);
 }
 
+template <typename Handler>
+BOOST_ASIO_INITFN_RESULT_TYPE(
+    Handler, void(AMY_SYSTEM_NS::error_code, amy::result_set))
+mariadb_service::async_query_result(
+    implementation_type& impl, std::string const& stmt, Handler handler) {
+  if (!is_open(impl)) {
+    AMY_ASIO_NS::post(this->get_io_service().get_executor(),
+        boost::beast::bind_handler(handler, amy::error::not_initialized,
+            result_set::empty_set(&impl.mysql)));
+    return;
+  }
+
+  query_result_handler<Handler>(this->get_io_service(), handler, impl, stmt)(
+      {}, 0);
+}
+
 inline AMY_SYSTEM_NS::error_code mariadb_service::autocommit(
     implementation_type& impl, bool mode, AMY_SYSTEM_NS::error_code& ec) {
   namespace ops = amy::detail::mysql_ops;
@@ -702,6 +718,145 @@ public:
 
         if (status == ops::wait_type::finish) {
           if (p.step == S_CONT_NEXT) {
+            p.step = S_STORE_START;
+            continue; // goto mysql_store_result_start
+          }
+          BOOST_ASSERT(p.step == S_CONT_STORE);
+          break;
+        }
+
+        async_wait_mysql(status, p, *this);
+        return;
+      }
+
+      case S_ERROR: break;
+      }
+
+      auto work = std::move(p.work);
+
+      result_set rs;
+      if (!ec) {
+        // Retrieves the next result set.
+        p.impl_.last_result.reset(p.result_, result_set_deleter());
+
+        rs.assign(&p.impl_.mysql, p.impl_.last_result, ec);
+      } else {
+        // If anything went wrong, invokes the user-defined handler with the
+        // error code and an empty result set.
+        rs = result_set::empty_set(&p.impl_.mysql);
+      }
+      p_.invoke(ec, rs);
+      return;
+    } // for(;;)
+  }
+};
+
+// This composed operation mysql_[real_query|store_result]_[start|cont]
+template <class Handler>
+class mariadb_service::query_result_handler {
+  struct state {
+    io_context& ioc_;
+
+    boost::asio::executor_work_guard<decltype(
+        std::declval<io_context&>().get_executor())>
+        work;
+
+    int step = 0;
+
+    implementation_type& impl_;
+    std::weak_ptr<void> cancelation_token_{impl_.cancelation_token};
+
+    std::string stmt_;
+    int query_result_                = -1;
+    detail::result_set_type* result_ = nullptr;
+
+    explicit state(Handler const&, io_context& ioc, implementation_type& impl,
+        std::string const& stmt)
+        : ioc_(ioc), work(ioc_.get_executor()), impl_(impl), stmt_(stmt) {}
+  };
+
+  boost::beast::handler_ptr<state, Handler> p_;
+
+public:
+  query_result_handler(query_result_handler&&)      = default;
+  query_result_handler(query_result_handler const&) = default;
+
+  template <class DeducedHandler>
+  query_result_handler(io_context& ioc, DeducedHandler&& handler,
+      implementation_type& impl, std::string const& stmt)
+      : p_(std::forward<DeducedHandler>(handler), ioc, impl, stmt) {}
+
+  using allocator_type = boost::asio::associated_allocator_t<Handler>;
+
+  allocator_type get_allocator() const noexcept {
+    return (boost::asio::get_associated_allocator)(p_.handler());
+  }
+
+  using executor_type = boost::asio::associated_executor_t<Handler,
+      decltype(std::declval<io_context&>().get_executor())>;
+
+  executor_type get_executor() const noexcept {
+    return (boost::asio::get_associated_executor)(p_.handler(), p_->ioc_);
+  }
+
+  void operator()(boost::beast::error_code ec, int status) {
+    auto& p = *p_;
+    auto rs = result_set::empty_set(&p.impl_.mysql);
+
+    using namespace amy::error;
+    namespace ops = amy::detail::mysql_ops;
+
+    for (;;) {
+      if (p.cancelation_token_.expired())
+        ec = AMY_ASIO_NS::error::operation_aborted;
+      enum {
+        S_ENTRY = 0,
+        S_ERROR,
+        S_STORE_START,
+        S_CONT_STORE,
+        S_WAIT_QUERY,
+        S_CONT_QUERY,
+      };
+      switch (ec ? S_ERROR : p.step) {
+      case S_ENTRY: {
+        p.impl_.free_result();
+        p.impl_.first_result_stored = false;
+
+        status = ops::mysql_real_query_start(&p.query_result_, &p.impl_.mysql,
+            p.stmt_.c_str(), p.stmt_.size(), ec);
+        if (ec) break;
+        if (status != ops::wait_type::finish) {
+          p.step = S_WAIT_QUERY;
+          continue;
+        }
+        p.step = S_STORE_START;
+      } /* FALLTHRU */
+      case S_STORE_START: {
+        p.impl_.free_result();
+        p.impl_.first_result_stored = true;
+
+        status = ops::mysql_store_result_start(&p.result_, &p.impl_.mysql, ec);
+
+        if (ec || status == ops::wait_type::finish) break;
+      } /* FALLTHRU */
+      case S_WAIT_QUERY:
+      case S_CONT_QUERY:
+      case S_CONT_STORE: {
+        if (p.step == S_WAIT_QUERY)
+          p.step = S_CONT_QUERY;
+        else if (p.step == S_CONT_QUERY)
+          status = ops::mysql_real_query_cont(
+              &p.query_result_, &p.impl_.mysql, status, ec);
+        else if (p.step == S_STORE_START)
+          p.step = S_CONT_STORE;
+        else if (p.step == S_CONT_STORE)
+          status = ops::mysql_store_result_cont(
+              &p.result_, &p.impl_.mysql, status, ec);
+
+        if (ec) break;
+
+        if (status == ops::wait_type::finish) {
+          if (p.step == S_CONT_QUERY) {
             p.step = S_STORE_START;
             continue; // goto mysql_store_result_start
           }

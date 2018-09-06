@@ -138,6 +138,20 @@ public:
         return init.result.get();
     }
 
+    template<typename Handler>
+    BOOST_ASIO_INITFN_RESULT_TYPE(Handler,
+        void (AMY_SYSTEM_NS::error_code, amy::result_set))
+    async_query_result(std::string const& stmt, Handler handler) {
+        AMY_ASIO_NS::async_completion<Handler,
+            void(AMY_SYSTEM_NS::error_code, amy::result_set)>
+          init(handler);
+
+      this->get_service().async_query_result(
+          this->get_implementation(), stmt, init.completion_handler);
+
+      return init.result.get();
+    }
+
     bool has_more_results() const {
         return this->get_service().has_more_results(this->get_implementation());
     }
