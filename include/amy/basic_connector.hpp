@@ -125,6 +125,20 @@ public:
         return this->get_service().query(this->get_implementation(), stmt, ec);
     }
 
+    result_set query_result(std::string const& stmt) {
+        query(stmt);
+        return store_result();
+    }
+
+    result_set query_result(std::string const& stmt,
+                            AMY_SYSTEM_NS::error_code& ec) {
+        query(stmt, ec);
+        if(ec)
+          return amy::result_set::empty_set(
+              &(this->get_implementation().mysql));
+        return store_result(ec);
+    }
+
     template<typename QueryHandler>
     BOOST_ASIO_INITFN_RESULT_TYPE(QueryHandler,
         void (AMY_SYSTEM_NS::error_code))
