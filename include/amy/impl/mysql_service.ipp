@@ -5,6 +5,7 @@
 
 #include <amy/client_flags.hpp>
 #include <amy/endpoint_traits.hpp>
+#include <amy/noop_deleter.hpp>
 
 #include <functional>
 
@@ -37,7 +38,7 @@ inline void mysql_service::shutdown_service() {
     }
 }
 
-inline void mysql_service::construct(implementation_type& impl) {
+inline void mysql_service::construct(implementation_type&) {
 }
 
 inline void mysql_service::destroy(implementation_type& impl) {
@@ -301,13 +302,6 @@ mysql_service::rollback(implementation_type& impl,
 inline uint64_t mysql_service::affected_rows(implementation_type& impl) {
     return amy::detail::mysql_ops::mysql_affected_rows(&impl.mysql);
 }
-
-struct noop_deleter {
-    void operator()(void*) {
-        // no-op
-    }
-
-}; // struct noop_deleter
 
 inline mysql_service::implementation::implementation() :
     flags(amy::default_flags),

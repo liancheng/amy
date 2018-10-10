@@ -28,6 +28,17 @@ Amy also allows you to compile against [Boost.Asio][boost-asio] by defineing `US
 
 - [MySQL C client library][mysql-c-connector] 5.6 or newer
 
+
+### Using MariaDB Non-blocking API
+The main difference of `amy::mariadb_connector` and `amy::mysql_connector` is that: `amy::mysql_connector` using an internal thread running mysql blocking API
+while `amy::mariadb_connector` using the original mariadb non-blocking API without internal thread.
+
+- [Boost.Asio][boost-asio]
+- [Boost][boost] 1.58 or newer for [Boost.Date_time][boost-date-time], which is used for processing MySQL date and time data types
+- [Boost][boost] 1.68 or newer for [Boost.Beast][boost-beast], `boost::beast::bind_handler` and `boost::beast::handler_ptr` is used for writing composed operations.
+- [MariaDB C client library][mariadb-c-connector] 5.5.21 or newer
+
+
 ## Installing dependencies
 
 You can probably obtain all the dependencies pretty easily using the package manager on your favorite operating system. For example:
@@ -184,8 +195,10 @@ $ scons USE_BOOST_ASIO=1 test # Using Boost.Asio
 [boost-iterator]: http://www.boost.org/doc/libs/1_58_0/libs/iterator/doc/index.html
 [boost-system]: http://www.boost.org/doc/libs/1_58_0/libs/system/doc/index.html
 [boost-test]: http://www.boost.org/doc/libs/1_58_0/libs/test/doc/html/index.html
+[boost-beast]: https://www.boost.org/doc/libs/1_66_0/libs/beast/doc/html/beast/using_io/writing_composed_operations.html
 [boost]: http://www.boost.org/
 [lcov]: http://ltp.sourceforge.net/coverage/lcov.php
 [mysql-c-connector]: https://dev.mysql.com/downloads/connector/c/
+[mariadb-c-connector]: https://mariadb.com/kb/en/library/using-the-non-blocking-library/
 [scons]: http://scons.org/
 [vanilla-asio]: https://github.com/chriskohlhoff/asio
