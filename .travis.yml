@@ -27,10 +27,10 @@ matrix:
   include:
     - compiler: clang
       env:
-        - USE_BOOST_AIO=0
+        - USE_BOOST_ASIO=0
     - compiler: clang
       env:
-        - USE_BOOST_AIO=1
+        - USE_BOOST_ASIO=1
 
 services: mysql
 
