@@ -95,22 +95,15 @@ public:
     }
 
     template<typename Endpoint, typename ConnectHandler>
-    BOOST_ASIO_INITFN_RESULT_TYPE(ConnectHandler,
-                                  void (AMY_SYSTEM_NS::error_code))
-    async_connect(Endpoint const& endpoint,
+    void async_connect(Endpoint const& endpoint,
                        auth_info const& auth,
                        std::string const& database,
                        client_flags flags,
                        ConnectHandler handler)
     {
-        AMY_ASIO_NS::async_completion<ConnectHandler,
-            void (AMY_SYSTEM_NS::error_code)> init(handler);
-
         this->get_service().async_connect(
                 this->get_implementation(),
-                endpoint, auth, database, flags, init.completion_handler);
-
-        return init.result.get();
+                endpoint, auth, database, flags, handler);
     }
 
     void query(std::string const& stmt) {
@@ -140,30 +133,16 @@ public:
     }
 
     template<typename QueryHandler>
-    BOOST_ASIO_INITFN_RESULT_TYPE(QueryHandler,
-        void (AMY_SYSTEM_NS::error_code))
-    async_query(std::string const& stmt, QueryHandler handler) {
-        AMY_ASIO_NS::async_completion<QueryHandler,
-            void (AMY_SYSTEM_NS::error_code)> init(handler);
-
+    void async_query(std::string const& stmt, QueryHandler handler) {
         this->get_service().async_query(
-                this->get_implementation(), stmt, init.completion_handler);
-
-        return init.result.get();
+                this->get_implementation(), stmt, handler);
     }
 
-    template<typename Handler>
-    BOOST_ASIO_INITFN_RESULT_TYPE(Handler,
-        void (AMY_SYSTEM_NS::error_code, amy::result_set))
-    async_query_result(std::string const& stmt, Handler handler) {
-        AMY_ASIO_NS::async_completion<Handler,
-            void(AMY_SYSTEM_NS::error_code, amy::result_set)>
-          init(handler);
-
+    template<typename StoreResultHandler>
+    void async_query_result(std::string const& stmt,
+                            StoreResultHandler handler) {
       this->get_service().async_query_result(
-          this->get_implementation(), stmt, init.completion_handler);
-
-      return init.result.get();
+          this->get_implementation(), stmt, handler);
     }
 
     bool has_more_results() const {
@@ -182,16 +161,9 @@ public:
     }
 
     template<typename StoreResultHandler>
-    BOOST_ASIO_INITFN_RESULT_TYPE(StoreResultHandler,
-        void (AMY_SYSTEM_NS::error_code, amy::result_set))
-    async_store_result(StoreResultHandler handler) {
-        AMY_ASIO_NS::async_completion<StoreResultHandler,
-            void (AMY_SYSTEM_NS::error_code, amy::result_set)> init(handler);
-
+    void async_store_result(StoreResultHandler handler) {
         this->get_service().async_store_result(
-                this->get_implementation(), init.completion_handler);
-
-        return init.result.get();
+                this->get_implementation(), handler);
     }
 
     void autocommit(bool mode) {
