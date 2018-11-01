@@ -13,7 +13,11 @@ test_env.AppendUnique(CCFLAGS=lcov_flags,
                       LIBS='boost_unit_test_framework')
 
 program = test_env.Program(target='test',
-                           source=[env.Glob('*.cpp')])
+                           source=['async_connect_test.cpp',
+                                   'main.cpp',
+                                   'blocking_connect_test.cpp',
+                                   'connector_test.cpp',
+                                   'auth_info_test.cpp'])
 
 test_source = program
 
