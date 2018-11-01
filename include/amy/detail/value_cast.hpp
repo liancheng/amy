@@ -2,8 +2,6 @@
 #define __AMY_DETAIL_VALUE_CAST_HPP__
 
 #include <amy/sql_types.hpp>
-
-#include <boost/utility/string_view.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <iomanip>
 #include <string>
@@ -12,96 +10,89 @@
 namespace amy {
 namespace detail {
 
-using string_view = boost::string_view;
-
 template<typename ValueType>
-inline ValueType value_cast(string_view str) {
+ValueType value_cast(const char* s, unsigned long l) {
     ValueType v{};
-    std::istringstream is(str.to_string());
+    std::istringstream is({s, l});
     is >> v;
     return v;
 }
 
 template<>
-inline string_view value_cast(string_view str) {
-    return str;
+inline std::string value_cast(const char* s, unsigned long l) {
+    return {s, l};
 }
 
 template<>
-inline std::string value_cast(string_view str) {
-    return str.to_string();
+inline long long value_cast(const char* s, unsigned long) {
+    return std::strtoll(s, NULL, 10);
 }
 
 template<>
-inline long long value_cast(string_view str) {
-    return std::strtoll(str.data(), NULL, 10);
+inline long value_cast(const char* s, unsigned long) {
+    return std::strtol(s, NULL, 10);
 }
 
 template<>
-inline long value_cast(string_view str) {
-    return std::strtol(str.data(), NULL, 10);
+inline int32_t value_cast(const char* s, unsigned long) {
+    return static_cast<int32_t>(std::strtol(s, NULL, 10));
 }
 
 template<>
-inline int32_t value_cast(string_view str) {
-    return static_cast<int32_t>(std::strtol(str.data(), NULL, 10));
+inline int16_t value_cast(const char* s, unsigned long) {
+    return static_cast<int16_t>(std::strtol(s, NULL, 10));
 }
 
 template<>
-inline int16_t value_cast(string_view str) {
-    return static_cast<int16_t>(std::strtol(str.data(), NULL, 10));
+inline int8_t value_cast(const char* s, unsigned long) {
+  return static_cast<int8_t>(std::strtol(s, NULL, 10));
 }
 
 template<>
-inline int8_t value_cast(string_view str) {
-  return static_cast<int8_t>(std::strtol(str.data(), NULL, 10));
+inline bool value_cast(const char* s, unsigned long) {
+  return static_cast<bool>(std::strtol(s, NULL, 10));
 }
 
 template<>
-inline bool value_cast(string_view str) {
-  return static_cast<bool>(std::strtol(str.data(), NULL, 10));
+inline unsigned long long value_cast(const char* s, unsigned long) {
+    return std::strtoull(s, NULL, 10);
 }
 
 template<>
-inline unsigned long long value_cast(string_view str) {
-    return std::strtoull(str.data(), NULL, 10);
+inline unsigned long value_cast(const char* s, unsigned long) {
+    return std::strtoul(s, NULL, 10);
 }
 
 template<>
-inline unsigned long value_cast(string_view str) {
-    return std::strtoul(str.data(), NULL, 10);
+inline uint32_t value_cast(const char* s, unsigned long) {
+    return static_cast<uint32_t>(std::strtoul(s, NULL, 10));
 }
 
 template<>
-inline uint32_t value_cast(string_view str) {
-    return static_cast<uint32_t>(std::strtoul(str.data(), NULL, 10));
+inline uint16_t value_cast(const char* s, unsigned long) {
+    return static_cast<int16_t>(std::strtoul(s, NULL, 10));
 }
 
 template<>
-inline uint16_t value_cast(string_view str) {
-    return static_cast<int16_t>(std::strtoul(str.data(), NULL, 10));
+inline uint8_t value_cast(const char* s, unsigned long) {
+  return static_cast<uint8_t>(std::strtoul(s, NULL, 10));
 }
 
 template<>
-inline uint8_t value_cast(string_view str) {
-  return static_cast<uint8_t>(std::strtoul(str.data(), NULL, 10));
+inline double value_cast(const char* s, unsigned long) {
+  return std::strtod(s, NULL);
 }
 
 template<>
-inline double value_cast(string_view str) {
-  return std::strtod(str.data(), NULL);
+inline float value_cast(const char* s, unsigned long) {
+  return std::strtof(s, NULL);
 }
 
 template<>
-inline float value_cast(string_view str) {
-  return std::strtof(str.data(), NULL);
-}
-
-template<>
-inline sql_datetime value_cast(string_view str) {
+inline sql_datetime value_cast(const char* s, unsigned long l) {
     using namespace boost::posix_time;
 
-    std::istringstream in(str.to_string());
+    std::istringstream in({s, l});
     in.unsetf(std::ios::skipws);
     in.imbue(std::locale(std::locale::classic(),
                          new time_input_facet("%Y-%m-%d %H:%M:%S%F")));
@@ -112,23 +103,21 @@ inline sql_datetime value_cast(string_view str) {
 }
 
 template<>
-inline sql_time value_cast(string_view str) {
+inline sql_time value_cast(const char* str, unsigned long len) {
     using namespace boost::posix_time;
 
     // It's a pity that Boost.Date_Time cannot correctly parse negative time
     // durations, so we have to deal with the sign here.
+    assert(len > 0);
     bool negative = (str[0] == '-') ? true : false;
-    string_view const* ptr = &str;
-    string_view s;
     if (negative) {
-        s = str.substr(1);
-        ptr = &s;
+        ++str;
+        --len;
     }
 
     time_input_facet* input_facet = new time_input_facet();
     input_facet->time_duration_format("%H:%M:%S:%F");
-
-    std::istringstream in(ptr->to_string());
+    std::istringstream in({str, len});
     in.unsetf(std::ios::skipws);
     in.imbue(std::locale(std::locale::classic(), input_facet));
 
@@ -152,7 +141,7 @@ inline sql_time value_cast(string_view str) {
  * win32 platform.  And \c _strtoui64 is used instead.
  */
 template<>
-inline sql_bigint_unsigned value_cast(string_view str) {
+inline sql_bigint_unsigned value_cast(const char* s, unsigned long) {
     sql_bigint_unsigned v = ::_strtoui64(str.c_str(), NULL, 10);
     return v;
 }
