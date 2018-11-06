@@ -28,10 +28,18 @@ public:
         return value_str_ == 0;
     }
 
-    template<typename SQLType = boost::string_view>
+    template<typename SQLType>
     SQLType as() const {
         BOOST_ASSERT(!is_null());
-        return detail::value_cast<SQLType>({value_str_, length_});
+        return detail::value_cast<SQLType>(value_str_, length_);
+    }
+
+    char const* data() const {
+        return value_str_;
+    }
+
+    unsigned long size() const {
+        return length_;
     }
 
 private:
